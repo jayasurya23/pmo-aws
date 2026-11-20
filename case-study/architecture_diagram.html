@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>PMO 360 architecture</title>
+<style>
+  @font-face { font-family: Jost; src: url("../frontend/public/fonts/jost/jost-latin.woff2") format("woff2"); font-weight: 400 800; }
+  body { margin: 0; font-family: Jost, Helvetica, Arial, sans-serif; background: #fff; color: #333132; }
+  .wrap { width: 1180px; padding: 22px 26px 18px; box-sizing: border-box; }
+  h1 { font-size: 19px; margin: 0 0 2px; } .sub { font-size: 12.5px; color: #5d5b5a; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: 1.15fr 26px 1.25fr 26px 1.05fr 26px 1fr 26px 1.05fr; align-items: stretch; }
+  .col { display: flex; flex-direction: column; gap: 7px; }
+  .head { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8a8886; margin-bottom: 2px; }
+  .box { border: 1.5px solid #333132; border-radius: 7px; padding: 6px 9px; font-size: 12px; line-height: 1.25; background: #fff; }
+  .box b { font-size: 12.5px; display: block; }
+  .box.demo { border-style: dashed; border-color: #b37a00; background: #fffaf0; }
+  .box.db { background: #f5f4f3; }
+  .arrow { display: flex; align-items: center; justify-content: center; color: #ad1f2b; font-size: 20px; font-weight: 700; }
+  .legend { display: flex; gap: 22px; font-size: 12px; color: #5d5b5a; margin-top: 12px; align-items: center; }
+  .sw { display: inline-block; width: 22px; height: 12px; border: 1.5px solid #333132; border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+  .sw.demo { border-style: dashed; border-color: #b37a00; background: #fffaf0; }
+  .users { font-size: 11.5px; color: #5d5b5a; margin-top: 2px; }
+</style></head>
+<body><div class="wrap">
+<h1>PMO 360 — from fragmented sources to a trusted operational view</h1>
+<div class="sub">FastAPI · PostgreSQL · React/TypeScript · Monday.com GraphQL · Microsoft Graph (Entra ID, Outlook, SharePoint) · Azure Container Apps</div>
+<div class="grid">
+  <div class="col"><div class="head">Sources</div>
+    <div class="box"><b>Monday.com</b>Portfolio board: job numbers</div>
+    <div class="box"><b>Outlook (Graph)</b>Coordination meetings, attendees</div>
+    <div class="box"><b>Meeting notes</b>Free text from every weekly call</div>
+    <div class="box"><b>Proposal workbooks</b>Schedules, phases, prices</div>
+    <div class="box"><b>PMO 360 screens</b>Actions, Timeline, change orders</div>
+    <div class="box demo"><b>Work board + register</b>Hours, blockers; issued drawings</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="col"><div class="head">Ingestion &amp; rules</div>
+    <div class="box"><b>Read-only Monday sync</b>Columns by title · cursor pages · exact-name match · report, never auto-create</div>
+    <div class="box"><b>Calendar matching</b>Manual link → client email → subject</div>
+    <div class="box"><b>LLM note parsing + PM review</b>Notes → structured actions, owner initials</div>
+    <div class="box"><b>Shared definitions</b>Overdue = before today · ownership rungs · blank = unknown</div>
+    <div class="box demo"><b>Staging · 24 validation rules</b>Raw payload + hash · exceptions · freshness SLA</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="col"><div class="head">PostgreSQL</div>
+    <div class="box db"><b>Client → Portfolio → Project</b>Meetings · rolling actions (raised / closed in) · deliverables · schedules</div>
+    <div class="box db"><b>Timeline</b>Resources · bookings × utilisation · time off</div>
+    <div class="box db"><b>Commercial</b>Proposals · change orders · approval history</div>
+    <div class="box db"><b>Invariants</b>Unique membership · one active proposal · version locks</div>
+    <div class="box demo db"><b>Milestones · work items</b>Baseline / planned / actual · sync runs · KPI snapshots</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="col"><div class="head">API (FastAPI)</div>
+    <div class="box"><b>Bulk aggregation</b>Fixed query count per view, declared grain</div>
+    <div class="box"><b>/lead · /my-work · /timeline/board</b>Org health · personal plate · capacity</div>
+    <div class="box"><b>Entra ID JWT</b>Per-module write permissions</div>
+    <div class="box demo"><b>/drill/{metric}</b>KPI = COUNT of drilldown rows</div>
+  </div>
+  <div class="arrow">→</div>
+  <div class="col"><div class="head">Dashboards &amp; users</div>
+    <div class="box"><b>Lead view</b>Portfolios worst-first, PM workload<div class="users">PM lead · leadership · all PMs</div></div>
+    <div class="box"><b>My Work · Home</b>Open / overdue / due / undated<div class="users">Project managers</div></div>
+    <div class="box"><b>Timeline board</b>Who is free for which milestone<div class="users">Department leads</div></div>
+    <div class="box demo"><b>Schedule · capacity · DQ views</b>Projection, heatmap, freshness<div class="users">Demo rebuild</div></div>
+  </div>
+</div>
+<div class="legend"><span><span class="sw"></span>Production PMO 360</span><span><span class="sw demo"></span>Added in the synthetic demo rebuild</span><span style="color:#ad1f2b;font-weight:600">→ data flow</span></div>
+</div></body></html>
