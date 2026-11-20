@@ -16,7 +16,8 @@ Demo refinements (documented, deliberate):
     availability: work booked during someone's PTO is a real conflict.
   * allocated % of available = booked hours / available hours.
   * over-allocated = SUSTAINED: above 110% of available in 2+ weeks of the horizon, or
-    any booking during full-week PTO. Single-week spikes are shown on the heatmap but
+    work booked beyond the available hours in a PTO week (< 2 working days available;
+    a percentage of one day is not meaningful, so those weeks are judged in hours). Single-week spikes are shown on the heatmap but
     are normal and get absorbed; sustained over-allocation is what needs a decision.
 
 ILLUSTRATIVE, NOT PREDICTIVE: "forecast workload" is the work already booked on
@@ -39,7 +40,7 @@ HOURS_PER_WEEK = 40.0
 ASSUMPTIONS = [
     "Capacity = 8 hours per working day (40 h per normal week). Company holidays remove the day from both capacity and bookings; PTO reduces capacity only.",
     "Allocated effort = Timeline bookings: utilisation fraction x 8 h x overlapping working days (the production Timeline formula, in hours).",
-    "Over-allocated = more than 110% of available capacity in 2 or more weeks of the horizon (sustained), or booked during full-week PTO. Single-week spikes show on the heatmap only.",
+    "Over-allocated = more than 110% of available capacity in 2 or more weeks of the horizon (sustained), or work booked beyond the hours available in a PTO week (fewer than 2 working days). Single-week spikes show on the heatmap only.",
     "Unstaffed demand = bookings with no person, or held by someone who has left (inactive).",
     "Forward weeks show booked work only. This is a plan, not a statistical forecast; it is as accurate as the bookings.",
     "Planned vs actual hours use completed Monday work packages; packages with no actual hours reported are excluded and counted.",
@@ -138,18 +139,21 @@ def compute(db: Session, f: Filters, n_weeks: int | None = None) -> dict:
         per_day = cap_h / 5.0
         bh = [round(x, 1) for x in booked[r["id"]]]
         ah = [round(per_day * max(0, week_days[i] - off_days[r["id"]][i]), 1) for i in range(len(weeks))]
-        pct_av = [None if a == 0 else round(100 * h / a) for h, a in zip(bh, ah)]
-        over_weeks = [i for i, (h, a) in enumerate(zip(bh, ah))
-                      if (a == 0 and h > 2) or (a > 0 and h > a * OVER_THRESHOLD)]
+        # A % of one available day is meaningless: weeks with < 2 days available are
+        # "PTO weeks" and are judged on hours (booked beyond what is available).
+        short = [a < 2 * per_day for a in ah]
+        pct_av = [None if sh else round(100 * h / a) for h, a, sh in zip(bh, ah, short)]
+        pto_conflict = [sh and h > a + 4 for h, a, sh in zip(bh, ah, short)]
+        over_weeks = [i for i, (h, a, sh) in enumerate(zip(bh, ah, short)) if not sh and h > a * OVER_THRESHOLD]
         people.append({
             "id": r["id"], "name": r["name"], "discipline": r["discipline"], "title": r["title"],
             "seniority": r["seniority"], "is_placeholder": r["is_placeholder"],
             "load": [round(h / cap_h, 3) for h in bh], "availability": [round(a / cap_h, 3) for a in ah],
             "pct_of_available": pct_av, "allocated_hours": bh, "available_hours": ah,
-            "over_weeks": over_weeks,
-            "is_overallocated": len(over_weeks) >= SUSTAINED_WEEKS or any(a == 0 and h > 2 for h, a in zip(bh, ah)),
+            "over_weeks": over_weeks, "pto_conflict_weeks": [i for i, x in enumerate(pto_conflict) if x],
+            "is_overallocated": len(over_weeks) >= SUSTAINED_WEEKS or any(pto_conflict),
             "peak_pct": max([p for p in pct_av if p is not None] + [0]),
-            "booked_during_timeoff": any(a == 0 and h > 2 for h, a in zip(bh, ah)),
+            "booked_during_timeoff": any(pto_conflict),
             "projects_by_week": [sorted(per_week_projects[r["id"]][i]) for i in range(len(weeks))],
         })
 
@@ -169,9 +173,10 @@ def compute(db: Session, f: Filters, n_weeks: int | None = None) -> dict:
     for p in people:
         if not p["is_overallocated"]:
             continue
-        pids = sorted({pid for i in p["over_weeks"] for pid in p["projects_by_week"][i]})
+        hot = sorted(set(p["over_weeks"]) | set(p["pto_conflict_weeks"]))
+        pids = sorted({pid for i in hot for pid in p["projects_by_week"][i]})
         for pid in pids:
-            weeks_hit = [weeks[i].isoformat() for i in p["over_weeks"] if pid in p["projects_by_week"][i]]
+            weeks_hit = [weeks[i].isoformat() for i in hot if pid in p["projects_by_week"][i]]
             competing.append({"resource_id": p["id"], "resource": p["name"], "discipline": p["discipline"],
                               "project_id": pid, "project": proj_names.get(pid, ("?", ""))[0],
                               "portfolio": proj_names.get(pid, ("?", ""))[1], "weeks": weeks_hit,
@@ -193,6 +198,7 @@ def compute(db: Session, f: Filters, n_weeks: int | None = None) -> dict:
             "unstaffed_hours": round(sum(unstaffed)),
         },
         "competing": competing,
+        "project_names": {str(k): v[0] for k, v in proj_names.items()},
         "assumptions": ASSUMPTIONS,
     }
 

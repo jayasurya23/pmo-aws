@@ -136,9 +136,12 @@ def dashboard(db: Session, f: Filters) -> dict:
 
     minutes = minutes_capture(db, f)
     owner_mix = q(db, f"""{base} SELECT owner_type, COUNT(*) AS n FROM s WHERE is_open GROUP BY 1 ORDER BY 2 DESC""", params)
+    owner_basis = q(db, f"""{base} SELECT owner_type, COALESCE(owner_basis, 'none') AS basis, COUNT(*) AS n
+                            FROM s GROUP BY 1, 2 ORDER BY 3 DESC""", params)
     return {"kpis": k, "aging": aging, "by_owner": by_owner, "by_portfolio": by_portfolio, "burndown": burndown,
             "on_time_close": {**close, "rate_pct": pct(close["on_time"], close["closed_with_due"]), "window_days": 90},
-            "minutes": minutes, "owner_mix": owner_mix}
+            "minutes": minutes, "owner_mix": owner_mix,
+            "owner_basis": owner_basis}
 
 
 def minutes_capture(db: Session, f: Filters) -> dict:

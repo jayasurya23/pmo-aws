@@ -320,6 +320,7 @@ class Loader:
 
         # -- resolve project + natural key
         candidates: dict[tuple, list] = defaultdict(list)
+        exact_links: dict[str, int] = {}
         for r, rr in staged:
             linked = None
             if r.get("project__value"):
@@ -332,10 +333,16 @@ class Loader:
                 continue
             stage = STAGE_MAP.get(label_key(r.get("stage")))
             r["_pid"], r["_method"], r["_stage"], r["_updated"] = pid, method, stage, parse_ts(r.get("updated_at"))
+            if method == "exact" and linked and ("monday_work_board", linked) not in self.manual_links \
+                    and linked not in exact_links:
+                exact_links[linked] = pid
             if method == "manual":
                 rr.core_table = "work_items"  # provenance noted below
             candidates[(pid, r.get("discipline"), stage)].append((r, rr))
 
+        for linked, pid in sorted(exact_links.items()):
+            db.add(M.IdMap(source_key="monday_work_board", external_key=linked, entity_type="portfolio_project",
+                           internal_id=pid, match_method="exact"))
         # -- de-duplicate: keep the most recently updated record per natural key
         kept = []
         for key, group in candidates.items():

@@ -285,7 +285,7 @@ class Generator:
                 tech = self.weighted(TECH_WEIGHTS)
                 specs.append({"portfolio_id": p["id"], "tech": tech, "name": self._site_name(tech),
                               "kickoff": add_business_days(kickoff_draw(), 0),
-                              "profile": self.weighted([("healthy", 0.58), ("trending", 0.27), ("troubled", 0.15)]),
+                              "profile": self.weighted([("healthy", 0.64), ("trending", 0.24), ("troubled", 0.12)]),
                               "has_ifp": rng.random() < IFP_PROB[tech]})
         specs.extend(forced)
         specs.sort(key=lambda s: (s["portfolio_id"], s["kickoff"], s["name"]))
@@ -415,7 +415,7 @@ class Generator:
                 break
             if m["planned"] > as_of:
                 break
-            base = {"healthy": rng.choice((-2, -1, 0, 0, 0, 0, 0, 1, 2, 3)), "trending": rng.randint(-1, 10),
+            base = {"healthy": rng.choice((-2, -1, 0, 0, 0, 0, 0, 0, 1, 2)), "trending": rng.randint(-3, 7),
                     "troubled": rng.randint(5, 22)}[proj["profile"]]
             slip = base + int(0.4 * slip_prev)
             actual = add_business_days(m["planned"], slip)
@@ -800,7 +800,12 @@ class Generator:
 
     def _action(self, aid, mt, port, projs, worst, client, port_meetings):
         rng, as_of = self.rng, self.as_of
-        active = [p for p in projs if p["kickoff"] <= mt["meeting_date"]] or projs
+        def _end(p):
+            ifc = self._ms(p, "IFC")
+            return add_business_days(ifc["actual"] or ifc["planned"], 10)
+        d0 = mt["meeting_date"]
+        active = [p for p in projs if p["kickoff"] <= d0 <= _end(p)] \
+            or sorted(projs, key=lambda p: min(abs((p["kickoff"] - d0).days), abs((_end(p) - d0).days)))[:1]
         site = rng.choice(active)
         disc = rng.choice(site["disciplines"])
         stage = next((m["stage"] for m in site["_ms"] if m["planned"] >= mt["meeting_date"]), "IFC")

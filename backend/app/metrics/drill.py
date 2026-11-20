@@ -40,7 +40,8 @@ def get_rows(db: Session, f: Filters, metric: str) -> list[dict]:
     if metric == "overallocated_people":
         cap = C.compute(db, f)
         return [{k: p[k] for k in ("id", "name", "discipline", "title", "seniority", "peak_pct",
-                                   "booked_during_timeoff")} | {"over_weeks": [cap["weeks"][i] for i in p["over_weeks"]]}
+                                   "booked_during_timeoff")} | {"over_weeks": [cap["weeks"][i] for i in p["over_weeks"]],
+                                              "pto_conflict_weeks": [cap["weeks"][i] for i in p["pto_conflict_weeks"]]}
                 for p in cap["people"] if p["is_overallocated"]]
     if metric == "unstaffed_bookings":
         return C.compute(db, f)["unstaffed_bookings"]

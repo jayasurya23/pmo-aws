@@ -192,7 +192,8 @@ def project(project_id: int, f: Filters = Depends(filters_dep), db: Session = De
 def project_search(q_: Optional[str] = Query(None, alias="q"), limit: int = Query(15, le=50), db: Session = Depends(get_db)):
     return q(db, """SELECT pp.id, pp.name, pf.name AS portfolio_name, c.name AS client_name, pp.lifecycle
                     FROM portfolio_projects pp JOIN projects pf ON pf.id = pp.portfolio_id JOIN clients c ON c.id = pf.client_id
-                    WHERE :s IS NULL OR pp.name ILIKE :s OR pf.name ILIKE :s OR c.name ILIKE :s OR pf.project_number ILIKE :s
+                    WHERE CAST(:s AS text) IS NULL OR pp.name ILIKE CAST(:s AS text) OR pf.name ILIKE CAST(:s AS text)
+                       OR c.name ILIKE CAST(:s AS text) OR pf.project_number ILIKE CAST(:s AS text)
                     ORDER BY pp.name LIMIT :lim""", {"s": f"%{q_}%" if q_ else None, "lim": limit})
 
 

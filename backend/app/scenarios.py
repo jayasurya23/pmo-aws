@@ -43,7 +43,7 @@ INFO = {
            "dashboard": "/capacity", "projects": S1_PROJECTS,
            "steps": [
                "Executive view: all four substation projects show On track - no late or projected-late milestone.",
-               "Capacity view, Substation filter: Priya Raman, Marcus Ojo and Elena Ruiz are booked 130-150%, Marcus during PTO, through the holiday weeks.",
+               "Capacity view, Substation filter: Priya Raman, Marcus Ojo and Elena Ruiz are each booked above 110% of their available hours for weeks at a time - Marcus with work booked through his PTO week - while the substation lead has room.",
                "Drill into 'Projects competing for the same people': all four projects' 60/90/IFP/IFC packages sit on these three people.",
                "Decision: substation lead covers Harrow Creek IFC; a contract P&C engineer (from 7 Dec) takes half of the Ironleaf and Kettle River 90% packages; Granite Run IFP re-sequenced +5 business days with the client.",
                "Measure: seniors' peak % of available, over-allocated person-weeks, milestones still on track, and actual vs planned hours as the packages close.",
@@ -219,12 +219,12 @@ def metrics(db: Session, key: str, as_of) -> dict:
         proj = [p for p in sched["projects"] if p["name"] in S1_PROJECTS]
         ms = [m for m in sched["milestones"] if m["project_name"] in S1_PROJECTS and m["actual_date"] is None]
         return {
-            "seniors": [{"name": p["name"], "peak_pct": p["peak_pct"], "over_weeks": len(p["over_weeks"]),
+            "seniors": [{"name": p["name"], "peak_pct": p["peak_pct"], "over_weeks": len(p["over_weeks"]) + len(p["pto_conflict_weeks"]),
                          "pct_of_available": p["pct_of_available"]} for p in seniors],
             "weeks": cap["weeks"],
             "senior_peak_pct": max([p["peak_pct"] for p in seniors] + [0]),
-            "senior_over_person_weeks": sum(len(p["over_weeks"]) for p in seniors),
-            "team_over_person_weeks": sum(len(p["over_weeks"]) for p in cap["people"]),
+            "senior_over_person_weeks": sum(len(p["over_weeks"]) + len(p["pto_conflict_weeks"]) for p in seniors),
+            "team_over_person_weeks": sum(len(p["over_weeks"]) + len(p["pto_conflict_weeks"]) for p in cap["people"]),
             "projects": [{"name": p["name"], "health": p["health_label"], "next": p["next_milestone"],
                           "planned": p["next_planned"], "forecast": p["next_forecast"]} for p in proj],
             "open_milestones": [{"project": m["project_name"], "stage": m["stage"], "planned": m["planned_date"],
