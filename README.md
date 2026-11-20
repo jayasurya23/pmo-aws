@@ -9,7 +9,6 @@ A standalone, locally runnable rebuild of the analytics layer of **PMO 360**, th
 | | |
 |---|---|
 | **Case study** | [case-study/AWS_PMO360_Dashboard_Case_Study.md](case-study/AWS_PMO360_Dashboard_Case_Study.md) (+ `.docx`) |
-| **Interview answers** | [case-study/AWS_PMO360_Interview_Talking_Points.md](case-study/AWS_PMO360_Interview_Talking_Points.md) |
 | **5-minute demo script** | [case-study/AWS_PMO360_Demo_Walkthrough.md](case-study/AWS_PMO360_Demo_Walkthrough.md) |
 | **Architecture & trade-offs** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
 | **Data pipeline & validation rules** | [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md) |

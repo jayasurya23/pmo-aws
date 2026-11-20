@@ -71,5 +71,5 @@ and no actual-hours or capacity data.**
 4. Metrics are written once per grain as SQL; each KPI is `COUNT(*)` over the same row set its drilldown returns.
 5. Six dashboards, project drilldown, pipeline / data-quality pages, and two scenarios with apply/reset.
 6. pytest: reconciliation, cardinality, determinism, DQ detection, schedule rules, offline guard, confidentiality scan.
-7. Docs, case study (md + docx with screenshots), talking points, demo script, and read-only SQL the
+7. Docs, case study (md + docx with screenshots), demo script, and read-only SQL the
    owner can run in production to replace every `[CONFIRM]` placeholder with a real number.
