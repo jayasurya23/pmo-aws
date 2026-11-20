@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useDrill } from "@/components/DrillDrawer";
 import { AXIS, ChartTip, RADIUS_TOP } from "@/components/charts/common";
 import { Card, ErrorBox, Kpi, Legend, Loading, PageHeader, Tag } from "@/components/ui";
-import { useApi } from "@/lib/api";
+import { STATIC, useApi } from "@/lib/api";
 import { ChartColors, DISCIPLINE_SLOT, DISCIPLINES, useChartColors } from "@/lib/colors";
 import { useFilters } from "@/lib/filters";
 import { fmtCompact, fmtShort } from "@/lib/format";
@@ -52,7 +52,7 @@ export default function Capacity() {
     <div className={loading ? "opacity-70 transition" : "transition"}>
       <PageHeader kicker="Dashboard C · department heads and project managers" title="Resources & capacity planning"
         sub={<>Booked work against available hours, person by person, for the next {data.weeks.length} weeks — built on the production Timeline formulas. Forward weeks show <b>booked</b> work: a plan, not a statistical forecast.</>}
-        right={<div className="flex items-center gap-2 text-[12.5px]"><span className="text-brand-gray">Horizon</span>
+        right={STATIC ? undefined : <div className="flex items-center gap-2 text-[12.5px]"><span className="text-brand-gray">Horizon</span>
           {[6, 10, 14].map((w) => <button key={w} className={clsx("btn-ghost", filters.weeks === w && "!bg-brand-black !text-surface-card")} onClick={() => set({ weeks: w })}>{w} wk</button>)}</div>} />
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         <Kpi label="Available hours" value={fmtCompact(t.available_hours)} metric="utilisation_pct" sub={`${t.people} people · net of PTO and holidays`} />

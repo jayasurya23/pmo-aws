@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { apiGet, apiUrl } from "@/lib/api";
+import { Link, useLocation } from "react-router-dom";
+import { apiGet, apiUrl, NO_DOWNLOAD, rowsToCsv, STATIC } from "@/lib/api";
 import { useFilters } from "@/lib/filters";
 import { fmtDate } from "@/lib/format";
 import { StatePill } from "@/components/ui";
@@ -21,6 +21,8 @@ export const useDrill = () => useContext(DrillCtx);
 
 export function DrillProvider({ children }: { children: ReactNode }) {
   const [req, setReq] = useState<DrillReq | null>(null);
+  const { pathname } = useLocation();
+  useEffect(() => setReq(null), [pathname]); // following a link out of the drawer closes it
   const open = useCallback((metric: string, title: string, facets?: Record<string, string>) => setReq({ metric, title, facets }), []);
   const has = useCallback((m: string) => DRILLABLE.has(m), []);
   return (
@@ -59,6 +61,7 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
   const [debounced, setDebounced] = useState("");
   const [data, setData] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
   const pageSize = 25;
   const facetQs = useMemo(() => Object.entries(req.facets || {}).map(([k, v]) => `&facet_${k}=${encodeURIComponent(v)}`).join(""), [req.facets]);
   useEffect(() => { const t = setTimeout(() => setDebounced(q), 250); return () => clearTimeout(t); }, [q]);
@@ -92,7 +95,22 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
             <input className="input max-w-[320px]" placeholder="Search these records…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
             <span className="text-[12.5px] text-brand-gray">{data ? `${data.total.toLocaleString()} record${data.total === 1 ? "" : "s"}` : "…"}</span>
             <span className="text-[11.5px] text-brand-lightgray">The KPI equals this count for the same filters (tested).</span>
-            <a className="btn-ghost ml-auto" href={apiUrl(`/drill/${req.metric}?${query}&format=csv${facetQs}${debounced ? `&q=${encodeURIComponent(debounced)}` : ""}`)}>Export CSV</a>
+            {STATIC ? (
+              <button className="btn-ghost ml-auto" onClick={async () => {
+                const all = await apiGet(`/drill/${req.metric}?${query}&page=1&page_size=100000${facetQs}${debounced ? `&q=${encodeURIComponent(debounced)}` : ""}`);
+                const csv = rowsToCsv(all.rows);
+                if (NO_DOWNLOAD) {
+                  try { await navigator.clipboard.writeText(csv); setCopied("Copied"); } catch { setCopied("Copy blocked by the browser"); }
+                  setTimeout(() => setCopied(null), 1800);
+                  return;
+                }
+                const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+                const a = document.createElement("a"); a.href = url; a.download = `${req.metric}.csv`; a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+              }}>{NO_DOWNLOAD ? (copied ?? "Copy as CSV") : "Export CSV"}</button>
+            ) : (
+              <a className="btn-ghost ml-auto" href={apiUrl(`/drill/${req.metric}?${query}&format=csv${facetQs}${debounced ? `&q=${encodeURIComponent(debounced)}` : ""}`)}>Export CSV</a>
+            )}
           </div>
         </div>
         <div className="flex-1 overflow-auto">

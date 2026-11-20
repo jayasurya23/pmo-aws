@@ -3,7 +3,8 @@ import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Too
 import { Link } from "react-router-dom";
 import { AXIS, ChartTip } from "@/components/charts/common";
 import { Card, ErrorBox, Legend, Loading, PageHeader, StatePill, Tag } from "@/components/ui";
-import { apiPost, useApi } from "@/lib/api";
+import { apiPost, STATIC, useApi } from "@/lib/api";
+import { EXEC_PATH } from "@/components/Layout";
 import { useChartColors } from "@/lib/colors";
 import { fmtDate, fmtShort } from "@/lib/format";
 
@@ -21,7 +22,7 @@ export default function Scenarios() {
   return (
     <div>
       <PageHeader kicker="Case study · what decision did the dashboard change?" title="Decision scenarios"
-        sub={<>Two fully traceable <b>synthetic</b> walk-throughs of the decision workflows the system supports. <b>Apply</b> writes the manager's decision into the same tables the pipeline loads (logged, reversible); every dashboard then recomputes from the records. These are demonstrations, not claims about historical events.</>} />
+        sub={<>Two fully traceable <b>synthetic</b> walk-throughs of the decision workflows the system supports. <b>Apply</b> writes the manager's decision into the same tables the pipeline loads (logged, reversible); every dashboard then recomputes from the records. These are demonstrations, not claims about historical events.{STATIC && <> In this hosted snapshot, <b>Apply</b> switches to the precomputed after-state; the live app writes the change and every dashboard recomputes.</>}</>} />
       <div className="space-y-4">
         {data.map((s: any) => <ScenarioCard key={s.key} s={s} busy={busy === s.key} act={act} />)}
       </div>
@@ -62,7 +63,7 @@ function ScenarioCard({ s, busy, act }: { s: any; busy: boolean; act: (k: string
           ))}
           <div className="flex flex-wrap gap-2 pt-1">
             {s.key === "s1" && <Link className="btn-ghost" to="/capacity?disciplines=Substation">Open capacity · Substation</Link>}
-            {s.key === "s1" && <Link className="btn-ghost" to="/?disciplines=Substation">Executive view · Substation</Link>}
+            {s.key === "s1" && <Link className="btn-ghost" to={`${EXEC_PATH}?disciplines=Substation`}>Executive view · Substation</Link>}
             {s.key === "s2" && <Link className="btn-ghost" to={`/projects/${a.project_id}`}>Open Cedar Hollow</Link>}
             {s.key === "s2" && <Link className="btn-ghost" to="/delivery">Delivery dashboard</Link>}
             {s.key === "s2" && <Link className="btn-ghost" to="/actions">Actions dashboard</Link>}

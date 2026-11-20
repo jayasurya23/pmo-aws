@@ -51,7 +51,7 @@ cd backend && ../.venv/bin/python -m pipeline.run --reset   # fresh, determinist
 1. **Open** `/pipeline` (*How the data flows*): source → stage → validate → normalise → PostgreSQL → API → React, with live counts. "The Monday extract is our production sync logic: read-only, columns resolved by title, exact name matching, never auto-create. Five teams' status labels map to one vocabulary through a config table." **[ADAPTED]**
 2. **Open** `/quality`. The red banner: "Yesterday someone renamed a column in the register export. The pipeline refused the file and kept the last good data, and freshness is red, instead of showing every deliverable as overdue." Point at *Source freshness vs SLA* and the 14-day strip (earlier days are labelled simulated history). **[DEMO]**
 3. **Click** *Duplicate source record* in *Open exceptions by validation rule* → in the table, **click** *Raw payload*: "Every number traces back to the source record as received." **[DEMO]**
-4. Back on `/pipeline`, point at *How the dashboard SQL is built*: "Grain first, one shared scope predicate, and every KPI is a `COUNT` over the same rows its drilldown returns. 84 tests check that against an independent count."
+4. Back on `/pipeline`, point at *How the dashboard SQL is built*: "Grain first, one shared scope predicate, and every KPI is a `COUNT` over the same rows its drilldown returns. 85 tests check that against an independent count."
 
 **Proves:** the work under the charts: identity, normalisation, validation, lineage, reconciliation.
 

@@ -33,16 +33,16 @@ export default function Pipeline() {
     <div>
       <PageHeader kicker="Case study · what did you have to do to the underlying data?" title="How the data flows"
         sub="External source → ingestion → validation → normalisation → PostgreSQL → aggregation/API → React. Live counts from the last pipeline run (python -m pipeline.run --reset)." />
-      <div className="flex flex-wrap xl:flex-nowrap items-stretch gap-1.5">
+      <div className="flex flex-wrap 2xl:flex-nowrap items-stretch gap-1.5">
         {STAGES.map((s, i) => (
           <Fragment key={s.k}>
-            <div className="card px-3 py-3 flex-1 min-w-[150px]">
+            <div className="card px-3 py-3 flex-1 min-w-[140px]">
               <div className="micro">Step {i + 1}</div>
               <div className="text-[14px] font-bold mt-0.5">{s.t}</div>
               <div className="text-[11.5px] text-brand-gray mt-1 leading-snug">{s.d}</div>
               <div className="text-[12px] font-semibold mt-2 text-brand-red">{stat[s.k]}</div>
             </div>
-            {i < STAGES.length - 1 && <div className="hidden xl:grid place-items-center text-brand-lightgray text-[18px]">→</div>}
+            {i < STAGES.length - 1 && <div className="hidden 2xl:grid place-items-center text-brand-lightgray text-[18px]">→</div>}
           </Fragment>
         ))}
       </div>

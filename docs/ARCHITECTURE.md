@@ -49,7 +49,7 @@ See [DATA_PIPELINE.md](DATA_PIPELINE.md). Production behaviour carried over: the
 
 ## How validity is verified
 
-* **84 automated tests** (`backend/tests`), run against a separate test database rebuilt by the pipeline:
+* **85 automated tests** (`backend/tests`), run against a separate test database rebuilt by the pipeline:
   * three-way reconciliation: dashboard KPI = drilldown count = an independent SQL count written in the test;
   * filters partition rather than duplicate: the sum of a KPI over every client equals the unfiltered KPI;
   * every injected defect class detected exactly as often as the generator's manifest says it was injected;

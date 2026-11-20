@@ -45,11 +45,12 @@ export function InfoTip({ metric, text }: { metric?: string; text?: string }) {
   const body = text || def?.definition;
   if (!body) return null;
   return (
-    <span className="relative inline-flex" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+    <span className="relative inline-flex" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}
+      onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}>
       <button type="button" aria-label="Definition" onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}
         className="w-4 h-4 rounded-full border border-surface-ghost text-[10px] leading-[14px] text-brand-gray hover:text-brand-black">i</button>
       {open && (
-        <span role="tooltip" className="absolute z-50 left-1/2 -translate-x-1/2 top-6 w-72 rounded-lg bg-surface-card border border-surface-border shadow-page p-3 text-[12px] text-brand-black normal-case tracking-normal font-normal text-left">
+        <span role="tooltip" className="absolute z-50 left-0 top-6 w-[min(18rem,80vw)] rounded-lg bg-surface-card border border-surface-border shadow-page p-3 text-[12px] text-brand-black normal-case tracking-normal font-normal text-left">
           {def?.label && <span className="block font-semibold mb-1">{def.label}</span>}
           <span className="block leading-snug">{body}</span>
           {def && (
@@ -91,13 +92,14 @@ export function Kpi({ label, value, metric, sub, tone = "default", spark, onClic
   const drill = useDrill();
   const c = useChartColors();
   const click = onClick ?? (metric && drill.has(metric) ? () => drill.open(metric, label) : undefined);
+  // The ⓘ inside a clickable card must not trigger the card's drilldown.
   const toneBar = { default: "bg-surface-ghost", good: "bg-st-good", warn: "bg-st-warn", serious: "bg-st-serious", critical: "bg-st-critical", info: "bg-st-info" }[tone];
   const sparkColor = { default: c["series-1"], good: c.good, warn: c.warn, serious: c.serious, critical: c.critical, info: c["series-1"] }[tone];
   return (
-    <div className={clsx("card relative px-4 py-3 overflow-hidden group", click && "cursor-pointer hover:border-brand-lightgray transition")}
+    <div className={clsx("card relative px-4 py-3 group", click && "cursor-pointer hover:border-brand-lightgray transition")}
       onClick={click} role={click ? "button" : undefined} tabIndex={click ? 0 : undefined}
       onKeyDown={(e) => click && (e.key === "Enter" || e.key === " ") && click()}>
-      <span className={clsx("absolute left-0 top-0 bottom-0 w-[3px]", toneBar)} />
+      <span className={clsx("absolute left-0 top-0 bottom-0 w-[3px] rounded-l-[10px]", toneBar)} />
       <div className="flex items-center gap-1.5 text-[12px] text-brand-gray font-medium">
         <span className="truncate">{label}</span>
         {metric && <InfoTip metric={metric} />}

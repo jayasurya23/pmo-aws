@@ -17,7 +17,7 @@ export function useChartColors(): ChartColors {
   const [c, setC] = useState<ChartColors>(read);
   useEffect(() => {
     const obs = new MutationObserver(() => setC(read()));
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
     return () => obs.disconnect();
   }, []);
   return c;

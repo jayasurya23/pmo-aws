@@ -10,3 +10,6 @@ backend/data/sources/*
 *.log
 .DS_Store
 case-study/_build/
+frontend/public/static-data/
+frontend/dist-static/
+frontend/dist-artifact/

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useDrill } from "@/components/DrillDrawer";
 import { AXIS, BAR_SIZE, ChartTip, RADIUS_RIGHT, RADIUS_TOP } from "@/components/charts/common";
 import { Card, ErrorBox, Kpi, Legend, Loading, PageHeader, SegmentedBar, StatePill, Tag } from "@/components/ui";
-import { useApi } from "@/lib/api";
+import { STATIC, useApi } from "@/lib/api";
 import { STATE_COLOR, useChartColors } from "@/lib/colors";
 import { useFilters } from "@/lib/filters";
 import { fmtDate, fmtMonth, fmtShort } from "@/lib/format";
@@ -83,7 +83,7 @@ export default function Executive() {
           <p className="text-[11px] text-brand-lightgray mt-1">Click a bar to filter the whole app to that discipline.</p>
         </Card>
 
-        <Card className="xl:col-span-2" title="Portfolio-level schedule risk" sub="Ranked by risk score = 3×behind + 2×at-risk + late + projected-late milestones. Click to filter.">
+        <Card className="xl:col-span-2" title="Portfolio-level schedule risk" sub={`Ranked by risk score = 3×behind + 2×at-risk + late + projected-late milestones. ${STATIC ? "Click a row for its projects." : "Click to filter."}`}>
           <div className="overflow-auto max-h-[300px]">
             <table className="w-full">
               <thead><tr><th className="th">Portfolio</th><th className="th">Client</th><th className="th text-right">Active</th>
@@ -92,7 +92,7 @@ export default function Executive() {
                 {data.portfolio_risk.slice(0, 10).map((p: any) => {
                   const max = data.portfolio_risk[0]?.risk_score || 1;
                   return (
-                    <tr key={p.portfolio_id} className="hover:bg-surface-rowhover cursor-pointer" onClick={() => set({ portfolios: [p.portfolio_id] })}>
+                    <tr key={p.portfolio_id} className="hover:bg-surface-rowhover cursor-pointer" onClick={() => STATIC ? drill.open("active_projects", `Active projects — ${p.portfolio}`, { portfolio_name: p.portfolio }) : set({ portfolios: [p.portfolio_id] })}>
                       <td className="td font-medium">{p.portfolio}</td>
                       <td className="td text-brand-gray">{p.client}</td>
                       <td className="td text-right num">{p.active}</td>
@@ -165,7 +165,7 @@ export default function Executive() {
       <Card className="mt-3" title={`Upcoming deadlines — next ${filters.lookahead_days / 7} weeks`}
         sub="Each milestone with its projected status. IFP = Issued for Purchase: the package clients order long-lead equipment from."
         right={<button className="btn-ghost" onClick={() => drill.open("upcoming_milestones", "Upcoming deadlines")}>All {k.upcoming_milestones} →</button>}>
-        <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.max(1, Object.keys(weeks).length)}, minmax(170px, 1fr))` }}>
+        <div className="overflow-x-auto"><div className="grid gap-3 min-w-max lg:min-w-0" style={{ gridTemplateColumns: `repeat(${Math.max(1, Object.keys(weeks).length)}, minmax(170px, 1fr))` }}>
           {Object.entries(weeks).sort().map(([wk, ms]) => (
             <div key={wk} className="min-w-0">
               <div className="micro mb-1.5">Week of {fmtShort(wk)} · {ms.length}</div>
@@ -186,7 +186,7 @@ export default function Executive() {
               </div>
             </div>
           ))}
-        </div>
+        </div></div>
       </Card>
     </div>
   );

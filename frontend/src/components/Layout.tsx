@@ -6,10 +6,17 @@ import { apiGet } from "@/lib/api";
 import { DISCIPLINES } from "@/lib/colors";
 import { useFilters } from "@/lib/filters";
 import { fmtDate } from "@/lib/format";
+import { STATIC } from "@/lib/api";
+
+export const EXEC_PATH = STATIC ? "/overview" : "/";
+export const START_PATH = STATIC ? "/" : "/start";
 
 const NAV = [
+  { group: "Start", items: [
+    { to: START_PATH, label: "Start here", code: "→" },
+  ]},
   { group: "Dashboards", items: [
-    { to: "/", label: "Executive overview", code: "A" },
+    { to: EXEC_PATH, label: "Executive overview", code: "A" },
     { to: "/delivery", label: "Delivery & schedule", code: "B" },
     { to: "/capacity", label: "Resources & capacity", code: "C" },
     { to: "/actions", label: "Meetings & actions", code: "D" },
@@ -25,17 +32,16 @@ const NAV = [
 
 export default function Layout() {
   const { pathname, search } = useLocation();
-  const [dark, setDark] = useState(() => {
-    try { return localStorage.getItem("pmo-demo-theme") === "dark"; } catch { return false; }
-  });
+  const [dark, setDark] = useState(() => document.documentElement.getAttribute("data-theme") === "dark");
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("pmo-demo-theme", dark ? "dark" : "light"); } catch { /* storage unavailable */ }
   }, [dark]);
-  const showFilters = !["/pipeline", "/about", "/scenarios"].includes(pathname);
+  const showFilters = !["/pipeline", "/about", "/scenarios", START_PATH].includes(pathname) && !pathname.startsWith("/projects");
   return (
     <div className="min-h-full flex">
-      <aside className="w-[232px] shrink-0 bg-surface-side text-white/85 self-stretch">
+      <aside className="hidden lg:block w-[232px] shrink-0 bg-surface-side text-white/85 self-stretch">
        <div className="sticky top-0 h-screen flex flex-col">
         <Link to="/" className="px-5 pt-5 pb-4 block">
           <div className="text-[19px] font-bold tracking-[-0.01em] text-white">PMO <span className="text-[#e45a66]">360</span></div>
@@ -49,7 +55,7 @@ export default function Layout() {
             <div key={g.group} className="mt-2">
               <div className="px-2.5 py-1.5 text-[10px] uppercase tracking-[0.12em] text-white/40 font-semibold">{g.group}</div>
               {g.items.map((it) => (
-                <NavLink key={it.to} to={{ pathname: it.to, search }} end={it.to === "/"}
+                <NavLink key={it.to} to={{ pathname: it.to, search }} end={it.to === "/" || it.to === EXEC_PATH}
                   className={({ isActive }) => clsx("flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13.5px] transition",
                     isActive ? "bg-white/10 text-white font-semibold" : "hover:bg-white/5 text-white/75")}>
                   <span className={clsx("w-5 h-5 rounded text-[10.5px] font-bold grid place-items-center shrink-0",
@@ -68,7 +74,7 @@ export default function Layout() {
       </aside>
       <div className="flex-1 min-w-0 flex flex-col">
         <TopBar showFilters={showFilters} />
-        <main className="flex-1 px-6 py-5 max-w-shell w-full mx-auto">
+        <main className="flex-1 px-4 sm:px-6 py-5 max-w-shell w-full mx-auto min-w-0">
           <Outlet />
         </main>
         <footer className="px-6 py-4 text-[11px] text-brand-lightgray border-t border-surface-border">
@@ -79,11 +85,29 @@ export default function Layout() {
   );
 }
 
+function MobileNav() {
+  const { pathname, search } = useLocation();
+  const nav = useNavigate();
+  const items = NAV.flatMap((g) => g.items);
+  return (
+    <div className="lg:hidden w-full flex items-center gap-2">
+      <span className="font-bold text-[15px] shrink-0">PMO <span className="text-brand-red">360</span></span>
+      <select className="input !w-auto flex-1 min-w-0" aria-label="Go to page" value={items.find((i) => i.to === pathname)?.to ?? ""}
+        onChange={(e) => nav({ pathname: e.target.value, search })}>
+        {!items.some((i) => i.to === pathname) && <option value="">Project detail</option>}
+        {items.map((i) => <option key={i.to} value={i.to}>{i.code} · {i.label}</option>)}
+      </select>
+      <span className="shrink-0 rounded border border-[#b37a00]/50 bg-[#fab219]/15 px-1.5 py-0.5 text-[10.5px] font-semibold text-brand-deepgold">Synthetic data</span>
+    </div>
+  );
+}
+
 function TopBar({ showFilters }: { showFilters: boolean }) {
   const { meta } = useMeta();
   return (
     <header className="sticky top-0 z-40 bg-surface-page/95 backdrop-blur border-b border-surface-border">
-      <div className="px-6 py-2.5 flex items-center gap-3 flex-wrap">
+      <div className="px-4 sm:px-6 py-2.5 flex items-center gap-3 flex-wrap">
+        <MobileNav />
         <ProjectSearch />
         <div className="flex-1" />
         {meta && <Freshness meta={meta} />}
@@ -103,11 +127,11 @@ function Freshness({ meta }: { meta: any }) {
       <button onClick={() => setOpen(!open)} onMouseEnter={() => setOpen(true)}
         className="flex items-center gap-2 rounded-md border border-surface-border bg-surface-card px-2.5 py-1.5 text-[12px]">
         <span className={clsx("w-2 h-2 rounded-full", worst === "fresh" ? "bg-st-good" : worst === "stale" ? "bg-st-warn" : "bg-st-critical")} />
-        <span>Data as of <b>{fmtDate(meta.as_of)}</b> 06:30 ET</span>
+        <span>Data as of <b>{fmtDate(meta.as_of)}</b> 06:30 ET{STATIC && <span className="text-brand-gray"> · static snapshot</span>}</span>
         {stale.length > 0 && <span className="text-brand-gray">· {stale.length} source{stale.length > 1 ? "s" : ""} stale</span>}
       </button>
       {open && (
-        <div className="absolute right-0 top-9 w-[420px] card p-3 z-50">
+        <div className="absolute right-0 top-9 w-[min(420px,92vw)] card p-3 z-50">
           <div className="text-[12px] font-semibold mb-2">Source freshness (last successful extract vs SLA)</div>
           {meta.freshness.map((s: any) => (
             <div key={s.key} className="flex items-center gap-2 py-1 text-[12px] border-t border-surface-hairline first:border-0">
@@ -135,7 +159,7 @@ function ProjectSearch() {
     return () => clearTimeout(t);
   }, [q]);
   return (
-    <div className="relative w-[340px]" ref={ref}>
+    <div className="relative w-full sm:w-[340px]" ref={ref}>
       <input className="input pl-8" placeholder="Find a project, portfolio, client or job #" value={q} onChange={(e) => setQ(e.target.value)} />
       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-lightgray text-[13px]">⌕</span>
       {res.length > 0 && (
@@ -157,8 +181,21 @@ function FilterBar() {
   const { meta } = useMeta();
   if (!meta) return null;
   const portfolios = meta.portfolios.filter((p: any) => !filters.clients.length || filters.clients.includes(p.client_id));
+  if (STATIC) {
+    return (
+      <div className="px-4 sm:px-6 pb-2.5 flex items-center gap-2 flex-wrap text-[12.5px]">
+        <span className="text-brand-gray">Discipline:</span>
+        {["All", ...DISCIPLINES].map((d) => {
+          const on = d === "All" ? filters.disciplines.length === 0 : filters.disciplines.length === 1 && filters.disciplines[0] === d;
+          return <button key={d} onClick={() => set({ disciplines: d === "All" ? [] : [d] })}
+            className={clsx("px-2.5 py-1 rounded-md border", on ? "bg-brand-black text-surface-card border-brand-black font-semibold" : "bg-surface-card border-surface-border text-brand-gray hover:text-brand-black")}>{d}</button>;
+        })}
+        <span className="text-[11.5px] text-brand-lightgray ml-1">Hosted snapshot: the live app also filters by client, portfolio, PM and date windows.</span>
+      </div>
+    );
+  }
   return (
-    <div className="px-6 pb-2.5 flex items-center gap-2 flex-wrap text-[12.5px]">
+    <div className="px-4 sm:px-6 pb-2.5 flex items-center gap-2 flex-wrap text-[12.5px]">
       <MultiSelect label="Client" options={meta.clients.map((c: any) => ({ v: c.id, l: c.name }))} value={filters.clients}
         onChange={(v) => set({ clients: v as number[], portfolios: [] })} />
       <MultiSelect label="Portfolio" options={portfolios.map((p: any) => ({ v: p.id, l: p.name, s: p.client_name }))} value={filters.portfolios}

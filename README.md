@@ -20,7 +20,15 @@ A standalone, locally runnable rebuild of the analytics layer of **PMO 360**, th
 * **Six dashboards**: A Executive overview · B Delivery & schedule health · C Resources & capacity · D Meetings & actions · E Portfolio & commercial · F Data quality & integration. Plus a project drilldown, two decision scenarios with apply/reset, a live data-flow page and a provenance page.
 * **Every number drills to its records** (searchable, paginated, CSV export). Every KPI carries its definition, grain, source and origin (production / adapted / demo-only).
 * **A real pipeline, not hard-coded numbers**: one coherent synthetic world is written out as Monday GraphQL boards, a Graph calendar payload, CSV register exports and PMO 360 / proposal360 tables, with counted defects. The pipeline stages, validates, normalises and loads PostgreSQL, recording every exception and every sync run.
-* **84 tests** proving KPI = drilldown = an independent SQL count, defect detection against the generator's manifest, schedule rules, determinism, scenario reversibility, network isolation and confidentiality.
+* **85 tests** proving KPI = drilldown = an independent SQL count, defect detection against the generator's manifest, schedule rules, determinism, scenario reversibility, network isolation and confidentiality.
+
+## Hosted version (no server needed)
+
+The same app also builds as a **static snapshot**: `python -m pipeline.export_static` writes every API response the UI uses to JSON (all dashboards and drilldowns for "all" and each discipline, every project page, exceptions with raw payloads, and each scenario before and after its decision), and `VITE_STATIC=1` builds the React app to read those files. Numbers are identical to the live API (tested).
+
+* **GitHub Pages:** `.github/workflows/pages.yml` regenerates the data, runs the test suite, exports the snapshot and deploys on every push to `main`. One-time setup: **Settings → Pages → Source: GitHub Actions** (on a free GitHub plan the repository must be public). Site: `https://jayasurya23.github.io/pmo-aws/`.
+* **Locally:** `cd backend && python -m pipeline.export_static`, then `cd frontend && VITE_STATIC=1 npx vite build --base ./ --outDir dist-static` and serve `dist-static/` with any static server.
+* **Snapshot limits:** the filter bar offers discipline only (the live app also filters by client, portfolio, PM and date windows), and *Apply* on a scenario switches to the precomputed after-state instead of rewriting the database.
 
 ## Quick start (Docker)
 
@@ -75,8 +83,8 @@ docs/  case-study/  tools/
 
 | Check | Result |
 |---|---|
-| Pipeline end to end (seed 360, as of 2026-11-20) | ~13 s; 11,924 records staged, 99.6% loaded, 44 rejected, 276 exceptions; register schema-drift file refused |
-| Backend tests (`pytest`) | **84 passed** |
+| Pipeline end to end (seed 360, as of 2026-11-20) | ~13 s; 12,047 records staged, 99.6% loaded, 44 rejected, 285 exceptions; register schema-drift file refused |
+| Backend tests (`pytest`) | **85 passed** (also run in CI on every push) |
 | Frontend type-check and production build | pass (`tsc`, `vite build`) |
 | All pages rendered in Chromium (Playwright) | no console errors; screenshots in `case-study/screenshots/` |
 | API response times | 30–260 ms per dashboard endpoint |

@@ -1,6 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import { DrillProvider } from "@/components/DrillDrawer";
 import Layout from "@/components/Layout";
+import { STATIC } from "@/lib/api";
+import Start from "@/pages/Start";
 import { MetaProvider } from "@/components/meta";
 import { FilterProvider } from "@/lib/filters";
 import About from "@/pages/About";
@@ -21,7 +23,9 @@ export default function App() {
         <DrillProvider>
           <Routes>
             <Route element={<Layout />}>
-              <Route index element={<Executive />} />
+              <Route index element={STATIC ? <Start /> : <Executive />} />
+              <Route path="overview" element={<Executive />} />
+              <Route path="start" element={<Start />} />
               <Route path="delivery" element={<Delivery />} />
               <Route path="capacity" element={<Capacity />} />
               <Route path="actions" element={<Actions />} />

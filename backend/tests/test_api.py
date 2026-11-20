@@ -52,3 +52,23 @@ def test_definitions_cover_kpis(client):
     for k in ["active_projects", "late_milestones", "projected_late_milestones", "overdue_actions",
               "overallocated_people", "proposal_turnaround", "source_freshness"]:
         assert k in defs and defs[k]["grain"] and defs[k]["origin"] in ("production", "adapted", "demo")
+
+
+def test_static_export_matches_api(client, tmp_path):
+    """The hosted (static) site shows exactly what the API computes."""
+    import json
+    from pipeline.export_static import export
+    sizes = export(str(tmp_path / "static"))
+    d = tmp_path / "static"
+    assert {"meta.json", "executive_all.json", "drill_all.json", "scenarios.json", "projects_index.json"} <= set(sizes)
+    ex = json.loads((d / "executive_all.json").read_text())
+    assert ex["kpis"] == client.get("/api/executive").json()["kpis"]
+    drill = json.loads((d / "drill_substation.json").read_text())
+    assert len(drill["overdue_actions"]) == client.get("/api/drill/overdue_actions?disciplines=Substation&page_size=1").json()["total"]
+    scen = json.loads((d / "scenarios.json").read_text())
+    assert not scen["s1"]["before"]["applied"] and scen["s1"]["applied"]["applied"]
+    idx = json.loads((d / "projects_index.json").read_text())
+    shards = {}
+    for i in range(8):
+        shards.update(json.loads((d / f"projects_{i}.json").read_text()))
+    assert len(shards) == len(idx)

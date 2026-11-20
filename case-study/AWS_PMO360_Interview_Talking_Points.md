@@ -54,7 +54,7 @@ Scale ✔: ~42 portfolios under ~21 clients and 8 staff to assign when I built t
 
 **Five — ownership.** Owners were free text for most of the app's life. I made ownership a ranked rule (linked user id, then name match, then authorship only as a last resort) and fixed the entry point so the data improves going forward.
 
-**Six — aggregation and validation.** Each dashboard endpoint runs a fixed number of bulk queries regardless of volume, and computes at a declared grain. In the rebuild I added what I'd add to production next: every source record staged as received, 24 validation rules with an exception log that drills to the raw payload, freshness SLAs per source, and 84 tests proving each KPI equals its drilldown and an independent SQL count. 🧪 For example, when I break the register export by renaming a column, the pipeline refuses the file, keeps yesterday's data, and turns freshness red instead of showing every deliverable as overdue."
+**Six — aggregation and validation.** Each dashboard endpoint runs a fixed number of bulk queries regardless of volume, and computes at a declared grain. In the rebuild I added what I'd add to production next: every source record staged as received, 24 validation rules with an exception log that drills to the raw payload, freshness SLAs per source, and 85 tests proving each KPI equals its drilldown and an independent SQL count. 🧪 For example, when I break the register export by renaming a column, the pipeline refuses the file, keeps yesterday's data, and turns freshness red instead of showing every deliverable as overdue."
 
 ---
 

@@ -70,7 +70,7 @@
 ![Data flow with live counts (synthetic)](screenshots/08_dataflow.png)
 *Figure 3 — 🧪 The pipeline in the demo rebuild: source → stage → validate → normalise → PostgreSQL → API → React.*
 
-**What the demo adds to show the full discipline** (demo-only): every source record staged as received with a hash, 24 validation rules with an exception log that drills to the raw payload, freshness SLAs per source, a deliberately broken register export that the pipeline refuses whole instead of loading blanks, and **84 automated tests** proving that each KPI equals its drilldown and an independent SQL count.
+**What the demo adds to show the full discipline** (demo-only): every source record staged as received with a hash, 24 validation rules with an exception log that drills to the raw payload, freshness SLAs per source, a deliberately broken register export that the pipeline refuses whole instead of loading blanks, and **85 automated tests** proving that each KPI equals its drilldown and an independent SQL count.
 
 ## 5. Challenges and trade-offs
 

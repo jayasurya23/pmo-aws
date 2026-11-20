@@ -36,7 +36,8 @@
   --c-seq-1: #e4effc; --c-seq-2: #b7d3f6; --c-seq-3: #86b6ef; --c-seq-4: #5598e7; --c-seq-5: #2a78d6; --c-seq-6: #1c5cab;
   --c-grid: #ecebe9; --c-axis: #8a8886; --c-text: #333132; --c-text-2: #5d5b5a; --c-surface: #ffffff;
 }
-.dark {
+.dark,
+:root[data-theme="dark"] {
   --brand-red: 176 33 45; --brand-darkred: 143 25 35; --brand-black: 237 237 236; --brand-gray: 168 165 164;
   --brand-lightgray: 122 120 119; --brand-nearwhite: 58 56 57; --brand-blue: 53 188 221; --brand-green: 122 208 148;
   --brand-gold: 212 200 60; --brand-deepgold: 216 204 74; --brand-deepblue: 79 201 232;
@@ -49,6 +50,22 @@
   --c-seq-1: #253446; --c-seq-2: #1c4a7a; --c-seq-3: #1c5cab; --c-seq-4: #2a78d6; --c-seq-5: #5598e7; --c-seq-6: #9ec5f4;
   --c-grid: #353334; --c-axis: #8f8c8a; --c-text: #edeceb; --c-text-2: #b8b5b3; --c-surface: #232223;
   color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --brand-red: 176 33 45; --brand-darkred: 143 25 35; --brand-black: 237 237 236; --brand-gray: 168 165 164;
+    --brand-lightgray: 122 120 119; --brand-nearwhite: 58 56 57; --brand-blue: 53 188 221; --brand-green: 122 208 148;
+    --brand-gold: 212 200 60; --brand-deepgold: 216 204 74; --brand-deepblue: 79 201 232;
+    --surface-page: 25 24 25; --surface-card: 35 34 35; --surface-border: 58 56 57; --surface-hairline: 46 44 45;
+    --surface-rowhover: 42 40 41; --surface-ghost: 74 72 73; --surface-mute: 46 44 45; --surface-side: 20 19 20;
+    --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
+    --shadow-page: 0 8px 24px rgba(0,0,0,.55); --shadow-drawer: -12px 0 32px rgba(0,0,0,.6);
+    --c-series-1: #3987e5; --c-series-2: #d95926; --c-series-3: #199e70; --c-series-4: #c98500; --c-series-5: #d55181;
+    --c-neutral: #77756f; --c-muted: #4a4849; --c-complete: #5598e7;
+    --c-seq-1: #253446; --c-seq-2: #1c4a7a; --c-seq-3: #1c5cab; --c-seq-4: #2a78d6; --c-seq-5: #5598e7; --c-seq-6: #9ec5f4;
+    --c-grid: #353334; --c-axis: #8f8c8a; --c-text: #edeceb; --c-text-2: #b8b5b3; --c-surface: #232223;
+    color-scheme: dark;
+  }
 }
 
 @layer base {
@@ -79,3 +96,9 @@
 .recharts-cartesian-axis-line, .recharts-cartesian-axis-tick-line { stroke: var(--c-grid); }
 .recharts-tooltip-cursor { fill: rgb(var(--surface-mute) / 0.6); }
 .recharts-surface:focus, .recharts-wrapper:focus, svg:focus { outline: none; }
+
+/* Phone and tablet widths: wide tables scroll inside their card, never the page. */
+@media (max-width: 1023px) {
+  .card table { display: block; overflow-x: auto; max-width: 100%; }
+  html, body { overflow-x: hidden; }
+}
