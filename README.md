@@ -1,5 +1,7 @@
 # PMO 360 — Operations Analytics (case-study rebuild, synthetic data)
 
+[![Deploy demo to GitHub Pages](https://github.com/jayasurya23/pmo-aws/actions/workflows/pages.yml/badge.svg)](https://github.com/jayasurya23/pmo-aws/actions/workflows/pages.yml) **Live demo: https://jayasurya23.github.io/pmo-aws/**
+
 A standalone, locally runnable rebuild of the analytics layer of **PMO 360**, the project-operations platform I built at Castillo Engineering. It uses PMO 360's own stack (**FastAPI · PostgreSQL · React/TypeScript/Tailwind**) and data model, and runs on a **deterministic synthetic dataset**. It was built to answer, live, the case-study question: *"Walk me through a dashboard you built. Who used it, what decision did it change, and what did you have to do to the underlying data to make it work?"*
 
 > **Synthetic Demonstration Data.** No client, project, employee, credential or document from the real system is in this repository. Email domains use the reserved `.example` TLD. A network guard refuses connections to anything but local hosts, and a hashed-denylist test fails the build if a real name appears.
