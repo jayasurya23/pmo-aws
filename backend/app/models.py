@@ -36,7 +36,7 @@ def utcnow() -> datetime:
 
 TZ = DateTime(timezone=True)
 
-DISCIPLINES = ("Electrical", "Civil", "Structural", "Substation", "Battery Storage")
+DISCIPLINES = ("Electrical", "Civil", "Structural")
 STAGES = ("30%", "60%", "90%", "IFP", "IFC")  # IFP is optional per project
 
 

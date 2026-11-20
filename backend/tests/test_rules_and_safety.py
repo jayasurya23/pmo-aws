@@ -49,7 +49,7 @@ def test_blocked_package_pushes_projection():
     planned = add_business_days(AS_OF, 12)
     r = _classify(ms(planned), [wi(status="blocked", due_date=add_business_days(planned, -3), percent_complete=0.2)], P, {}, AS_OF)
     assert r["status"] == "projected_late" and r["slip_bd"] > 5
-    assert any("assumed +5 bd" in b for b in r["basis"])
+    assert any("5 business days assumed" in b for b in r["basis"])
 
 
 def test_tolerance_band():

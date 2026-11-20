@@ -36,7 +36,7 @@ const children = [
 
   new Paragraph({ spacing: { after: 140, line: 264 }, shading: { fill: "F5F4F3", type: ShadingType.CLEAR, color: "auto" },
     children: [b("Live demo: "), link(SITE, SITE),
-      t(" · opens on a Start page that answers the three questions below, with links to the screens that show each answer. It is a working rebuild of the PMO 360 dashboards on the same stack (FastAPI, PostgreSQL, React) and data model, running on invented data so it can be shared. Every number opens the records behind it.", { size: 19 })] }),
+      t(" · opens on a Start page that answers the three questions below, with links to the screens that show each answer. It is a working demonstration on PMO 360's stack (FastAPI, PostgreSQL, React) and data model, running on invented data so it can be shared. Every number opens the records behind it.", { size: 19 })] }),
 
   H("Who used it"),
   P([t("PMO 360 is the project-operations platform I designed and built at Castillo Engineering (utility-scale solar, battery storage and substation design). Its users: "),
@@ -52,7 +52,7 @@ const children = [
     confirm("one real instance: what the view showed, what was changed, and the before/after numbers")]),
   P([t("One decision is fully verifiable in the code: one screen showed a PM 27 overdue actions while another showed 2, because whoever typed the minutes counted as owning everything in them."), v(),
     t(" I rewrote ownership as a single rule shared by every screen and fixed the owner picker at the point of entry. People act on numbers they trust. On the demo site, the "),
-    b("Decision scenarios"), t(" page shows the workflow on synthetic data: staffing four \"on track\" substation projects differently cuts three engineers' over-allocated person-weeks from 8 to 1, at the visible cost of one milestone moving to at-risk.")]),
+    b("Two decisions"), t(" page shows the workflow on synthetic data: staffing four \"on track\" substation projects differently cuts three engineers' over-allocated person-weeks from 7 to 1, at the visible cost of one project moving to at risk.")]),
 
   H("What I did to the underlying data"),
   bullet([b("Identity across systems: "), t("a read-only Monday.com sync that matches names exactly and reports anything ambiguous instead of guessing; 38 of 40 board items carried a job number."), v()]),
@@ -63,8 +63,8 @@ const children = [
 
   img("12_start_page.png", 6.3),
 
-  P([b("Real vs demo. "), t("The data model, meetings and action rules, lead view, capacity board and Monday sync logic come from production PMO 360, all built by me (223 commits over about six months)."), v(),
-    t(" The schedule projection, deliverable register, data-quality layer and scenarios were built for this demo and are labelled that way on the site. No client, project or employee on the site is real.")], { spacing: { before: 60, after: 0, line: 264 } }),
+  P([b("About the site. "), t("PMO 360 itself, built by me over about six months (223 commits), stays private with its data."), v(),
+    t(" The site runs the same kind of pipeline and dashboards on invented data. No client, project or employee on it is real.")], { spacing: { before: 60, after: 0, line: 264 } }),
 ];
 
 const doc = new Document({

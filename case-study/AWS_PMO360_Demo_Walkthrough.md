@@ -13,9 +13,9 @@ cd backend && ../.venv/bin/python -m pipeline.run --reset   # fresh, determinist
 
 ---
 
-## Minute 1 — The business problem and the users (talk over the Executive overview)
+## Minute 1 — The business problem and the users (talk over the Overview)
 
-**Open:** `/` (Executive overview).
+**Open:** *Overview* (`/overview` on the hosted site, `/` locally).
 
 **Say:** "At Castillo our PMs run weekly coordination meetings across forty to fifty-plus portfolios. Status was spread across Monday, Outlook, Excel proposal schedules and meeting notes. I built PMO 360 to put it in one place: PMs, the PM lead, department leads doing resourcing, and approvers all use it. This is a rebuild on invented data, so I can show it without company information; the stack, data model and rules are the real ones."
 
@@ -30,19 +30,19 @@ cd backend && ../.venv/bin/python -m pipeline.run --reset   # fresh, determinist
 1. **Hover** the ⓘ on *Behind schedule*: "Every KPI carries its definition, grain and source. That's the metric catalogue the API serves." **[DEMO]** catalogue; the *overdue* rule is **[PROD]**.
 2. **Click** the red *Behind* block in *Portfolio health*. The drawer lists the projects. **Search** "Cedar" → **click** *Cedar Hollow Solar + Storage*.
    "One rule everywhere: *Behind* means a milestone is **already** late, *At risk* means **projected** late. Open work is never called overdue just for being open."
-3. On the project page, point at the **milestone timeline** (90% red: late; IFC orange: projected +27 business days) and *How each open milestone was projected*: "Structural 90% has been blocked since 2 November waiting on the client's geotech report. The projection says IFC slips about five weeks, and it shows its inputs, so a PM can argue with the number, not the colour." **[DEMO]** milestones and projection.
+3. On the project page, point at the **milestone timeline** (90% red: late; IFC orange: projected 26 business days late) and *How each open milestone was projected*: "Structural 90% has been blocked since 2 November waiting on the client's geotech report. The projection says IFC slips about five weeks, and it shows its inputs, so a PM can argue with the number, not the colour." **[DEMO]** milestones and projection.
 4. Point at **Action items**: the client geotech action is overdue and "Confirm pile design approach…" has **no owner**. **[PROD]** action model.
 
 **Proves:** drill from a portfolio-level number to the specific blocker, the owner gap and the schedule consequence in three clicks.
 
 ## Minute 3 — Delivery → capacity: demonstrate a decision
 
-1. **Open** `/capacity`. **Set** filter *Discipline: Substation*.
-   "Now the decision the dashboard changes. The executive view says the four high-voltage substation projects are on track. Capacity says otherwise."
-2. In the heatmap: **Priya Raman** red for four straight weeks; **Marcus Ojo** shows *PTO 32h* (work booked during his time off); **Elena Ruiz** red in mid-December. The lead, **Zoe Ortega**, is mostly under 50%. "Same formula as our production Timeline board, in hours, with holidays removed from both sides." **[ADAPTED]**
-3. **Scroll** to *Projects competing for the same over-allocated people*: Granite Run, Ironleaf, Kettle River and Harrow Creek all depend on those three people.
-4. **Open** `/scenarios` → S1 → **Apply the decision**. Read the deltas: senior over-allocated person-weeks **8 → 1**, peak **150% → 110%**, team **12 → 6**; Granite Run IFP re-baselined (rev 1) and its IFC moves to **At risk**. "The decision isn't free, and the dashboard shows the cost." **[DEMO]** scenario.
-5. *(Optional, 20 s)* S2 → **Apply**: Cedar Hollow IFC goes from **projected late (27 bd)** to **on track**, while the 90% milestone stays **Late**: "it can't rewrite history; it protects the next milestone."
+1. **Open** *Team capacity* (`/capacity`). **Click** the *Electrical* discipline chip.
+   "Now the decision the dashboard changes. The overview says the four high-voltage substation projects are on track. Capacity says otherwise."
+2. In the heatmap: **Priya Raman** red for four straight weeks; **Marcus Ojo** shows *PTO 32h* (work booked during his time off); **Elena Ruiz** red in mid-December. The Electrical lead, **Wynn Quintero**, is mostly under 30%. The team as a whole is at about 70%. "Same formula as our production Timeline board, in hours, with holidays removed from both sides." **[ADAPTED]**
+3. **Open** *More detail* → *Projects competing for the same people*: Granite Run, Ironleaf, Kettle River and Harrow Creek all depend on those three people.
+4. **Open** `/scenarios` → S1 → **Apply the decision**. Read the deltas: seniors' weeks over 110% **7 → 1**, peak **150% → 110%**, Electrical team **25 → 19**; Granite Run's IFP moves five business days and the project goes to **At risk**. "The decision isn't free, and the dashboard shows the cost." **[DEMO]** scenario.
+5. *(Optional, 20 s)* S2 → **Apply**: Cedar Hollow IFC goes from **projected late (26 business days)** to **on track (2 days)**, while the 90% milestone stays **Late**: "it can't rewrite history; it protects the next milestone."
 
 **Proves:** the dashboard surfaces a hidden constraint, supports a concrete decision, and shows the metrics that would confirm it worked.
 
@@ -57,7 +57,7 @@ cd backend && ../.venv/bin/python -m pipeline.run --reset   # fresh, determinist
 
 ## Minute 5 — Ownership, trade-offs, results, AWS
 
-**Open:** `/about` (*Original vs demo*).
+**Open:** `/` (*Start here*). The site no longer has a provenance page; say this part out loud.
 
 **Say:** "To be precise about what's real: the hierarchy, meetings, actions, the overdue and ownership rules, the lead view, the Timeline capacity board, the Monday sync and calendar matching are production PMO 360, all built by me. The milestone projection, the work board, the register, the data-quality layer and the scenarios are things I built for this demo to show the full discipline. In production, the outcome I can verify is a trusted single view across ~42–53 portfolios; [CONFIRM: active users, meetings and actions tracked, overdue trend]. The hardest part was the data: identity across systems, and an ownership rule people could trust after one screen said 27 overdue and another said 2.
 For DCSP it's the same job: sit with the category and supply-chain managers, integrate tools that disagree, standardise definitions, and give them self-service views they trust enough to decide from. IFP in our world is exactly the engineering signal long-lead equipment procurement waits on."

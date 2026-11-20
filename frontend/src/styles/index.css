@@ -20,9 +20,9 @@
   --brand-red: 173 31 43; --brand-darkred: 153 31 43; --brand-black: 51 49 50; --brand-gray: 77 77 79;
   --brand-lightgray: 150 150 152; --brand-nearwhite: 230 231 232; --brand-blue: 26 166 201;
   --brand-green: 39 135 71; --brand-gold: 199 187 46; --brand-deepgold: 138 128 33; --brand-deepblue: 14 107 133;
-  --surface-page: 245 244 243; --surface-card: 255 255 255; --surface-border: 230 231 232;
+  --surface-page: 247 247 248; --surface-card: 255 255 255; --surface-border: 230 231 232;
   --surface-hairline: 240 239 238; --surface-rowhover: 250 249 249; --surface-ghost: 216 214 213;
-  --surface-mute: 236 234 233; --surface-side: 38 36 37;
+  --surface-mute: 238 238 239; --surface-side: 255 255 255;
   --st-good: 12 163 12; --st-warn: 250 178 25; --st-serious: 236 131 90; --st-critical: 208 59 59;
   --st-neutral: 150 148 146; --st-info: 42 120 214;
   --shadow-card: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.04);
@@ -51,48 +51,32 @@
   --c-grid: #353334; --c-axis: #8f8c8a; --c-text: #edeceb; --c-text-2: #b8b5b3; --c-surface: #232223;
   color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --brand-red: 176 33 45; --brand-darkred: 143 25 35; --brand-black: 237 237 236; --brand-gray: 168 165 164;
-    --brand-lightgray: 122 120 119; --brand-nearwhite: 58 56 57; --brand-blue: 53 188 221; --brand-green: 122 208 148;
-    --brand-gold: 212 200 60; --brand-deepgold: 216 204 74; --brand-deepblue: 79 201 232;
-    --surface-page: 25 24 25; --surface-card: 35 34 35; --surface-border: 58 56 57; --surface-hairline: 46 44 45;
-    --surface-rowhover: 42 40 41; --surface-ghost: 74 72 73; --surface-mute: 46 44 45; --surface-side: 20 19 20;
-    --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.3);
-    --shadow-page: 0 8px 24px rgba(0,0,0,.55); --shadow-drawer: -12px 0 32px rgba(0,0,0,.6);
-    --c-series-1: #3987e5; --c-series-2: #d95926; --c-series-3: #199e70; --c-series-4: #c98500; --c-series-5: #d55181;
-    --c-neutral: #77756f; --c-muted: #4a4849; --c-complete: #5598e7;
-    --c-seq-1: #253446; --c-seq-2: #1c4a7a; --c-seq-3: #1c5cab; --c-seq-4: #2a78d6; --c-seq-5: #5598e7; --c-seq-6: #9ec5f4;
-    --c-grid: #353334; --c-axis: #8f8c8a; --c-text: #edeceb; --c-text-2: #b8b5b3; --c-surface: #232223;
-    color-scheme: dark;
-  }
-}
 
 @layer base {
   html, body, #root { height: 100%; }
-  body { @apply font-sans bg-surface-page text-brand-black antialiased; }
+  body { @apply font-sans bg-surface-page text-brand-black antialiased text-[15px] leading-normal; }
   input, textarea, select, option, button { @apply font-sans; }
 }
 
 @layer components {
-  .card { @apply bg-surface-card rounded-[10px] border border-surface-border shadow-card; }
-  .card-head { @apply flex items-start justify-between gap-3 px-4 pt-3.5 pb-2; }
-  .card-title { @apply text-[14px] font-semibold text-brand-black; }
-  .card-sub { @apply text-[12px] text-brand-gray mt-0.5; }
-  .kicker { @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-gray; }
-  .micro { @apply text-[10.5px] font-semibold uppercase tracking-[0.08em] text-brand-lightgray; }
-  .btn { @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-semibold transition disabled:opacity-50; }
+  .card { @apply bg-surface-card rounded-xl border border-surface-border shadow-card; }
+  .card-head { @apply flex items-start justify-between gap-3 px-5 pt-4 pb-3; }
+  .card-title { @apply text-[17px] font-semibold text-brand-black leading-snug; }
+  .card-sub { @apply text-[14px] text-brand-gray mt-1 leading-relaxed; }
+  .kicker { @apply text-[12.5px] font-semibold uppercase tracking-[0.1em] text-brand-gray; }
+  .micro { @apply text-[12px] font-semibold uppercase tracking-[0.08em] text-brand-lightgray; }
+  .btn { @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-[14.5px] font-semibold transition disabled:opacity-50; }
   .btn-primary { @apply btn bg-brand-red text-white hover:bg-brand-darkred; }
   .btn-ghost { @apply btn border border-surface-ghost bg-surface-card text-brand-gray hover:text-brand-black hover:border-brand-lightgray; }
-  .input { @apply w-full rounded-md border border-surface-border bg-surface-card px-2.5 py-1.5 text-[13px] text-brand-black outline-none focus:border-brand-red/60 focus:ring-2 focus:ring-brand-red/15; }
-  .th { @apply text-left text-[10.5px] uppercase tracking-[0.07em] text-brand-gray font-semibold px-3 py-2 whitespace-nowrap; }
-  .td { @apply px-3 py-2 text-[13px] border-t border-surface-hairline align-top; }
+  .input { @apply w-full rounded-lg border border-surface-border bg-surface-card px-3 py-2 text-[14.5px] text-brand-black outline-none focus:border-brand-red/60 focus:ring-2 focus:ring-brand-red/15; }
+  .th { @apply text-left text-[13px] text-brand-gray font-semibold px-3.5 py-2.5 whitespace-nowrap; }
+  .td { @apply px-3.5 py-3 text-[14.5px] border-t border-surface-hairline align-top leading-snug; }
   .link { @apply text-brand-red hover:underline cursor-pointer; }
   .num { font-variant-numeric: tabular-nums; }
 }
 
 .recharts-cartesian-grid line { stroke: var(--c-grid); }
-.recharts-text { fill: var(--c-text-2); font-size: 11px; }
+.recharts-text { fill: var(--c-text-2); font-size: 12.5px; }
 .recharts-cartesian-axis-line, .recharts-cartesian-axis-tick-line { stroke: var(--c-grid); }
 .recharts-tooltip-cursor { fill: rgb(var(--surface-mute) / 0.6); }
 .recharts-surface:focus, .recharts-wrapper:focus, svg:focus { outline: none; }
@@ -100,5 +84,5 @@
 /* Phone and tablet widths: wide tables scroll inside their card, never the page. */
 @media (max-width: 1023px) {
   .card table { display: block; overflow-x: auto; max-width: 100%; }
-  html, body { overflow-x: hidden; }
+  html, body { overflow-x: clip; }
 }

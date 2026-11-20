@@ -57,7 +57,7 @@ UNSTAFFED_UTIL = 0.5
 STAGE_ORDER = {"30%": 1, "60%": 2, "90%": 3, "IFP": 4, "IFC": 5}
 
 STATUS_LABEL = {
-    "complete_on_time": "Complete - on time", "complete_late": "Complete - late", "late": "Late",
+    "complete_on_time": "Done on time", "complete_late": "Done late", "late": "Late",
     "projected_late": "Projected late", "at_risk": "At risk", "on_track": "On track",
     "on_hold": "On hold", "no_plan": "No plan", "no_data": "No work data",
 }
@@ -143,6 +143,10 @@ def compute(db: Session, f: Filters) -> dict:
     return {"projects": projects, "milestones": out_ms}
 
 
+def _d(x: date) -> str:
+    return f"{x.day} {x:%b}"
+
+
 def _item_finish(w: dict, prev_finish: dict, as_of: date) -> tuple[date | None, str]:
     """Projected finish for one work package, plus a short basis string."""
     if w["status"] in ("done", "cancelled"):
@@ -151,30 +155,31 @@ def _item_finish(w: dict, prev_finish: dict, as_of: date) -> tuple[date | None, 
     hours = float(w["planned_hours"] or 0)
     pct_done = float(w["percent_complete"] or 0)
     remaining_bd = math.ceil(max(0.0, hours * (1 - pct_done)) / (8.0 * util)) if hours else 0
-    staffed = "" if w["util"] else " (unstaffed: 0.5 assumed)"
+    staffed = "" if w["util"] else " (no one booked yet, so 50% is assumed)"
+    left = f"{remaining_bd} working days of effort left at {util:.0%} booked{staffed}"
     if w["status"] == "blocked":
         start = w["expected_unblock_date"] or add_business_days(as_of, BLOCKED_DEFAULT_BD)
-        basis = (f"blocked; resumes {start}" + ("" if w["expected_unblock_date"] else " (assumed +5 bd)")
-                 + f"; {remaining_bd} bd left at {util:.0%}{staffed}")
+        basis = (f"blocked until {_d(start)}" + ("" if w["expected_unblock_date"] else " (no date given, so 5 business days assumed)")
+                 + f"; then {left}")
         return add_business_days(start, remaining_bd), basis
     if w["status"] in ("in_progress", "in_review", "unknown"):
         fin = add_business_days(as_of, max(remaining_bd, 1 if w["status"] == "in_review" else remaining_bd))
         due = w["due_date"]
         if due and fin <= due:
-            return due, f"{remaining_bd} bd left at {util:.0%}{staffed}; within due date"
-        return fin, f"{remaining_bd} bd left at {util:.0%}{staffed}"
+            return due, f"{left}; fits before its due date"
+        return fin, left
     # not started
     planned_start = w["planned_start"] or as_of
     upstream = prev_finish.get(w["discipline"])
     start = max(d for d in (planned_start, as_of, add_business_days(upstream, 1) if upstream else None) if d)
     due = w["due_date"]
     if start <= planned_start and due:
-        return due, "not started; plan holds"
+        return due, "not started; the plan still holds"
     total_bd = math.ceil(hours / (8.0 * util)) if hours else 0
     fin = add_business_days(start, total_bd)
     if due and fin < due:
         fin = due
-    return fin, f"start pushed to {start} by upstream; {total_bd} bd at {util:.0%}{staffed}"
+    return fin, f"cannot start until {_d(start)} (waiting on earlier work); {total_bd} working days of effort at {util:.0%} booked{staffed}"
 
 
 def _classify(m: dict, items: list[dict], p: dict, prev_finish: dict, as_of: date) -> dict:
@@ -190,7 +195,7 @@ def _classify(m: dict, items: list[dict], p: dict, prev_finish: dict, as_of: dat
             finishes.append(fin)
             prev_finish[w["discipline"]] = fin
         if w["status"] not in ("done", "cancelled"):
-            res["basis"].append(f"{w['discipline']}: {basis} -> {fin}")
+            res["basis"].append(f"{w['discipline']}: {basis}" + (f", finishing {_d(fin)}" if fin else ""))
     if actual is not None:
         res["status"] = "complete_on_time" if actual <= planned else "complete_late"
         res["variance_bd"] = business_days_between(planned, actual)

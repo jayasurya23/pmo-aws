@@ -25,7 +25,7 @@ export function useChartColors(): ChartColors {
 
 /** Colour follows the ENTITY, never its rank: each discipline owns one slot. */
 export const DISCIPLINE_SLOT: Record<string, ColorKey> = {
-  Electrical: "series-1", Civil: "series-2", Structural: "series-3", Substation: "series-4", "Battery Storage": "series-5",
+  Electrical: "series-1", Civil: "series-2", Structural: "series-3",
 };
 export const DISCIPLINES = Object.keys(DISCIPLINE_SLOT);
 

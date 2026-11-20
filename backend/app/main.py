@@ -78,7 +78,7 @@ def meta(db: Session = Depends(get_db)):
         "clients": q(db, "SELECT id, name FROM clients ORDER BY name"),
         "pms": q(db, """SELECT DISTINCT u.id, u.name FROM users u JOIN portfolio_projects pp ON pp.pm_user_id = u.id
                         ORDER BY u.name"""),
-        "disciplines": ["Electrical", "Civil", "Structural", "Substation", "Battery Storage"],
+        "disciplines": ["Electrical", "Civil", "Structural"],
         "freshness": Q.freshness(db, f),
         "counts": q(db, """SELECT (SELECT COUNT(*) FROM clients) AS clients, (SELECT COUNT(*) FROM projects) AS portfolios,
                                   (SELECT COUNT(*) FROM portfolio_projects) AS projects,

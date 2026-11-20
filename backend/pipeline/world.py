@@ -24,19 +24,22 @@ from app.bizdays import add_business_days, business_days_between, monday_of
 from pipeline import names as N
 from pipeline.denylist import is_denied
 
-DISCIPLINES = ["Electrical", "Civil", "Structural", "Substation", "Battery Storage"]
-DISC_CODE = {"Electrical": "E", "Civil": "C", "Structural": "S", "Substation": "SS", "Battery Storage": "B"}
+# Castillo's engineering departments. Substation and battery storage are PROJECT TYPES
+# (technology), designed by these departments - substation and BESS electrical work
+# is done by the Electrical team.
+DISCIPLINES = ["Electrical", "Civil", "Structural"]
+DISC_CODE = {"Electrical": "E", "Civil": "C", "Structural": "S"}
 STAGES = ["30%", "60%", "90%", "IFP", "IFC"]
 STAGE_LABEL = {"30%": "30% Design", "60%": "60% Design", "90%": "90% Design",
                "IFP": "Issued for Purchase", "IFC": "Issued for Construction"}
-IFP_DISCIPLINES = {"Electrical", "Substation", "Battery Storage"}
+IFP_DISCIPLINES = {"Electrical"}  # equipment-purchase packages: transformers, switchgear, BESS
 
 TECH_DISCIPLINES = {
     "PV": ["Electrical", "Civil", "Structural"],
-    "PV + BESS": ["Electrical", "Civil", "Structural", "Battery Storage"],
-    "BESS": ["Electrical", "Civil", "Battery Storage"],
-    "Substation": ["Substation", "Civil", "Structural"],
-    "PV + Substation": ["Electrical", "Civil", "Structural", "Substation"],
+    "PV + BESS": ["Electrical", "Civil", "Structural"],
+    "BESS": ["Electrical", "Civil", "Structural"],
+    "Substation": ["Electrical", "Civil", "Structural"],
+    "PV + Substation": ["Electrical", "Civil", "Structural"],
 }
 TECH_WEIGHTS = [("PV", 0.36), ("PV + BESS", 0.22), ("BESS", 0.12), ("Substation", 0.12), ("PV + Substation", 0.18)]
 TECH_SUFFIX = {"PV": "Solar", "PV + BESS": "Solar + Storage", "BESS": "Energy Storage",
@@ -51,12 +54,12 @@ BASE_HOURS = {
     "Electrical": {"30%": 80, "60%": 110, "90%": 95, "IFP": 40, "IFC": 55},
     "Civil": {"30%": 65, "60%": 90, "90%": 75, "IFC": 40},
     "Structural": {"30%": 50, "60%": 75, "90%": 65, "IFC": 35},
-    "Substation": {"30%": 75, "60%": 105, "90%": 95, "IFP": 45, "IFC": 55},
-    "Battery Storage": {"30%": 60, "60%": 85, "90%": 75, "IFP": 35, "IFC": 40},
 }
 
 HOURS_SCALE = 0.72
-ENGINEERS_PER_DISC = {"Electrical": 24, "Civil": 18, "Structural": 14, "Substation": 12, "Battery Storage": 8}
+ENGINEERS_PER_DISC = {"Electrical": 34, "Civil": 20, "Structural": 18}
+# Electrical scope grows with the technology: BESS and substations add P&C, SCADA and equipment design.
+ELECTRICAL_SCOPE = {"PV": 1.0, "PV + BESS": 1.3, "BESS": 1.15, "Substation": 1.4, "PV + Substation": 1.5}
 PM_COUNT = 10
 
 UTC = timezone.utc
@@ -173,14 +176,14 @@ class Generator:
         for disc in DISCIPLINES:
             n = ENGINEERS_PER_DISC[disc]
             for i in range(n):
-                if disc == "Substation" and 1 <= i <= 3:
-                    f, l = fixed_sub_seniors[i - 1]
+                if disc == "Electrical" and 1 <= i <= 3:
+                    f, l = fixed_sub_seniors[i - 1]  # the substation protection & controls specialists
                     seniority = "senior"
                 else:
                     f, l = self.person()
                     seniority = "lead" if i == 0 else self.weighted(
                         [("senior", 0.25), ("mid", 0.45), ("junior", 0.30)])
-                title = {"lead": f"{disc} Engineering Lead", "senior": f"Senior {disc} Engineer",
+                title = {"lead": f"{disc} Engineering Lead", "senior": f"Senior {disc} Engineer" + (" (Substation P&C)" if disc == "Electrical" and 1 <= i <= 3 else ""),
                          "mid": f"{disc} Engineer II", "junior": f"{disc} Engineer I"}[seniority]
                 role = "lead" if seniority == "lead" else "engineer"
                 u = add_user(f, l, title, f"{disc} Engineering", role)
@@ -208,11 +211,11 @@ class Generator:
                             "title": "Electrical Engineer I", "seniority": "junior", "is_placeholder": True,
                             "available_from": date(2027, 1, 11), "active": True, "weekly_capacity_hours": 40.0})
         rid += 1
-        self.contractor = {"id": rid, "name": "Contract Substation EE", "user_id": None, "discipline": "Substation",
-                           "title": "Contract Engineer (P&C)", "seniority": "senior", "is_placeholder": True,
+        self.contractor = {"id": rid, "name": "Contract P&C Engineer", "user_id": None, "discipline": "Electrical",
+                           "title": "Contract Engineer (Substation P&C)", "seniority": "senior", "is_placeholder": True,
                            "available_from": None, "active": False, "weekly_capacity_hours": 40.0}
         w.resources.append(self.contractor)
-        self.sub_seniors = [r for r in self.res_by_disc["Substation"] if r["name"] in
+        self.sub_seniors = [r for r in self.res_by_disc["Electrical"] if r["name"] in
                             {"Priya Raman", "Marcus Ojo", "Elena Ruiz"}]
 
     # ------------------------------------------------------------ clients and portfolios
@@ -441,7 +444,8 @@ class Generator:
                     if m["stage"] == "IFP" and disc not in IFP_DISCIPLINES:
                         continue
                     wid += 1
-                    hours = BASE_HOURS[disc][m["stage"]] * HOURS_SCALE * size * rng.uniform(0.85, 1.15)
+                    scope = ELECTRICAL_SCOPE[proj["technology"]] if disc == "Electrical" else 1.0
+                    hours = BASE_HOURS[disc][m["stage"]] * HOURS_SCALE * size * scope * rng.uniform(0.85, 1.15)
                     planned_start = add_business_days(prev_planned, 1) if m["seq"] > 1 else proj["kickoff"]
                     due = add_business_days(m["planned"], -3)
                     if due <= planned_start:
@@ -465,7 +469,7 @@ class Generator:
         # Dependencies inside a stage (informational, shown on drilldown).
         key = {(i["project_id"], i["discipline"], i["stage"]): i for i in items}
         for it in items:
-            up = {"Structural": "Civil", "Substation": "Electrical", "Battery Storage": "Electrical"}.get(it["discipline"])
+            up = {"Structural": "Civil"}.get(it["discipline"])
             dep = key.get((it["project_id"], up, it["stage"])) if up else None
             it["depends_on"] = dep["id"] if dep else None
         self._assign(items)
@@ -503,7 +507,7 @@ class Generator:
                 it.update(status="blocked", pct=0.55, blocked_reason="Awaiting client geotechnical report (pile load tests)",
                           blocked_since=date(2026, 11, 2), expected_unblock=None, priority="High")
                 it["actual_hours"] = round(it["planned_hours"] * 0.55 * 1.1, 1)
-            elif it["discipline"] == "Battery Storage":
+            elif it["discipline"] == "Electrical":
                 it.update(status="in_review", pct=0.92)
                 it["actual_hours"] = round(it["planned_hours"] * 0.92 * 1.05, 1)
             else:
@@ -511,7 +515,7 @@ class Generator:
                 it["actual_hours"] = round(it["planned_hours"] * 1.08, 1)
             return
         if p["forced"] == "s2_cedar" and m["stage"] == "IFC":
-            if it["discipline"] in ("Electrical", "Civil", "Battery Storage"):
+            if it["discipline"] in ("Electrical", "Civil"):
                 it.update(status="in_progress", pct=0.15, actual_start=date(2026, 11, 12))
                 it["actual_hours"] = round(it["planned_hours"] * 0.15, 1)
             return
@@ -615,8 +619,8 @@ class Generator:
             cands = [r for r in self.res_by_disc[it["discipline"]] if r["active"]]
             key = (p["id"], it["discipline"])
             res = None
-            bar = S1_BARS.get((p["forced"], it["stage"])) if it["discipline"] == "Substation" else None
-            if p["forced"] and p["forced"].startswith("s1") and it["discipline"] == "Substation":
+            bar = S1_BARS.get((p["forced"], it["stage"])) if it["discipline"] == "Electrical" else None
+            if p["forced"] and p["forced"].startswith("s1") and it["discipline"] == "Electrical":
                 # Scenario 1: every high-voltage package lands on the same three seniors.
                 res = self.sub_seniors[bar[0] if bar else 0]
                 if bar:

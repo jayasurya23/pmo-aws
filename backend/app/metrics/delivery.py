@@ -200,7 +200,7 @@ def executive_dashboard(db: Session, f: Filters, sched: dict) -> dict:
         by_disc[r["discipline"]][r["pid"]] += 1
     hp = {p["id"]: p["health"] for p in active}
     disc_rows = []
-    for d in ("Electrical", "Civil", "Structural", "Substation", "Battery Storage"):
+    for d in ("Electrical", "Civil", "Structural"):
         if f.disciplines and d not in f.disciplines:
             continue
         pids = [pid for pid in by_disc[d] if pid in hp]

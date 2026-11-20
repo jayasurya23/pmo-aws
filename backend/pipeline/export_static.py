@@ -22,7 +22,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.metrics.drill import METRICS
 
-VARIANTS = ["all", "Electrical", "Civil", "Structural", "Substation", "Battery Storage"]
+VARIANTS = ["all", "Electrical", "Civil", "Structural"]
 DASHBOARDS = ["executive", "delivery", "capacity", "actions", "commercial"]
 SHARDS = 8
 

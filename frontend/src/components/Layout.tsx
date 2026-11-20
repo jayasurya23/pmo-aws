@@ -12,21 +12,20 @@ export const EXEC_PATH = STATIC ? "/overview" : "/";
 export const START_PATH = STATIC ? "/" : "/start";
 
 const NAV = [
-  { group: "Start", items: [
-    { to: START_PATH, label: "Start here", code: "→" },
+  { group: "", items: [
+    { to: START_PATH, label: "Start here" },
   ]},
   { group: "Dashboards", items: [
-    { to: EXEC_PATH, label: "Executive overview", code: "A" },
-    { to: "/delivery", label: "Delivery & schedule", code: "B" },
-    { to: "/capacity", label: "Resources & capacity", code: "C" },
-    { to: "/actions", label: "Meetings & actions", code: "D" },
-    { to: "/commercial", label: "Portfolio & commercial", code: "E" },
-    { to: "/quality", label: "Data quality & integration", code: "F" },
+    { to: EXEC_PATH, label: "Overview" },
+    { to: "/delivery", label: "Schedule" },
+    { to: "/capacity", label: "Team capacity" },
+    { to: "/actions", label: "Action items" },
+    { to: "/commercial", label: "Proposals & change orders" },
+    { to: "/quality", label: "Data quality" },
   ]},
-  { group: "Case study", items: [
-    { to: "/scenarios", label: "Decision scenarios", code: "★" },
-    { to: "/pipeline", label: "How the data flows", code: "⇢" },
-    { to: "/about", label: "Original vs demo", code: "?" },
+  { group: "The story", items: [
+    { to: "/scenarios", label: "Two decisions" },
+    { to: "/pipeline", label: "How the data flows" },
   ]},
 ];
 
@@ -38,47 +37,44 @@ export default function Layout() {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("pmo-demo-theme", dark ? "dark" : "light"); } catch { /* storage unavailable */ }
   }, [dark]);
-  const showFilters = !["/pipeline", "/about", "/scenarios", START_PATH].includes(pathname) && !pathname.startsWith("/projects");
+  const showFilters = !["/pipeline", "/scenarios", START_PATH].includes(pathname) && !pathname.startsWith("/projects");
   return (
     <div className="min-h-full flex">
-      <aside className="hidden lg:block w-[232px] shrink-0 bg-surface-side text-white/85 self-stretch">
+      <aside className="hidden lg:block w-[248px] shrink-0 bg-surface-side border-r border-surface-border self-stretch">
        <div className="sticky top-0 h-screen flex flex-col">
-        <Link to="/" className="px-5 pt-5 pb-4 block">
-          <div className="text-[19px] font-bold tracking-[-0.01em] text-white">PMO <span className="text-[#e45a66]">360</span></div>
-          <div className="text-[11px] text-white/55 leading-tight mt-0.5">Operations analytics · case-study build</div>
+        <Link to="/" className="px-6 pt-6 pb-5 block">
+          <div className="text-[22px] font-bold tracking-[-0.01em]">PMO <span className="text-brand-red">360</span></div>
+          <div className="text-[13.5px] text-brand-gray leading-tight mt-1">Operations analytics</div>
         </Link>
-        <div className="mx-4 mb-3 rounded-md border border-[#fab219]/50 bg-[#fab219]/10 px-2.5 py-1.5 text-[11px] leading-snug text-[#fbd27a]">
-          <span className="font-semibold">Synthetic Demonstration Data</span><br />No client, project or employee is real.
-        </div>
-        <nav className="flex-1 overflow-y-auto px-2.5 pb-4">
+        <nav className="flex-1 overflow-y-auto px-3 pb-4">
           {NAV.map((g) => (
-            <div key={g.group} className="mt-2">
-              <div className="px-2.5 py-1.5 text-[10px] uppercase tracking-[0.12em] text-white/40 font-semibold">{g.group}</div>
+            <div key={g.group || "start"} className="mt-3 first:mt-0">
+              {g.group && <div className="px-3 py-2 text-[12px] uppercase tracking-[0.1em] text-brand-lightgray font-semibold">{g.group}</div>}
               {g.items.map((it) => (
                 <NavLink key={it.to} to={{ pathname: it.to, search }} end={it.to === "/" || it.to === EXEC_PATH}
-                  className={({ isActive }) => clsx("flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13.5px] transition",
-                    isActive ? "bg-white/10 text-white font-semibold" : "hover:bg-white/5 text-white/75")}>
-                  <span className={clsx("w-5 h-5 rounded text-[10.5px] font-bold grid place-items-center shrink-0",
-                    pathname === it.to ? "bg-[#ad1f2b] text-white" : "bg-white/10 text-white/70")}>{it.code}</span>
+                  className={({ isActive }) => clsx("flex items-center gap-2 px-3 py-2.5 rounded-lg text-[15px] transition border-l-[3px]",
+                    isActive ? "bg-brand-red/[0.07] text-brand-black font-semibold border-brand-red" : "border-transparent text-brand-gray hover:bg-surface-mute hover:text-brand-black")}>
                   {it.label}
                 </NavLink>
               ))}
             </div>
           ))}
         </nav>
-        <div className="px-4 py-3 border-t border-white/10 flex items-center justify-between text-[11.5px] text-white/50">
-          <span>Demo user · read-only</span>
-          <button onClick={() => setDark(!dark)} className="px-2 py-1 rounded hover:bg-white/10 text-white/70" aria-label="Toggle theme">{dark ? "☀ Light" : "☾ Dark"}</button>
+        <div className="mx-4 mb-3 rounded-lg border border-[#b37a00]/35 bg-[#fab219]/10 px-3 py-2.5 text-[13px] leading-snug text-brand-black">
+          <span className="font-semibold">Synthetic demonstration data.</span> No client, project or person is real.
+        </div>
+        <div className="px-5 py-3 border-t border-surface-border flex items-center justify-end text-[13px] text-brand-gray">
+          <button onClick={() => setDark(!dark)} className="px-2.5 py-1.5 rounded-md hover:bg-surface-mute" aria-label="Toggle theme">{dark ? "☀ Light mode" : "☾ Dark mode"}</button>
         </div>
        </div>
       </aside>
       <div className="flex-1 min-w-0 flex flex-col">
         <TopBar showFilters={showFilters} />
-        <main className="flex-1 px-4 sm:px-6 py-5 max-w-shell w-full mx-auto min-w-0">
+        <main className="flex-1 px-4 sm:px-8 py-7 max-w-[1400px] w-full mx-auto min-w-0">
           <Outlet />
         </main>
-        <footer className="px-6 py-4 text-[11px] text-brand-lightgray border-t border-surface-border">
-          Synthetic demonstration built on the PMO 360 architecture (FastAPI · PostgreSQL · React). All names, dates and figures are generated; no production system or data is connected.
+        <footer className="px-8 py-5 text-[13px] text-brand-gray border-t border-surface-border">
+          Synthetic data, generated for this demonstration. Built with FastAPI, PostgreSQL and React.
         </footer>
       </div>
     </div>
@@ -91,13 +87,13 @@ function MobileNav() {
   const items = NAV.flatMap((g) => g.items);
   return (
     <div className="lg:hidden w-full flex items-center gap-2">
-      <span className="font-bold text-[15px] shrink-0">PMO <span className="text-brand-red">360</span></span>
+      <span className="font-bold text-[16.5px] shrink-0">PMO <span className="text-brand-red">360</span></span>
       <select className="input !w-auto flex-1 min-w-0" aria-label="Go to page" value={items.find((i) => i.to === pathname)?.to ?? ""}
         onChange={(e) => nav({ pathname: e.target.value, search })}>
         {!items.some((i) => i.to === pathname) && <option value="">Project detail</option>}
-        {items.map((i) => <option key={i.to} value={i.to}>{i.code} · {i.label}</option>)}
+        {items.map((i) => <option key={i.to} value={i.to}>{i.label}</option>)}
       </select>
-      <span className="shrink-0 rounded border border-[#b37a00]/50 bg-[#fab219]/15 px-1.5 py-0.5 text-[10.5px] font-semibold text-brand-deepgold">Synthetic data</span>
+      <span className="shrink-0 rounded border border-[#b37a00]/50 bg-[#fab219]/15 px-1.5 py-0.5 text-[12px] font-semibold text-brand-deepgold">Synthetic data</span>
     </div>
   );
 }
@@ -106,7 +102,7 @@ function TopBar({ showFilters }: { showFilters: boolean }) {
   const { meta } = useMeta();
   return (
     <header className="sticky top-0 z-40 bg-surface-page/95 backdrop-blur border-b border-surface-border">
-      <div className="px-4 sm:px-6 py-2.5 flex items-center gap-3 flex-wrap">
+      <div className="px-4 sm:px-8 py-3 flex items-center gap-3 flex-wrap">
         <MobileNav />
         <ProjectSearch />
         <div className="flex-1" />
@@ -125,23 +121,23 @@ function Freshness({ meta }: { meta: any }) {
   return (
     <div className="relative" onMouseLeave={() => setOpen(false)}>
       <button onClick={() => setOpen(!open)} onMouseEnter={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-md border border-surface-border bg-surface-card px-2.5 py-1.5 text-[12px]">
+        className="flex items-center gap-2 rounded-md border border-surface-border bg-surface-card px-2.5 py-1.5 text-[13.5px]">
         <span className={clsx("w-2 h-2 rounded-full", worst === "fresh" ? "bg-st-good" : worst === "stale" ? "bg-st-warn" : "bg-st-critical")} />
-        <span>Data as of <b>{fmtDate(meta.as_of)}</b> 06:30 ET{STATIC && <span className="text-brand-gray"> · static snapshot</span>}</span>
+        <span>Data as of <b>{fmtDate(meta.as_of)}</b></span>
         {stale.length > 0 && <span className="text-brand-gray">· {stale.length} source{stale.length > 1 ? "s" : ""} stale</span>}
       </button>
       {open && (
         <div className="absolute right-0 top-9 w-[min(420px,92vw)] card p-3 z-50">
-          <div className="text-[12px] font-semibold mb-2">Source freshness (last successful extract vs SLA)</div>
+          <div className="text-[13.5px] font-semibold mb-2">Source freshness (last successful extract vs SLA)</div>
           {meta.freshness.map((s: any) => (
-            <div key={s.key} className="flex items-center gap-2 py-1 text-[12px] border-t border-surface-hairline first:border-0">
+            <div key={s.key} className="flex items-center gap-2 py-1 text-[13.5px] border-t border-surface-hairline first:border-0">
               <span className={clsx("w-2 h-2 rounded-full shrink-0", s.freshness === "fresh" ? "bg-st-good" : s.freshness === "stale" ? "bg-st-warn" : "bg-st-critical")} />
               <span className="flex-1 truncate">{s.name}</span>
               <span className="num text-brand-gray">{s.age_hours}h / {s.freshness_sla_hours}h</span>
               {s.last_status === "failed" && <span className="text-st-critical font-semibold">last run failed</span>}
             </div>
           ))}
-          <Link to="/quality" className="link text-[12px] mt-2 inline-block">Open data quality →</Link>
+          <Link to="/quality" className="link text-[13.5px] mt-2 inline-block">Open data quality →</Link>
         </div>
       )}
     </div>
@@ -161,13 +157,13 @@ function ProjectSearch() {
   return (
     <div className="relative w-full sm:w-[340px]" ref={ref}>
       <input className="input pl-8" placeholder="Find a project, portfolio, client or job #" value={q} onChange={(e) => setQ(e.target.value)} />
-      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-lightgray text-[13px]">⌕</span>
+      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-lightgray text-[14.5px]">⌕</span>
       {res.length > 0 && (
         <div className="absolute left-0 right-0 top-9 card py-1 z-50 max-h-[360px] overflow-auto">
           {res.map((r) => (
             <button key={r.id} className="w-full text-left px-3 py-1.5 hover:bg-surface-rowhover" onClick={() => { setQ(""); nav(`/projects/${r.id}`); }}>
-              <div className="text-[13px] font-medium">{r.name}</div>
-              <div className="text-[11.5px] text-brand-gray">{r.portfolio_name} · {r.client_name} · {r.lifecycle}</div>
+              <div className="text-[14.5px] font-medium">{r.name}</div>
+              <div className="text-[13px] text-brand-gray">{r.portfolio_name} · {r.client_name} · {r.lifecycle}</div>
             </button>
           ))}
         </div>
@@ -183,19 +179,18 @@ function FilterBar() {
   const portfolios = meta.portfolios.filter((p: any) => !filters.clients.length || filters.clients.includes(p.client_id));
   if (STATIC) {
     return (
-      <div className="px-4 sm:px-6 pb-2.5 flex items-center gap-2 flex-wrap text-[12.5px]">
-        <span className="text-brand-gray">Discipline:</span>
+      <div className="px-4 sm:px-8 pb-3 flex items-center gap-2 flex-wrap text-[14.5px]">
+        <span className="text-brand-gray mr-1">Discipline</span>
         {["All", ...DISCIPLINES].map((d) => {
           const on = d === "All" ? filters.disciplines.length === 0 : filters.disciplines.length === 1 && filters.disciplines[0] === d;
           return <button key={d} onClick={() => set({ disciplines: d === "All" ? [] : [d] })}
-            className={clsx("px-2.5 py-1 rounded-md border", on ? "bg-brand-black text-surface-card border-brand-black font-semibold" : "bg-surface-card border-surface-border text-brand-gray hover:text-brand-black")}>{d}</button>;
+            className={clsx("px-3.5 py-1.5 rounded-full border", on ? "bg-brand-black text-surface-card border-brand-black font-semibold" : "bg-surface-card border-surface-border text-brand-gray hover:text-brand-black")}>{d}</button>;
         })}
-        <span className="text-[11.5px] text-brand-lightgray ml-1">Hosted snapshot: the live app also filters by client, portfolio, PM and date windows.</span>
       </div>
     );
   }
   return (
-    <div className="px-4 sm:px-6 pb-2.5 flex items-center gap-2 flex-wrap text-[12.5px]">
+    <div className="px-4 sm:px-6 pb-2.5 flex items-center gap-2 flex-wrap text-[14px]">
       <MultiSelect label="Client" options={meta.clients.map((c: any) => ({ v: c.id, l: c.name }))} value={filters.clients}
         onChange={(v) => set({ clients: v as number[], portfolios: [] })} />
       <MultiSelect label="Portfolio" options={portfolios.map((p: any) => ({ v: p.id, l: p.name, s: p.client_name }))} value={filters.portfolios}
@@ -253,12 +248,12 @@ function MultiSelect({ label, options, value, onChange }: {
                 <label key={String(o.v)} className="flex items-start gap-2 px-1.5 py-1 rounded hover:bg-surface-rowhover cursor-pointer">
                   <input type="checkbox" checked={on} className="mt-0.5 accent-[#ad1f2b]"
                     onChange={() => onChange(on ? value.filter((x) => x !== o.v) : [...value, o.v])} />
-                  <span className="text-[12.5px] leading-tight">{o.l}{o.s && <span className="block text-[11px] text-brand-gray">{o.s}</span>}</span>
+                  <span className="text-[14px] leading-tight">{o.l}{o.s && <span className="block text-[12.5px] text-brand-gray">{o.s}</span>}</span>
                 </label>
               );
             })}
           </div>
-          {value.length > 0 && <button className="link text-[12px] mt-1.5" onClick={() => onChange([])}>Clear</button>}
+          {value.length > 0 && <button className="link text-[13.5px] mt-1.5" onClick={() => onChange([])}>Clear</button>}
         </div>
       )}
     </div>
@@ -266,5 +261,5 @@ function MultiSelect({ label, options, value, onChange }: {
 }
 
 export function Mono({ children }: { children: ReactNode }) {
-  return <code className="text-[12px] bg-surface-mute px-1 py-px rounded">{children}</code>;
+  return <code className="text-[13.5px] bg-surface-mute px-1 py-px rounded">{children}</code>;
 }

@@ -5,7 +5,6 @@ import { STATIC } from "@/lib/api";
 import Start from "@/pages/Start";
 import { MetaProvider } from "@/components/meta";
 import { FilterProvider } from "@/lib/filters";
-import About from "@/pages/About";
 import Actions from "@/pages/Actions";
 import Capacity from "@/pages/Capacity";
 import Commercial from "@/pages/Commercial";
@@ -34,8 +33,7 @@ export default function App() {
               <Route path="projects/:id" element={<Project />} />
               <Route path="scenarios" element={<Scenarios />} />
               <Route path="pipeline" element={<Pipeline />} />
-              <Route path="about" element={<About />} />
-              <Route path="*" element={<div className="text-brand-gray">Not found.</div>} />
+              <Route path="*" element={<div className="text-brand-gray text-[16px]">Page not found.</div>} />
             </Route>
           </Routes>
         </DrillProvider>

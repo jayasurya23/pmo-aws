@@ -5,14 +5,13 @@ import App from "./App";
 import { STATIC } from "./lib/api";
 import "./styles/index.css";
 
-// Theme: an explicit choice wins; otherwise follow the OS.
+// Theme: light unless the visitor has chosen dark.
 try {
-  const saved = localStorage.getItem("pmo-demo-theme");
-  const dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const dark = localStorage.getItem("pmo-demo-theme") === "dark";
   document.documentElement.classList.toggle("dark", dark);
   document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
 } catch {
-  /* storage unavailable: default light */
+  document.documentElement.setAttribute("data-theme", "light");
 }
 
 // Hash routing in the static build so deep links work on any static host.

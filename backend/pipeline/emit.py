@@ -40,10 +40,6 @@ TEAM_LABELS = {
               "in_review": "Internal Review", "done": "Complete"},
     "Structural": {"not_started": "Not Started", "in_progress": "WIP", "blocked": "Blocked",
                    "in_review": "QC", "done": "Done"},
-    "Substation": {"not_started": "Not Started", "in_progress": "In Progress", "blocked": "Stuck",
-                   "in_review": "In QC", "done": "Issued"},
-    "Battery Storage": {"not_started": "Not Started", "in_progress": "Working on it", "blocked": "On Hold - Client",
-                        "in_review": "In QC", "done": "Done"},
 }
 REGISTER_LABELS = {"not_started": ["Not started"], "in_progress": ["WIP", "In Progress"],
                    "in_qc": ["In QC", "QC Review"], "issued": ["Issued", "IFC Issued", "Issued for Construction"],

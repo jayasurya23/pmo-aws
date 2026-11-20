@@ -84,16 +84,11 @@ BLOCKED_REASONS = {
         "Inverter vendor drawings outstanding",
         "Utility interconnection data pending",
         "Collector routing awaiting land-rights confirmation",
-    ],
-    "Substation": [
         "Transformer vendor data not received",
         "Utility protection & controls requirements pending",
         "Relay panel vendor drawings outstanding",
-    ],
-    "Battery Storage": [
         "BESS integrator layout not final",
         "Fire code (NFPA 855) review comments pending",
-        "Augmentation strategy not confirmed by client",
     ],
 }
 

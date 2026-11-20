@@ -52,7 +52,33 @@ function cell(k: string, v: any, row: any) {
   return String(v);
 }
 
-const label = (k: string) => k.replace(/_bd$/, " (bus. days)").replace(/_/g, " ").replace(/\bpct\b/, "%").replace(/^./, (c) => c.toUpperCase());
+/** The columns shown by default for each record shape; "Show all columns" reveals the rest. */
+const PRESETS: string[][] = [
+  ["name", "client_name", "pm_name", "health", "next_milestone", "next_planned", "next_forecast", "worst_slip_bd"],
+  ["text", "owner_name", "project_name", "due_date", "days_overdue", "age_days"],
+  ["project_name", "stage", "planned_date", "forecast_date", "actual_date", "status_label", "slip_bd"],
+  ["name", "project_name", "discipline", "blocked_reason", "days_blocked_bd", "assignee"],
+  ["co_number", "title", "project_name", "status", "total_amount", "pending_bd"],
+  ["resource", "discipline", "project", "weeks", "peak_pct"],
+  ["subject", "meeting_date", "portfolio_name", "client_name"],
+  ["name", "discipline", "title", "peak_pct", "over_weeks", "pto_conflict_weeks"],
+  ["doc_number", "title", "project_name", "discipline", "planned_issue_date", "days_overdue_bd"],
+  ["job_number", "title", "client_name", "status", "fee_total", "age_bd"],
+  ["project_name", "discipline", "milestone", "start_date", "end_date"],
+];
+const LABELS: Record<string, string> = {
+  name: "Name", client_name: "Client", pm_name: "Project manager", health: "Health", next_milestone: "Next milestone",
+  next_planned: "Planned", next_forecast: "Projected", worst_slip_bd: "Worst slip (business days)", text: "Action",
+  owner_name: "Owner", project_name: "Project", due_date: "Due", days_overdue: "Days overdue", age_days: "Age (days)",
+  stage: "Milestone", planned_date: "Planned", forecast_date: "Projected", actual_date: "Issued", status_label: "Status",
+  slip_bd: "Slip (business days)", blocked_reason: "Why blocked", days_blocked_bd: "Blocked for (business days)",
+  assignee: "Assigned to", co_number: "CO #", title: "Title", total_amount: "Amount ($)", pending_bd: "Waiting (business days)",
+  resource: "Person", project: "Project", weeks: "Over-allocated weeks", peak_pct: "Peak load (%)", subject: "Meeting",
+  meeting_date: "Date", portfolio_name: "Portfolio", over_weeks: "Weeks over 110%", pto_conflict_weeks: "Booked during PTO",
+  doc_number: "Document", planned_issue_date: "Planned issue", days_overdue_bd: "Overdue (business days)", job_number: "Job #",
+  fee_total: "Fee ($)", age_bd: "Age (business days)", milestone: "Milestone", start_date: "Start", end_date: "End",
+};
+const label = (k: string) => LABELS[k] ?? k.replace(/_bd$/, " (business days)").replace(/_/g, " ").replace(/\bpct\b/, "%").replace(/^./, (c) => c.toUpperCase());
 
 function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
   const { query } = useFilters();
@@ -62,6 +88,7 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
   const [data, setData] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [allCols, setAllCols] = useState(false);
   const pageSize = 25;
   const facetQs = useMemo(() => Object.entries(req.facets || {}).map(([k, v]) => `&facet_${k}=${encodeURIComponent(v)}`).join(""), [req.facets]);
   useEffect(() => { const t = setTimeout(() => setDebounced(q), 250); return () => clearTimeout(t); }, [q]);
@@ -76,7 +103,10 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
-  const cols = data?.rows?.length ? Object.keys(data.rows[0]).filter((k) => !HIDE.has(k) && !(k === "id" && data.rows[0].name)) : [];
+  const keys = data?.rows?.length ? Object.keys(data.rows[0]) : [];
+  const preset = PRESETS.find((p) => p.every((k) => keys.includes(k)));
+  const every = keys.filter((k) => !HIDE.has(k) && !(k === "id" && data.rows[0].name));
+  const cols = !allCols && preset ? preset : every;
   const pages = data ? Math.max(1, Math.ceil(data.total / pageSize)) : 1;
   return (
     <div className="fixed inset-0 z-[60]">
@@ -85,16 +115,16 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
         <div className="px-5 pt-4 pb-3 border-b border-surface-border">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="kicker">Underlying records</div>
-              <h2 className="text-[19px] font-bold">{req.title}{req.facets && Object.values(req.facets).length ? ` · ${Object.values(req.facets).join(" · ")}` : ""}</h2>
-              {data?.definition && <p className="text-[12.5px] text-brand-gray mt-1 max-w-[760px]">{data.definition.definition} <span className="text-brand-lightgray">Grain: {data.definition.grain}.</span></p>}
+              <div className="kicker">The records behind this number</div>
+              <h2 className="text-[20px] font-bold">{req.title}{req.facets && Object.values(req.facets).length ? ` · ${Object.values(req.facets).join(" · ")}` : ""}</h2>
+              {data?.definition && <p className="text-[15px] text-brand-gray mt-1 max-w-[760px] leading-relaxed">{data.definition.definition}</p>}
             </div>
             <button className="btn-ghost" onClick={onClose} aria-label="Close">Close ✕</button>
           </div>
           <div className="flex items-center gap-2 mt-3">
             <input className="input max-w-[320px]" placeholder="Search these records…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
-            <span className="text-[12.5px] text-brand-gray">{data ? `${data.total.toLocaleString()} record${data.total === 1 ? "" : "s"}` : "…"}</span>
-            <span className="text-[11.5px] text-brand-lightgray">The KPI equals this count for the same filters (tested).</span>
+            <span className="text-[14px] text-brand-gray">{data ? `${data.total.toLocaleString()} record${data.total === 1 ? "" : "s"}` : "…"}</span>
+            {preset && <button className="text-[14px] link" onClick={() => setAllCols(!allCols)}>{allCols ? "Fewer columns" : `Show all ${every.length} columns`}</button>}
             {STATIC ? (
               <button className="btn-ghost ml-auto" onClick={async () => {
                 const all = await apiGet(`/drill/${req.metric}?${query}&page=1&page_size=100000${facetQs}${debounced ? `&q=${encodeURIComponent(debounced)}` : ""}`);
@@ -114,8 +144,8 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
           </div>
         </div>
         <div className="flex-1 overflow-auto">
-          {err && <div className="p-5 text-[13px] text-st-critical">{err}</div>}
-          {data && data.rows.length === 0 && <div className="p-8 text-center text-brand-gray text-[13px]">No records match.</div>}
+          {err && <div className="p-5 text-[14.5px] text-st-critical">{err}</div>}
+          {data && data.rows.length === 0 && <div className="p-8 text-center text-brand-gray text-[14.5px]">No records match.</div>}
           {data && data.rows.length > 0 && (
             <table className="w-full">
               <thead className="sticky top-0 bg-surface-card z-10 shadow-[0_1px_0_rgb(var(--surface-border))]">
@@ -131,7 +161,7 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
             </table>
           )}
         </div>
-        <div className="px-5 py-2.5 border-t border-surface-border flex items-center gap-2 text-[12.5px]">
+        <div className="px-5 py-2.5 border-t border-surface-border flex items-center gap-2 text-[14px]">
           <button className="btn-ghost" disabled={page <= 1} onClick={() => setPage(page - 1)}>← Prev</button>
           <span className="text-brand-gray">Page {page} of {pages}</span>
           <button className="btn-ghost" disabled={page >= pages} onClick={() => setPage(page + 1)}>Next →</button>

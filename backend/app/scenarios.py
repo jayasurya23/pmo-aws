@@ -8,7 +8,7 @@ number is hard-coded.
 S1  Engineering capacity bottleneck. Four high-voltage substation projects all look
     "on track" on the schedule view, but every one of their Dec-Jan design packages
     sits on the same three senior substation engineers (130-150% booked, one of them
-    with PTO mid-December, holidays on top). Decision: the substation lead takes one
+    with PTO mid-December, holidays on top). Decision: the Electrical lead takes one
     IFC package, a contract P&C engineer (two-week onboarding) takes half of one
     90% package, and one IFP is re-sequenced by five business days with the client.
 
@@ -39,23 +39,23 @@ S1_ENGINEERS = ["Priya Raman", "Marcus Ojo", "Elena Ruiz"]
 S2_PROJECT = "Cedar Hollow Solar + Storage"
 
 INFO = {
-    "s1": {"title": "Capacity bottleneck behind 'on track' substation projects",
+    "s1": {"title": "Four 'on track' substation projects, three over-booked engineers",
            "dashboard": "/capacity", "projects": S1_PROJECTS,
            "steps": [
-               "Executive view: all four substation projects show On track - no late or projected-late milestone.",
-               "Capacity view, Substation filter: Priya Raman, Marcus Ojo and Elena Ruiz are each booked above 110% of their available hours for weeks at a time - Marcus with work booked through his PTO week - while the substation lead has room.",
-               "Drill into 'Projects competing for the same people': all four projects' 60/90/IFP/IFC packages sit on these three people.",
-               "Decision: substation lead covers Harrow Creek IFC; a contract P&C engineer (from 7 Dec) takes half of the Ironleaf and Kettle River 90% packages; Granite Run IFP re-sequenced +5 business days with the client.",
-               "Measure: seniors' peak % of available, over-allocated person-weeks, milestones still on track, and actual vs planned hours as the packages close.",
+               "Overview: all four substation projects show On track, with no late or projected-late milestone.",
+               "Team capacity, Electrical: the team as a whole has room, but its three substation protection & controls specialists (Priya Raman, Marcus Ojo and Elena Ruiz) are booked above 110% of their available hours for weeks at a time, Marcus through his PTO week.",
+               "Projects competing for the same people (under More detail): all four projects' remaining packages sit on these three people.",
+               "Decision: the Electrical lead covers Harrow Creek IFC; a contract P&C engineer (from 7 Dec) takes half of the Ironleaf and Kettle River 90% packages; Granite Run IFP moves 5 business days, agreed with the client.",
+               "Measure: the seniors' peak load, their weeks over 110%, and how many milestones stay on track.",
            ]},
-    "s2": {"title": "Blocked structural package threatens Cedar Hollow IFC",
+    "s2": {"title": "A blocked structural package threatens Cedar Hollow's IFC",
            "dashboard": "/delivery", "projects": [S2_PROJECT],
            "steps": [
-               "Delivery view: Cedar Hollow 90% is Late (planned 13 Nov) and IFC (18 Dec) is Projected late.",
-               "Drill into the project: Structural 90% blocked since 2 Nov - 'Awaiting client geotechnical report'; the Structural 90% deliverable is overdue in the register.",
-               "Actions view: the client's geotech action is overdue and 'Confirm pile design approach if geotech delayed' has no owner.",
-               "Decision: proceed on an assumed pile design (hold point on receipt), add a second structural engineer for 90% and IFC, assign the orphaned action, escalate the client action.",
-               "Measure: IFC projected slip (business days), blocked packages, unassigned actions; then the 90% issue date when the register shows it.",
+               "Schedule: Cedar Hollow's 90% milestone is late (planned 13 Nov) and IFC (18 Dec) is projected late.",
+               "The project page: Structural 90% has been blocked since 2 Nov, awaiting the client's geotechnical report, and its deliverable is overdue.",
+               "Action items: the client's geotech action is overdue, and 'Confirm pile design approach if geotech delayed' has no owner.",
+               "Decision: proceed on an assumed pile design (checked when the report arrives), add a second structural engineer for 90% and IFC, give the orphaned action an owner, and escalate the client's action.",
+               "Measure: IFC's projected slip, blocked packages and actions with no owner; then the 90% issue date once it is issued.",
            ]},
 }
 
@@ -95,25 +95,25 @@ def apply(db: Session, key: str, as_of) -> dict:
     changes: list[dict] = []
     now = datetime(as_of.year, as_of.month, as_of.day, 15, 0, tzinfo=UTC)
     if key == "s1":
-        lead = db.scalars(select(M.TimelineResource).where(M.TimelineResource.discipline == "Substation",
+        lead = db.scalars(select(M.TimelineResource).where(M.TimelineResource.discipline == "Electrical",
                                                            M.TimelineResource.seniority == "lead")).first()
-        contractor = db.scalars(select(M.TimelineResource).where(M.TimelineResource.name == "Contract Substation EE")).one()
+        contractor = db.scalars(select(M.TimelineResource).where(M.TimelineResource.name == "Contract P&C Engineer")).one()
         start = add_business_days(as_of, 11)  # two-week onboarding
         _set(contractor, "active", True, changes, "timeline_resources")
         _set(contractor, "available_from", start, changes, "timeline_resources")
         # (a) lead covers Harrow Creek IFC
-        wi = _wi(db, S1_PROJECTS[3], "Substation", "IFC")
+        wi = _wi(db, S1_PROJECTS[3], "Electrical", "IFC")
         b = _booking(db, wi.id)
         _set(b, "resource_id", lead.id, changes, "timeline_assignments")
         _set(wi, "assignee_resource_id", lead.id, changes, "work_items")
         # (b) contractor takes half of the two heaviest 90% packages (Ironleaf: Marcus, Kettle River: Elena)
         for proj in (S1_PROJECTS[1], S1_PROJECTS[2]):
-            wi = _wi(db, proj, "Substation", "90%")
+            wi = _wi(db, proj, "Electrical", "90%")
             b = _booking(db, wi.id)
             half = round(b.utilization / 2, 2)
             _set(b, "utilization", half, changes, "timeline_assignments")
             nb = M.TimelineAssignment(timeline_project_id=b.timeline_project_id, resource_id=contractor.id,
-                                      discipline="Substation", milestone="90%", start_date=max(start, b.start_date),
+                                      discipline="Electrical", milestone="90%", start_date=max(start, b.start_date),
                                       end_date=b.end_date, utilization=half, origin="scenario", work_item_id=wi.id)
             db.add(nb)
             db.flush()
@@ -125,14 +125,14 @@ def apply(db: Session, key: str, as_of) -> dict:
         _set(ms, "revision_count", ms.revision_count + 1, changes, "milestones")
         _set(ms, "last_revision_reason", "Re-sequenced +5 business days with client to relieve substation capacity (S1 decision)",
              changes, "milestones")
-        wi = _wi(db, S1_PROJECTS[0], "Substation", "IFP")
+        wi = _wi(db, S1_PROJECTS[0], "Electrical", "IFP")
         b = _booking(db, wi.id)
         _set(b, "start_date", add_business_days(b.start_date, 5), changes, "timeline_assignments")
         _set(b, "end_date", add_business_days(b.end_date, 5), changes, "timeline_assignments")
         _set(wi, "due_date", add_business_days(wi.due_date, 5), changes, "work_items")
         d = db.scalars(select(M.EngineeringDeliverable).where(
             M.EngineeringDeliverable.portfolio_project_id == ms.portfolio_project_id,
-            M.EngineeringDeliverable.stage == "IFP", M.EngineeringDeliverable.discipline == "Substation")).one()
+            M.EngineeringDeliverable.stage == "IFP", M.EngineeringDeliverable.discipline == "Electrical")).one()
         _set(d, "planned_issue_date", add_business_days(d.planned_issue_date, 5), changes, "engineering_deliverables")
     elif key == "s2":
         lead = db.scalars(select(M.TimelineResource).where(M.TimelineResource.discipline == "Structural",
@@ -213,7 +213,7 @@ def reset(db: Session, key: str) -> dict:
 def metrics(db: Session, key: str, as_of) -> dict:
     f = Filters(as_of=as_of)
     if key == "s1":
-        cap = C.compute(db, Filters(as_of=as_of, disciplines=["Substation"]), n_weeks=10)
+        cap = C.compute(db, Filters(as_of=as_of, disciplines=["Electrical"]), n_weeks=10)
         seniors = [p for p in cap["people"] if p["name"] in S1_ENGINEERS]
         sched = S.compute(db, f)
         proj = [p for p in sched["projects"] if p["name"] in S1_PROJECTS]

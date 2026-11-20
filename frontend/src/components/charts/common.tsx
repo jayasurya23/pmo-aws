@@ -6,7 +6,7 @@ import { fmtNum } from "@/lib/format";
 export const BAR_SIZE = 18;
 export const RADIUS_TOP: [number, number, number, number] = [4, 4, 0, 0];
 export const RADIUS_RIGHT: [number, number, number, number] = [0, 4, 4, 0];
-export const AXIS = { tickLine: false, axisLine: false, tick: { fontSize: 11 } } as const;
+export const AXIS = { tickLine: false, axisLine: false, tick: { fontSize: 12.5 } } as const;
 
 export function ChartTip({ active, payload, label, fmtLabel, unit, rows }: {
   active?: boolean; payload?: any[]; label?: any; fmtLabel?: (l: any) => ReactNode; unit?: string;
@@ -14,7 +14,7 @@ export function ChartTip({ active, payload, label, fmtLabel, unit, rows }: {
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg bg-surface-card border border-surface-border shadow-page px-3 py-2 text-[12px] min-w-[150px]">
+    <div className="rounded-lg bg-surface-card border border-surface-border shadow-page px-3 py-2 text-[13.5px] min-w-[150px]">
       <div className="font-semibold mb-1">{fmtLabel ? fmtLabel(label) : label}</div>
       {rows ? rows(payload) : payload.filter((p) => p.value !== null && p.value !== undefined).map((p) => (
         <div key={p.dataKey} className="flex items-center gap-2 py-px">

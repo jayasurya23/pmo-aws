@@ -64,7 +64,7 @@ function load(name: string): Promise<any> {
 }
 
 const VARIANT: Record<string, string> = {
-  Electrical: "electrical", Civil: "civil", Structural: "structural", Substation: "substation", "Battery Storage": "battery-storage",
+  Electrical: "electrical", Civil: "civil", Structural: "structural",
 };
 function variant(p: URLSearchParams) {
   const d = (p.get("disciplines") || "").split(",").filter(Boolean);

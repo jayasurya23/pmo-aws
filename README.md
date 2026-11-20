@@ -19,8 +19,8 @@ A standalone, locally runnable rebuild of the analytics layer of **PMO 360**, th
 
 ## What's inside
 
-* **Six dashboards**: A Executive overview · B Delivery & schedule health · C Resources & capacity · D Meetings & actions · E Portfolio & commercial · F Data quality & integration. Plus a project drilldown, two decision scenarios with apply/reset, a live data-flow page and a provenance page.
-* **Every number drills to its records** (searchable, paginated, CSV export). Every KPI carries its definition, grain, source and origin (production / adapted / demo-only).
+* **Six dashboards**: Overview · Schedule · Team capacity · Action items · Proposals & change orders · Data quality. Each opens with a one-line takeaway and four headline numbers; secondary charts sit under *More detail*. Plus a project drilldown, two decision scenarios with apply/reset and a data-flow page. Three engineering disciplines: Electrical, Civil, Structural.
+* **Every number drills to its records** (searchable, paginated, CSV export). Every KPI carries its definition.
 * **A real pipeline, not hard-coded numbers**: one coherent synthetic world is written out as Monday GraphQL boards, a Graph calendar payload, CSV register exports and PMO 360 / proposal360 tables, with counted defects. The pipeline stages, validates, normalises and loads PostgreSQL, recording every exception and every sync run.
 * **85 tests** proving KPI = drilldown = an independent SQL count, defect detection against the generator's manifest, schedule rules, determinism, scenario reversibility, network isolation and confidentiality.
 
@@ -85,7 +85,7 @@ docs/  case-study/  tools/
 
 | Check | Result |
 |---|---|
-| Pipeline end to end (seed 360, as of 2026-11-20) | ~13 s; 12,047 records staged, 99.6% loaded, 44 rejected, 285 exceptions; register schema-drift file refused |
+| Pipeline end to end (seed 360, as of 2026-11-20) | ~12 s; 11,257 records staged, 99.6% loaded, 44 rejected, 250 open exceptions; register schema-drift file refused |
 | Backend tests (`pytest`) | **85 passed** (also run in CI on every push) |
 | Frontend type-check and production build | pass (`tsc`, `vite build`) |
 | All pages rendered in Chromium (Playwright) | no console errors; screenshots in `case-study/screenshots/` |
@@ -106,4 +106,4 @@ docs/  case-study/  tools/
 
 ## Original vs adapted vs new
 
-See the in-app page **Original vs demo** (`/about`) and [docs/REPO_AUDIT.md](docs/REPO_AUDIT.md). In short: the hierarchy, meetings and actions, the overdue/ownership/burndown rules, the lead view, the Timeline capacity formulas, the Monday sync logic and the calendar matching come from production PMO 360. The milestones and projection, the Monday work board, the deliverable register, the staging and validation layer, dashboards B, C (hours), E and F, and the scenarios are **demo-only**.
+See [docs/REPO_AUDIT.md](docs/REPO_AUDIT.md). In short: the hierarchy, meetings and actions, the overdue/ownership/burndown rules, the lead view, the Timeline capacity formulas, the Monday sync logic and the calendar matching come from production PMO 360. The milestones and projection, the Monday work board, the deliverable register, the staging and validation layer, dashboards B, C (hours), E and F, and the scenarios are **demo-only**.

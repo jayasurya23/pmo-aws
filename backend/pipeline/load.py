@@ -523,7 +523,7 @@ class Loader:
             dels[(d.portfolio_project_id, d.stage)][d.discipline] = d
         for m in db.scalars(select(M.Milestone)):
             need = [x for x in required[m.portfolio_project_id]
-                    if m.stage != "IFP" or x in ("Electrical", "Substation", "Battery Storage")]
+                    if m.stage != "IFP" or x == "Electrical"]
             have = dels.get((m.portfolio_project_id, m.stage), {})
             missing = [x for x in need if x not in have]
             if missing:

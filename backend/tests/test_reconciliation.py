@@ -128,9 +128,12 @@ def test_portfolio_filter_partitions_active_projects(client, db):
 
 
 def test_discipline_filter_is_subset(client):
-    allp = {r["id"] for r in client.get("/api/drill/active_projects?page_size=500").json()["rows"]}
-    sub = {r["id"] for r in client.get("/api/drill/active_projects?page_size=500&disciplines=Substation").json()["rows"]}
-    assert sub and sub < allp
+    # Every project carries all three disciplines, so the filter narrows the
+    # discipline-level rows (work items, people), not the project list.
+    for m in ("blocked_work_items", "overallocated_people"):
+        allr = {r["id"] for r in client.get(f"/api/drill/{m}?page_size=500").json()["rows"]}
+        sub = {r["id"] for r in client.get(f"/api/drill/{m}?page_size=500&disciplines=Civil").json()["rows"]}
+        assert sub and sub < allr, m
 
 
 def test_filtered_kpi_matches_filtered_drilldown(client):

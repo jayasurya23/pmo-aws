@@ -39,11 +39,11 @@ HOURS_PER_WEEK = 40.0
 
 ASSUMPTIONS = [
     "Capacity = 8 hours per working day (40 h per normal week). Company holidays remove the day from both capacity and bookings; PTO reduces capacity only.",
-    "Allocated effort = Timeline bookings: utilisation fraction x 8 h x overlapping working days (the production Timeline formula, in hours).",
-    "Over-allocated = more than 110% of available capacity in 2 or more weeks of the horizon (sustained), or work booked beyond the hours available in a PTO week (fewer than 2 working days). Single-week spikes show on the heatmap only.",
-    "Unstaffed demand = bookings with no person, or held by someone who has left (inactive).",
+    "Booked hours = each booking's share of a person's time x 8 h x the working days it covers.",
+    "Over-allocated = more than 110% of available hours in 2 or more weeks, or work booked beyond the hours left in a PTO week. One-week spikes show on the heatmap only.",
+    "Unstaffed hours = bookings with no person, or held by someone who has left.",
     "Forward weeks show booked work only. This is a plan, not a statistical forecast; it is as accurate as the bookings.",
-    "Planned vs actual hours use completed Monday work packages; packages with no actual hours reported are excluded and counted.",
+    "Planned vs actual hours use completed work packages; packages with no actual hours reported are left out and counted.",
 ]
 
 
