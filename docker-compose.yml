@@ -1,0 +1,58 @@
+# PMO 360 operations-analytics demo — synthetic data only.
+# Same three-service shape as PMO 360's production compose file (db + FastAPI + nginx/React),
+# but with its own isolated database and no external credentials of any kind.
+#
+#   docker compose up --build        then open http://localhost:8080
+#
+# The `seed` service runs the pipeline once (generate extracts -> stage -> validate ->
+# normalise -> load) before the API starts.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pmo_demo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pmo_demo_local}
+      POSTGRES_DB: ${POSTGRES_DB:-pmo360_demo}
+    volumes:
+      - pmo360_demo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pmo_demo} -d ${POSTGRES_DB:-pmo360_demo}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  seed:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-pmo_demo}:${POSTGRES_PASSWORD:-pmo_demo_local}@db:5432/${POSTGRES_DB:-pmo360_demo}
+      DEMO_SEED: ${DEMO_SEED:-360}
+      DEMO_AS_OF: ${DEMO_AS_OF:-2026-11-20}
+    command: ["python", "-m", "pipeline.run", "--reset"]
+    restart: "no"
+
+  backend:
+    build: ./backend
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-pmo_demo}:${POSTGRES_PASSWORD:-pmo_demo_local}@db:5432/${POSTGRES_DB:-pmo360_demo}
+      DEMO_AS_OF: ${DEMO_AS_OF:-2026-11-20}
+      CORS_ORIGINS: http://localhost:8080
+    expose:
+      - "8000"
+    ports:
+      - "${API_PORT:-8000}:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  pmo360_demo_pgdata:

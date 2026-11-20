@@ -31,8 +31,8 @@ class MondayError(RuntimeError):
 
 
 def norm(s: str | None) -> str:
-    """Production rule, unchanged. 'Beloit II' and 'beloit ii' collide;
-    'Highland South (1 & 2)' and 'Highland South 1' must NOT."""
+    """Production rule, unchanged. 'Kestrel Flats II' and 'kestrel flats ii' collide;
+    'Owl Creek (1 & 2)' and 'Owl Creek 1' must NOT. (Synthetic examples.)"""
     return re.sub(r"[^a-z0-9]", "", (s or "").lower())
 
 

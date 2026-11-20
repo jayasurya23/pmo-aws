@@ -56,7 +56,7 @@ export default function Pipeline() {
         <Card title="2 · Identity: matching external ids to PMO 360 projects" sub="Ported from the production Monday sync: exact normalised names only, a confirmed manual crosswalk, everything else an exception">
           <ol className="text-[12.5px] space-y-2 list-decimal pl-4">
             <li><b>Confirmed manual link</b> on the Monday relation's linked item id (id_map, match_method = manual) — e.g. a project renamed in Monday with a "(Phase 1)" suffix.</li>
-            <li><b>Exact normalised name</b>: <code className="bg-surface-mute px-1 rounded text-[11.5px]">re.sub(r"[^a-z0-9]", "", name.lower())</code> — so "Solar + Storage" and "Solar &amp; Storage" match, but "Highland South 1" never matches "Highland South (1 &amp; 2)".</li>
+            <li><b>Exact normalised name</b>: <code className="bg-surface-mute px-1 rounded text-[11.5px]">re.sub(r"[^a-z0-9]", "", name.lower())</code> — so "Solar + Storage" and "Solar &amp; Storage" match, but "Owl Creek 1" never matches "Owl Creek (1 &amp; 2)".</li>
             <li><b>Otherwise reject</b> with MISSING_PROJECT_REF — a wrong match files work against another client's project; an exception costs a minute of someone's time.</li>
           </ol>
           <div className="mt-3 grid grid-cols-3 gap-2 text-center">{d.id_map.map((r: any, i: number) => (

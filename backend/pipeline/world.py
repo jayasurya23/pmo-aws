@@ -22,6 +22,7 @@ from datetime import date, datetime, time, timedelta, timezone
 
 from app.bizdays import add_business_days, business_days_between, monday_of
 from pipeline import names as N
+from pipeline.denylist import is_denied
 
 DISCIPLINES = ["Electrical", "Civil", "Structural", "Substation", "Battery Storage"]
 DISC_CODE = {"Electrical": "E", "Civil": "C", "Structural": "S", "Substation": "SS", "Battery Storage": "B"}
@@ -120,14 +121,14 @@ class Generator:
     def person(self) -> tuple[str, str]:
         while True:
             f, l = self.rng.choice(N.FIRST_NAMES), self.rng.choice(N.LAST_NAMES)
-            if f"{f} {l}" not in self._used_people:
+            if f"{f} {l}" not in self._used_people and not is_denied(f"{f} {l}"):
                 self._used_people.add(f"{f} {l}")
                 return f, l
 
     def place(self) -> str:
         while True:
             p = f"{self.rng.choice(N.PLACE_A)} {self.rng.choice(N.PLACE_B)}"
-            if p not in self._used_places:
+            if p not in self._used_places and not is_denied(p):
                 self._used_places.add(p)
                 return p
 
