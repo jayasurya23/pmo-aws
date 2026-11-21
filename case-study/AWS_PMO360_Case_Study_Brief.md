@@ -6,7 +6,7 @@ Case study, Option 1 · Supply Chain Program Manager, Data Center Sourcing & Pro
 
 ## Who used it
 
-I built PMO 360 at Castillo Engineering, where we design utility-scale solar projects. It brings project status out of Monday.com, Outlook, spreadsheets and meeting notes into one set of dashboards. Project managers use it for their own action list, the PM lead and leadership to see every project ranked worst first, department leads to see who has room, and approvers to see change orders waiting on them. It covers about 42 to 53 portfolios across 21 to 25 clients. The lead view started out as leads-only; the project managers asked for it, so I opened it to everyone. [add: weekly users and action items tracked a month]
+I built PMO 360 at Castillo Engineering, where we design utility-scale solar projects. Before it, project status was spread across Monday.com, Smartsheet, Outlook, spreadsheets and meeting notes; PMO 360 brought it together in one set of dashboards. Project managers use it for their own action list, the PM lead and leadership to see every project ranked worst first, department leads to see who has room, and approvers to see change orders waiting on them. It covers about 42 to 53 portfolios across 21 to 25 clients. The lead view started out as leads-only; the project managers asked for it, so I opened it to everyone. [add: weekly users and action items tracked a month]
 
 ## What decision it changed
 

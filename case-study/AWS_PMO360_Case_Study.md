@@ -6,9 +6,9 @@ Case study for Option 1 · Supply Chain Program Manager, Data Center Sourcing & 
 
 ## The short version
 
-I built PMO 360 at Castillo Engineering, where we design utility-scale solar projects. Before it, project status lived in Monday.com, in Outlook, in spreadsheets and in people's meeting notes. Priorities were set in the weekly meeting, mostly from memory.
+I built PMO 360 at Castillo Engineering, where we design utility-scale solar projects. Before it, project status was spread across Monday.com, Smartsheet, Outlook, spreadsheets and people's meeting notes. Priorities were set in the weekly meeting, mostly from memory.
 
-PMO 360 pulls those sources into one set of dashboards. The question it helps us answer every week is a plain one: where should our people and our follow-up go this week?
+PMO 360 brought that information together in one set of dashboards. The question it helps us answer every week is a plain one: where should our people and our follow-up go this week?
 
 ## Who used it
 

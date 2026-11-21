@@ -4,7 +4,7 @@ For showing the site live: https://jayasurya23.github.io/pmo-aws/ . Talk in proj
 
 ## Minute 1: the problem and who used it (Start here)
 
-"Before PMO 360, project status lived in Monday.com, Outlook, spreadsheets and meeting notes, and we set priorities in the weekly meeting from memory. I built one place for it. Project managers use it for their own action list, the PM lead and leadership to see projects worst first, department leads to see who has room, and approvers for change orders. The data here is invented so I can share it."
+"Before PMO 360, project status was spread across Monday.com, Smartsheet, Outlook, spreadsheets and meeting notes, and we set priorities in the weekly meeting from memory. I built one place for it. Project managers use it for their own action list, the PM lead and leadership to see projects worst first, department leads to see who has room, and approvers for change orders. The data here is invented so I can share it."
 
 ## Minutes 2 and 3: the decision it changed (The decisions it changed)
 

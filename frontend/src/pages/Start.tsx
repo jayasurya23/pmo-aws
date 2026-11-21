@@ -19,7 +19,7 @@ export default function Start() {
       <h1 className="text-[40px] font-bold tracking-[-0.02em] leading-tight mt-2">PMO 360: every project in one place, so the team acts early</h1>
       <p className="text-[18px] text-brand-gray mt-4 max-w-[880px] leading-relaxed">
         I designed and built PMO 360 at Castillo Engineering, which designs utility-scale solar projects. Before it, project status
-        lived in Monday.com, Outlook, spreadsheets and meeting notes, and priorities were set in the weekly meeting from memory.
+        was spread across Monday.com, Smartsheet, Outlook, spreadsheets and meeting notes, and priorities were set in the weekly meeting from memory.
         PMO 360 put it all in one place. This site shows how it works, using invented data.
       </p>
       <div className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#b37a00]/35 bg-[#fab219]/10 px-4 py-2.5 text-[16px]">
