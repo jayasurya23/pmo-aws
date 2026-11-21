@@ -7,6 +7,7 @@ import { DISCIPLINES } from "@/lib/colors";
 import { useFilters } from "@/lib/filters";
 import { fmtDate } from "@/lib/format";
 import { STATIC } from "@/lib/api";
+import { decisionPath, DECISIONS } from "@/lib/decisions";
 
 export const EXEC_PATH = STATIC ? "/overview" : "/";
 export const START_PATH = STATIC ? "/" : "/start";
@@ -14,8 +15,8 @@ export const START_PATH = STATIC ? "/" : "/start";
 const NAV = [
   { group: "", items: [
     { to: START_PATH, label: "Start here" },
-    { to: "/scenarios", label: "The decisions it changed" },
   ]},
+  { group: "Decisions", items: DECISIONS.map((d) => ({ to: decisionPath(d), label: d.nav })) },
   { group: "Dashboards", items: [
     { to: EXEC_PATH, label: "Overview" },
     { to: "/delivery", label: "Schedule" },
@@ -37,7 +38,7 @@ export default function Layout() {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("pmo-demo-theme", dark ? "dark" : "light"); } catch { /* storage unavailable */ }
   }, [dark]);
-  const showFilters = !["/pipeline", "/scenarios", "/proposals", START_PATH].includes(pathname) && !pathname.startsWith("/projects");
+  const showFilters = !["/pipeline", "/proposals", START_PATH].includes(pathname) && !pathname.startsWith("/decisions") && !pathname.startsWith("/projects");
   return (
     <div className="min-h-full flex">
       <aside className="hidden lg:block w-[248px] shrink-0 bg-surface-side border-r border-surface-border self-stretch">

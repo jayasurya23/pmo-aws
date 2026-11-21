@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
 import { DrillProvider } from "@/components/DrillDrawer";
 import Layout from "@/components/Layout";
 import { STATIC } from "@/lib/api";
@@ -13,7 +13,12 @@ import Delivery from "@/pages/Delivery";
 import Executive from "@/pages/Executive";
 import Pipeline from "@/pages/Pipeline";
 import Project from "@/pages/Project";
-import Scenarios from "@/pages/Scenarios";
+import DecisionPage from "@/pages/Scenarios";
+
+function ScenarioRedirect() {
+  const [p] = useSearchParams();
+  return <Navigate to={p.get("s") === "2" ? "/decisions/blocked-package" : "/decisions/staffing"} replace />;
+}
 
 export default function App() {
   return (
@@ -33,7 +38,9 @@ export default function App() {
               <Route path="commercial" element={<Navigate to="/proposals" replace />} />
               <Route path="quality" element={<Navigate to="/pipeline" replace />} />
               <Route path="projects/:id" element={<Project />} />
-              <Route path="scenarios" element={<Scenarios />} />
+              <Route path="decisions/:slug" element={<DecisionPage />} />
+              <Route path="decisions" element={<Navigate to="/decisions/staffing" replace />} />
+              <Route path="scenarios" element={<ScenarioRedirect />} />
               <Route path="pipeline" element={<Pipeline />} />
               <Route path="*" element={<div className="text-brand-gray text-[16px]">Page not found.</div>} />
             </Route>

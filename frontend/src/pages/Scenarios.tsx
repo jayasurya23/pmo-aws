@@ -1,43 +1,36 @@
 import clsx from "clsx";
 import { ReactNode, useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { EXEC_PATH } from "@/components/Layout";
 import { CountUp, ErrorBox, Loading, PageHeader, StatePill } from "@/components/ui";
 import { apiPost, useApi } from "@/lib/api";
 import { ChartColors, useChartColors } from "@/lib/colors";
+import { decisionPath, DECISIONS } from "@/lib/decisions";
 import { fmtShort } from "@/lib/format";
 
 const stateKey = (label: string) => ({ "On track": "on_track", "At risk": "at_risk", "Projected late": "projected_late", Late: "late", Behind: "behind",
   "Done on time": "complete_on_time", "Done late": "complete_late" } as any)[label] || "unknown";
 const STEP_NAMES = ["What the dashboard showed", "What it revealed", "The decision", "The result"];
 
-/** The case-study answer to "what decision did it change, and how did the
- *  dashboard help?" told as a four-step walkthrough per decision. Applying a
- *  decision writes it into the data, so every dashboard shows the result. */
-export default function Scenarios() {
+/** One decision per page, told as a four-step walkthrough: what the dashboard
+ *  showed, what it revealed, the decision, the result. Applying a decision
+ *  writes it into the data, so every dashboard shows the result. */
+export default function DecisionPage() {
+  const { slug } = useParams();
   const { data, error, reload } = useApi<any[]>(`/scenarios`);
-  const [params, setParams] = useSearchParams();
-  const pick = params.get("s") === "2" ? "s2" : "s1";
+  const idx = Math.max(0, DECISIONS.findIndex((d) => d.slug === slug));
+  const d = DECISIONS[idx], next = DECISIONS[(idx + 1) % DECISIONS.length];
   if (error) return <ErrorBox error={error} retry={reload} />;
   if (!data) return <Loading />;
-  const s = data.find((x) => x.key === pick)!;
+  const s = data.find((x) => x.key === d.key)!;
   return (
-    <div>
-      <PageHeader kicker="The story · what decision did the dashboard change?" title="Two decisions the dashboard changed"
-        sub="Step through each one: what the dashboard showed, what it revealed, what was decided, and what changed as a result. Invented data." />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        {[["s1", "1", "Staffing", "Four projects look fine, but three engineers are overloaded"], ["s2", "2", "Schedule", "One blocked package puts the next milestone at risk"]].map(([k, n, tag, title]) => (
-          <button key={k} onClick={() => setParams({ s: n })}
-            className={clsx("card text-left px-5 py-4 flex gap-4 items-start transition", pick === k ? "ring-2 ring-brand-red/50" : "opacity-80 hover:opacity-100")}>
-            <span className={clsx("w-10 h-10 rounded-full grid place-items-center text-[18px] font-bold shrink-0", pick === k ? "bg-brand-red text-white" : "bg-surface-mute text-brand-gray")}>{n}</span>
-            <span>
-              <span className="block text-[13px] font-semibold uppercase tracking-[0.1em] text-brand-gray">{tag}</span>
-              <span className="block text-[18px] font-semibold leading-snug mt-0.5">{title}</span>
-            </span>
-          </button>
-        ))}
+    <div className="max-w-[1240px]">
+      <PageHeader kicker={`Decision ${idx + 1} of ${DECISIONS.length} · ${d.tag}`} title={d.title}
+        sub={d.real ? "This happened with the real PMO 360. The names and numbers here are invented." : "An example on invented data, showing the kind of call the dashboards support."} />
+      <Walkthrough key={d.key} s={s} reload={reload} />
+      <div className="mt-6 flex justify-end">
+        <Link to={decisionPath(next)} className="btn-ghost">Next decision: {next.tag} →</Link>
       </div>
-      <Walkthrough key={pick} s={s} reload={reload} />
     </div>
   );
 }
