@@ -6,24 +6,23 @@ For showing the site live: https://jayasurya23.github.io/pmo-aws/ . Talk in proj
 
 "Before PMO 360, project status was spread across Monday.com, Smartsheet, Outlook, spreadsheets and meeting notes, and we set priorities in the weekly meeting from memory. I built one place for it. Project managers use it for their own action list, the PM lead and leadership to see projects worst first, department leads to see who has room, and approvers for change orders. The data here is invented so I can share it."
 
-## Minutes 2 and 3: the decision it changed (The decisions it changed)
+## Minutes 2 and 3: the decisions it changed
 
-Open decision 1, Staffing. Click **Next** through the steps, or press **Play it for me**.
+Lead with the three that really happened (each page says so). Open one in the sidebar under **Decisions**, then click **Next** through the steps, or press **Play it for me**.
 
-1. "On the Overview all four projects look fine."
-2. "Team capacity shows the same three senior engineers carry all four. The team average looks healthy; these three are over 110% for weeks."
-3. "So we move one package to the lead, bring in a contractor, and move one deadline five days with the client." Click **Apply this decision**.
-4. "Their overloaded weeks go from 9 to 1. And one project now shows at risk, because we moved its date. The dashboard shows the cost instead of hiding it."
+- **One client decision** (best opener for a sourcing audience): "Five of one client's projects were slipping, each for what looked like a local reason. Grouping the blocked work by what it was waiting on showed one equipment choice behind all five. One portfolio-level conversation instead of five chases." Apply it: billing at risk on those projects drops from about $296K to $6K.
+- **Overloaded engineers**: "Every project read on track, but three engineers carried four of them." Apply it: overloaded weeks 9 → 1, and one project moves to at risk, on purpose.
+- **Bidding within capacity**: "If we won the open proposals as dated, Civil needed 108% of its hours in January. Agreeing later starts on four of them brought it to 99%, before anything was signed."
 
-If there's time, do decision 2, Schedule: Cedar Hollow's final milestone goes from 28 business days late to 2 once the team stops waiting on the client and adds an engineer. "The milestone that was already late stays late. It doesn't rewrite history."
+Then say what really happened in each, in your own words. The demo numbers are invented.
 
-Press **Start over** on both when you're done.
+If there's time, the two examples: **Billing at risk** and **A blocked package**. Press **Start over** when you're done.
 
 ## Minute 4: the dashboards behind it
 
 - **Team capacity**, Electrical filter: the heatmap, person by person.
 - **Billables**: "Design is billed by milestone, so a late milestone is late billing. This shows what we can bill in the next 90 days and how much of it sits on late or at-risk milestones."
-- **Proposals**: the stage board. "Which proposals have sat in a stage longer than usual."
+- **Proposals**: the stage board, and "Can we staff what we're bidding?" underneath it.
 
 Click any number to show the list of records behind it.
 

@@ -2,7 +2,7 @@
 
 Case study, Option 1 · Supply Chain Program Manager, Data Center Sourcing & Procurement · Jayasurya
 
-> **Live demo:** https://jayasurya23.github.io/pmo-aws/ . Start with "The decisions it changed". The data is invented; no client, project or person on the site is real.
+> **Live demo:** https://jayasurya23.github.io/pmo-aws/ . Start with any of the decisions on the Start page. The data is invented; no client, project or person on the site is real.
 
 ## Who used it
 
@@ -10,12 +10,13 @@ I built PMO 360 at Castillo Engineering, where we design utility-scale solar pro
 
 ## What decision it changed
 
-Priorities used to be set in the weekly meeting from memory. Now the meeting starts from the dashboard, so the decision it changed is where staffing and follow-up effort goes each week, and how early we act. One real example: one screen showed a project manager 27 overdue actions and another showed 2, because whoever typed the notes was counted as owning everything in them. I made ownership one rule shared by every screen. People only act on numbers they trust. [add: one real decision with before and after]
+Priorities used to be set in the weekly meeting from memory. Now the meeting starts from the dashboard, so the decision it changed is where staffing and follow-up effort goes each week, and how early we act. Three real examples:
 
-The demo walks through two decisions step by step, on invented data:
+- **Overloaded engineers.** Projects read on track, but person by person, the same few engineers carried several of them. We spread the work before anything slipped. [add: result]
+- **One client decision holding up several projects.** As a design firm, most blockers are client decisions and data. Grouping blocked work by what it waited on showed one client decision behind several projects, settled in one portfolio-level conversation. [add: result]
+- **Bidding within capacity.** Adding open proposals to sold work, month by month, showed when winning them would overload a team, so start dates were set before award. [add: result]
 
-- **Staffing.** Four projects all read "on track", but Team capacity showed they all relied on the same three senior engineers, booked over 110% for weeks. Moving work to the team lead and a contractor, and shifting one deadline with the client, cut their overloaded weeks from 9 to 1. One project moves to "at risk", and the dashboard says so.
-- **Schedule.** One project's final milestone was projected 28 business days late because a package was waiting on the client and a follow-up had no owner. Carrying on with an agreed assumption and adding an engineer brought it back to 2 days.
+The demo has a step-by-step walkthrough for each, on invented data, plus two more examples (billing at risk, and a blocked package).
 
 ## What I had to do to the data
 

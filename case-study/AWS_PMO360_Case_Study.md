@@ -19,27 +19,29 @@ PMO 360 brought that information together in one set of dashboards. The question
 
 The lead view started out as leads-only. The project managers asked to see it too, so I opened it up to everyone. It covers about 42 to 53 portfolios across 21 to 25 clients. [add: how many people use it each week, and how many meetings and action items it tracks a month]
 
-## The decision it changed
+## The decisions it changed
 
-Before PMO 360, the weekly meeting started with people comparing notes. Now it starts from the dashboard: which projects are behind, who is overloaded, and which follow-ups nobody owns. So the decision it changed is where staffing and follow-up effort goes each week, and how early we act on it.
+Before PMO 360, the weekly meeting started with people comparing notes. Now it starts from the dashboard: which projects are behind, who is overloaded, and which follow-ups are stuck. So the decision it changed is where staffing and follow-up effort goes each week, and how early we act on it. Three times it changed a specific call.
 
-One example from the real system. One screen told a project manager they had 27 overdue actions. Another screen said 2. The gap came from a rule nobody had noticed: whoever typed up the meeting notes was counted as the owner of everything in them. I rewrote ownership as one rule that every screen uses, and changed the owner picker so an owner is set when the action is created. People only act on numbers they trust, so this mattered more than any new chart.
+**Overloaded engineers behind projects that looked fine.** Every project read on track, but looking person by person showed the same few engineers carrying several projects at once. Spreading that work before anything slipped became a regular conversation instead of a surprise. [add: what you saw, what you changed, and what happened after]
 
-[add: one real decision, in your own words. What the dashboard showed, what you or the team did, and what happened after]
+**One client decision holding up several projects.** We are a design firm, so most of our blockers are on the client's side: design decisions, data they owe us, and choices about which equipment to use, from our recommendations or their own. Grouping the blocked work by what it was waiting on showed one client decision holding up several projects at once. One conversation at the portfolio level replaced chasing it project by project. [add: what was being waited on, roughly how many projects, and the result]
 
-## Two decisions you can try on the demo
+**Bidding within capacity.** Proposals looked fine one at a time. Adding them to the work already sold, month by month, showed when winning them would overload a team, so start dates and staffing could be set before the work was awarded. [add: what you saw and what changed]
 
-The demo walks through two decisions step by step. They run on invented data, so they show the kind of call the dashboards support rather than a specific event from the real system.
+One more example from the real system, about trust. One screen told a project manager they had 27 overdue actions. Another said 2. The gap came from a rule nobody had noticed: whoever typed up the meeting notes was counted as the owner of everything in them. I rewrote ownership as one rule that every screen uses, and changed the owner picker so an owner is set when the action is created. People only act on numbers they trust, so this mattered more than any new chart.
 
-**1. Staffing: four projects looked fine, but three engineers were overloaded.**
-On the Overview, all four solar projects read "on track". Team capacity showed a different picture. All four depended on the same three senior electrical engineers, booked at well over 110% of their hours for weeks, one of them through a week of PTO. The team as a whole had room. Those three people didn't.
+## Try them on the demo
 
-The decision was to move one package to the team lead, who had room, bring in a contract engineer for half of two packages, and move one deadline by five business days with the client's agreement. Their overloaded weeks went from 9 to 1, and their peak load from 150% to 110%. The cost is visible too: the project whose date moved now shows as at risk. The dashboard shows that trade-off instead of hiding it.
+The demo has a step-by-step walkthrough for each of those three, plus two more examples. Each shows what the dashboard showed, what it revealed, the decision, and the result. The names and numbers are invented.
 
-![The staffing decision on the demo: before and after](screenshots/09_scenario1_after.png)
+- **Overloaded engineers:** three senior engineers carry four "on track" projects. Moving work to the team lead and a contractor, and one deadline by five days, takes their overloaded weeks from 9 to 1.
+- **One client decision:** five of one client's projects wait on the same equipment choice. Settling it in one meeting cuts billing at risk on those projects from $296K to about $6K.
+- **Bidding within capacity:** if the open proposals are won as dated, Civil needs 108% of its hours in January. Agreeing later starts on four proposals brings it to 99%.
+- **Billing at risk** (example only): a second engineer on the three highest-value at-risk milestones and a push on the oldest change orders cut billing at risk from $1.98M to $1.72M.
+- **A blocked package** (example only): carrying on with an agreed design assumption brings Cedar Hollow's final milestone from 28 business days late to 2.
 
-**2. Schedule: one blocked package was about to delay the final drawings.**
-The Schedule page showed Cedar Hollow Solar furthest behind, with its final milestone projected 28 business days late. The project page showed why. A structural package had been blocked for weeks, waiting on the client's soil report, and the follow-up action had no owner. The decision was to carry on with an agreed design assumption, add a second engineer and give the action an owner. The final milestone came back to 2 days, which is within tolerance. The milestone that was already late stays late, because the dashboard doesn't rewrite history.
+![The one-client-decision walkthrough on the demo: the result](screenshots/11_client_decision_after.png)
 
 ## What I had to do to the data
 
@@ -56,4 +58,4 @@ Data center sourcing has the same shape of problem: tools that don't agree, defi
 
 ## About the demo site
 
-The site has the two decision walkthroughs and six dashboards: Overview, Schedule, Team capacity, Action items, Proposals and Billables. A short page explains how the numbers come together. I built it end to end, and PMO 360 itself stays private along with its data.
+The site has five decision walkthroughs and six dashboards: Overview, Schedule, Team capacity, Action items, Proposals and Billables. A short page explains how the numbers come together. I built it end to end, and PMO 360 itself stays private along with its data.
