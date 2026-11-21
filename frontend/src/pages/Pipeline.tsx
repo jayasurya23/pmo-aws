@@ -100,9 +100,9 @@ export default function Pipeline() {
           </Card>
           <Card title="Matching records to projects">
             <ol className="text-[15.5px] space-y-2 list-decimal pl-5 leading-snug">
+              <li>The project ID (job number) is the primary key across every system, checked against its format; a mismatch between systems is flagged, never overwritten.</li>
               <li>A confirmed manual link, for example a project renamed with a “(Phase 1)” suffix.</li>
-              <li>An exact name match after removing case and punctuation: <code className="bg-surface-mute px-1 rounded text-[14px]">re.sub(r"[^a-z0-9]", "", name.lower())</code>.</li>
-              <li>Otherwise the record is flagged. A wrong match files work against another client's project.</li>
+              <li>In this demo some invented sources carry only names, so they fall back to an exact name match after removing case and punctuation: <code className="bg-surface-mute px-1 rounded text-[14px]">re.sub(r"[^a-z0-9]", "", name.lower())</code>. Anything else is flagged; a wrong match files work against another client's project.</li>
             </ol>
           </Card>
           <Card title="Avoiding double counting">

@@ -66,7 +66,7 @@ export default function Start() {
 
       <h2 className="text-[24px] font-bold mt-10"><span className="text-brand-red mr-2">3.</span>What it took to make the data work</h2>
       <ul className="mt-4 space-y-2.5 text-[17px] leading-snug">
-        <li className="flex gap-3"><span className="mt-2 w-2 h-2 rounded-full bg-brand-red shrink-0" />Matched the same project across tools that named it differently, on exact matches only. Anything unclear is flagged for a person, never guessed.</li>
+        <li className="flex gap-3"><span className="mt-2 w-2 h-2 rounded-full bg-brand-red shrink-0" />Used the project ID (the job number) as the one key across every tool, since each one named projects differently. A record with a missing or mistyped ID is flagged for a person, never matched by guesswork.</li>
         <li className="flex gap-3"><span className="mt-2 w-2 h-2 rounded-full bg-brand-red shrink-0" />Gave each word one meaning: every team's status labels map to one set, and a missing date or estimate stays visibly missing, never zero.</li>
         <li className="flex gap-3"><span className="mt-2 w-2 h-2 rounded-full bg-brand-red shrink-0" />Made the numbers trustworthy: one screen once showed a manager 27 overdue actions and another showed 2. Ownership became one rule used everywhere, and every number opens the records behind it.</li>
       </ul>

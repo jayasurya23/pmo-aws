@@ -45,7 +45,7 @@ The demo has a step-by-step walkthrough for each of those three. Each shows what
 
 Most of the work wasn't the charts. It was getting the data to agree.
 
-- **Matching records across tools.** The same project had a slightly different name in every tool. I match on exact names only, ignoring case and punctuation, plus a short list of links someone has confirmed by hand. Anything else goes on a list for a person to check. A wrong match would file work against another client's project, so I'd rather flag it than guess. In the real Monday.com sync, 38 of 40 board items carried a job number.
+- **One key across every tool.** Each tool named projects a little differently, so the project ID (our job number) became the primary key that ties records together across all of them. A record with a missing or mistyped ID goes on a list for a person to check, plus a short list of links someone has confirmed by hand. A wrong match would file work against another client's project, so I'd rather flag it than guess. In the real Monday.com sync, 38 of 40 board items carried a job number.
 - **One meaning for each word.** Every team wrote status its own way, so their words now map to one set. "Overdue" means the due date is before today. Work with no due date is shown, not hidden. A blank estimate is unknown, never zero.
 - **Meeting notes into action items.** An AI model turns meeting notes into a draft list of actions, and a project manager checks each one before it is saved.
 - **Showing the work.** Every number opens the records behind it, so anyone can check it. On the demo, automated checks confirm each headline number matches its list of records.

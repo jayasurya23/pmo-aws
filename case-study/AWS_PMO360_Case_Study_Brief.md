@@ -20,7 +20,7 @@ The demo has a step-by-step walkthrough for each, on invented data.
 
 ## What I had to do to the data
 
-- Matched records across tools on exact names only, plus links confirmed by hand. Anything unclear is flagged for a person, never guessed.
+- Made the project ID (job number) the primary key across every tool. A missing or mistyped ID is flagged for a person, never guessed.
 - Gave each word one meaning: each team's status words map to one set, overdue means due before today, and a blank estimate is unknown rather than zero.
 - Used an AI model to turn meeting notes into draft action items, with a project manager checking each one before it is saved.
 - Made every number open the records behind it, so anyone can check it.
