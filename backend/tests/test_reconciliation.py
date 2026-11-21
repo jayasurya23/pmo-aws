@@ -132,8 +132,10 @@ def test_discipline_filter_is_subset(client):
     # discipline-level rows (work items, people), not the project list.
     for m in ("blocked_work_items", "overallocated_people"):
         allr = {r["id"] for r in client.get(f"/api/drill/{m}?page_size=500").json()["rows"]}
-        sub = {r["id"] for r in client.get(f"/api/drill/{m}?page_size=500&disciplines=Civil").json()["rows"]}
-        assert sub and sub < allr, m
+        subs = [{r["id"] for r in client.get(f"/api/drill/{m}?page_size=500&disciplines={d}").json()["rows"]}
+                for d in ("Electrical", "Civil", "Structural")]
+        assert all(sub <= allr for sub in subs), m
+        assert any(sub and sub < allr for sub in subs), m
 
 
 def test_filtered_kpi_matches_filtered_drilldown(client):

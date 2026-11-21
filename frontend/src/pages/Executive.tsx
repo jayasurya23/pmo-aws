@@ -66,7 +66,7 @@ export default function Executive() {
             <tbody>
               {risk.map((p: any) => (
                 <tr key={p.portfolio_id} className="hover:bg-surface-rowhover cursor-pointer" onClick={() => STATIC ? drill.open("active_projects", `Active projects — ${p.portfolio}`, { portfolio_name: p.portfolio }) : set({ portfolios: [p.portfolio_id] })}>
-                  <td className="td"><div className="font-semibold">{p.portfolio}</div><div className="text-[13.5px] text-brand-gray">{p.client}</div></td>
+                  <td className="td"><div className="font-semibold">{p.portfolio}</div><div className="text-[14.5px] text-brand-gray">{p.client}</div></td>
                   <td className="td">
                     <span className="inline-flex flex-wrap gap-x-3 gap-y-1">
                       {p.behind > 0 && <StatePill state="behind" label={`${p.behind} behind`} />}
@@ -151,16 +151,16 @@ export default function Executive() {
                 {ms.slice(0, 7).map((m: any) => (
                   <Link key={m.id} to={`/projects/${m.project_id}`} className="block rounded-md border border-surface-border px-2 py-1.5 hover:border-brand-lightgray bg-surface-card">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-[13.5px] font-semibold truncate">{m.project_name}</span>
-                      <span className="text-[12.5px] font-bold shrink-0">{m.stage}</span>
+                      <span className="text-[14.5px] font-semibold truncate">{m.project_name}</span>
+                      <span className="text-[13.5px] font-bold shrink-0">{m.stage}</span>
                     </div>
                     <div className="flex items-center justify-between gap-1 mt-0.5">
                       <StatePill state={m.status} label={m.status_label} />
-                      <span className="text-[12.5px] text-brand-gray num">{fmtShort(m.planned_date)}</span>
+                      <span className="text-[13.5px] text-brand-gray num">{fmtShort(m.planned_date)}</span>
                     </div>
                   </Link>
                 ))}
-                {ms.length > 7 && <div className="text-[12.5px] text-brand-gray">+{ms.length - 7} more</div>}
+                {ms.length > 7 && <div className="text-[13.5px] text-brand-gray">+{ms.length - 7} more</div>}
               </div>
             </div>
           ))}

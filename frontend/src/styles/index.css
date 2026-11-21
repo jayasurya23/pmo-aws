@@ -54,29 +54,29 @@
 
 @layer base {
   html, body, #root { height: 100%; }
-  body { @apply font-sans bg-surface-page text-brand-black antialiased text-[15px] leading-normal; }
+  body { @apply font-sans bg-surface-page text-brand-black antialiased text-[16px] leading-normal; }
   input, textarea, select, option, button { @apply font-sans; }
 }
 
 @layer components {
   .card { @apply bg-surface-card rounded-xl border border-surface-border shadow-card; }
   .card-head { @apply flex items-start justify-between gap-3 px-5 pt-4 pb-3; }
-  .card-title { @apply text-[17px] font-semibold text-brand-black leading-snug; }
-  .card-sub { @apply text-[14px] text-brand-gray mt-1 leading-relaxed; }
-  .kicker { @apply text-[12.5px] font-semibold uppercase tracking-[0.1em] text-brand-gray; }
+  .card-title { @apply text-[18px] font-semibold text-brand-black leading-snug; }
+  .card-sub { @apply text-[15px] text-brand-gray mt-1 leading-relaxed; }
+  .kicker { @apply text-[13px] font-semibold uppercase tracking-[0.1em] text-brand-gray; }
   .micro { @apply text-[12px] font-semibold uppercase tracking-[0.08em] text-brand-lightgray; }
-  .btn { @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-[14.5px] font-semibold transition disabled:opacity-50; }
+  .btn { @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-[15.5px] font-semibold transition disabled:opacity-50; }
   .btn-primary { @apply btn bg-brand-red text-white hover:bg-brand-darkred; }
   .btn-ghost { @apply btn border border-surface-ghost bg-surface-card text-brand-gray hover:text-brand-black hover:border-brand-lightgray; }
-  .input { @apply w-full rounded-lg border border-surface-border bg-surface-card px-3 py-2 text-[14.5px] text-brand-black outline-none focus:border-brand-red/60 focus:ring-2 focus:ring-brand-red/15; }
-  .th { @apply text-left text-[13px] text-brand-gray font-semibold px-3.5 py-2.5 whitespace-nowrap; }
-  .td { @apply px-3.5 py-3 text-[14.5px] border-t border-surface-hairline align-top leading-snug; }
+  .input { @apply w-full rounded-lg border border-surface-border bg-surface-card px-3 py-2 text-[15.5px] text-brand-black outline-none focus:border-brand-red/60 focus:ring-2 focus:ring-brand-red/15; }
+  .th { @apply text-left text-[14px] text-brand-gray font-semibold px-3.5 py-2.5 whitespace-nowrap; }
+  .td { @apply px-3.5 py-3 text-[15.5px] border-t border-surface-hairline align-top leading-snug; }
   .link { @apply text-brand-red hover:underline cursor-pointer; }
   .num { font-variant-numeric: tabular-nums; }
 }
 
 .recharts-cartesian-grid line { stroke: var(--c-grid); }
-.recharts-text { fill: var(--c-text-2); font-size: 12.5px; }
+.recharts-text { fill: var(--c-text-2); font-size: 13.5px; }
 .recharts-cartesian-axis-line, .recharts-cartesian-axis-tick-line { stroke: var(--c-grid); }
 .recharts-tooltip-cursor { fill: rgb(var(--surface-mute) / 0.6); }
 .recharts-surface:focus, .recharts-wrapper:focus, svg:focus { outline: none; }
@@ -85,4 +85,16 @@
 @media (max-width: 1023px) {
   .card table { display: block; overflow-x: auto; max-width: 100%; }
   html, body { overflow-x: clip; }
+}
+
+/* Motion: short, purposeful, and off for anyone who asks for reduced motion. */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgb(var(--st-critical) / .45); } 70% { box-shadow: 0 0 0 8px rgb(var(--st-critical) / 0); } 100% { box-shadow: 0 0 0 0 rgb(var(--st-critical) / 0); } }
+.anim-rise { animation: rise .5s cubic-bezier(.2,.7,.2,1) both; }
+.anim-grow { transform-origin: left center; animation: grow .7s cubic-bezier(.2,.7,.2,1) both; }
+.anim-pulse { animation: pulse-ring 1.6s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise, .anim-grow, .anim-pulse { animation: none !important; }
+  * { transition-duration: 0s !important; }
 }

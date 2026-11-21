@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { DrillProvider } from "@/components/DrillDrawer";
 import Layout from "@/components/Layout";
 import { STATIC } from "@/lib/api";
@@ -7,12 +7,12 @@ import { MetaProvider } from "@/components/meta";
 import { FilterProvider } from "@/lib/filters";
 import Actions from "@/pages/Actions";
 import Capacity from "@/pages/Capacity";
-import Commercial from "@/pages/Commercial";
+import Billables from "@/pages/Billables";
+import Proposals from "@/pages/Proposals";
 import Delivery from "@/pages/Delivery";
 import Executive from "@/pages/Executive";
 import Pipeline from "@/pages/Pipeline";
 import Project from "@/pages/Project";
-import Quality from "@/pages/Quality";
 import Scenarios from "@/pages/Scenarios";
 
 export default function App() {
@@ -28,8 +28,10 @@ export default function App() {
               <Route path="delivery" element={<Delivery />} />
               <Route path="capacity" element={<Capacity />} />
               <Route path="actions" element={<Actions />} />
-              <Route path="commercial" element={<Commercial />} />
-              <Route path="quality" element={<Quality />} />
+              <Route path="proposals" element={<Proposals />} />
+              <Route path="billables" element={<Billables />} />
+              <Route path="commercial" element={<Navigate to="/proposals" replace />} />
+              <Route path="quality" element={<Navigate to="/pipeline" replace />} />
               <Route path="projects/:id" element={<Project />} />
               <Route path="scenarios" element={<Scenarios />} />
               <Route path="pipeline" element={<Pipeline />} />

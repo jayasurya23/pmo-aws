@@ -1,139 +1,105 @@
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { EXEC_PATH } from "@/components/Layout";
+import { CountUp } from "@/components/ui";
 import { STATIC, useApi } from "@/lib/api";
 
-/** Landing page for someone exploring the site on their own: answers the three
- *  case-study questions in plain language, each with links to the views that
- *  show the evidence. Numbers come from the same data as the dashboards. */
+/** Landing page. Leads with the case-study question (what decision did the
+ *  dashboard change, and how did it help) in plain language. */
 export default function Start() {
   const scen = useApi<any[]>("/scenarios");
-  const q = useApi<any>("/quality");
-  const ex = useApi<any>("/executive");
   const outcomes = useApi<any>(STATIC ? "/scenarios/outcomes" : null);
-  const cedar = useApi<any[]>("/projects?q=Cedar%20Hollow");
-  const cedarPath = cedar.data?.[0] ? `/projects/${cedar.data[0].id}` : "/delivery";
-  const o1 = outcomes.data?.s1, o2 = outcomes.data?.s2;
   const s1 = scen.data?.find((s) => s.key === "s1");
   const s2 = scen.data?.find((s) => s.key === "s2");
-  const b1 = s1 ? (s1.before ?? s1.current) : null;
-  const a1 = o1 ?? (s1?.applied ? s1.current : null);
-  const b2 = s2 ? (s2.before ?? s2.current) : null;
-  const a2 = o2 ?? (s2?.applied ? s2.current : null);
-  const k = ex.data?.kpis;
-  const dq = q.data?.kpis;
+  const b1 = s1 ? (s1.before ?? s1.current) : null, a1 = outcomes.data?.s1 ?? (s1?.applied ? s1.current : null);
+  const b2 = s2 ? (s2.before ?? s2.current) : null, a2 = outcomes.data?.s2 ?? (s2?.applied ? s2.current : null);
   return (
-    <div className="max-w-[1240px]">
-      <div className="kicker">Case study · a dashboard I built end to end</div>
-      <h1 className="text-[36px] font-bold tracking-[-0.02em] leading-tight mt-2">PMO 360 operations analytics</h1>
-      <p className="text-[17px] text-brand-gray mt-3 max-w-[860px] leading-relaxed">
-        PMO 360 is the project-operations platform I designed and built at Castillo Engineering, which designs utility-scale solar,
-        battery storage and substation projects. This site is a working demonstration of that work on the same stack
-        (FastAPI, PostgreSQL, React), running on invented data so it can be shared. Every number opens the records behind it.
+    <div className="max-w-[1200px]">
+      <div className="kicker">Case study · a dashboard I built, and the decisions it changed</div>
+      <h1 className="text-[40px] font-bold tracking-[-0.02em] leading-tight mt-2">PMO 360: every project in one place, so the team acts early</h1>
+      <p className="text-[18px] text-brand-gray mt-4 max-w-[880px] leading-relaxed">
+        I designed and built PMO 360 at Castillo Engineering, which designs utility-scale solar projects. Before it, project status
+        lived in Monday.com, Outlook, spreadsheets and meeting notes, and priorities were set in the weekly meeting from memory.
+        PMO 360 put it all in one place. This site shows how it works, using invented data.
       </p>
-      <div className="mt-4 inline-flex items-center gap-2 rounded-lg border border-[#b37a00]/35 bg-[#fab219]/10 px-4 py-2.5 text-[15px]">
-        <b>Synthetic demonstration data.</b> No client, project or person is real.
+      <div className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[#b37a00]/35 bg-[#fab219]/10 px-4 py-2.5 text-[16px]">
+        <b>Invented data.</b> No client, project or person here is real.
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-8">
-        <Question n={1} q="Who used it?" a="Project managers, the PM lead and leadership, department leads, and approvers.">
-          <Row to="/actions" label="Project managers" hint="What do I owe, to whom, and by when?" />
-          <Row to={EXEC_PATH} label="PM lead and leadership" hint="Which portfolios are slipping, worst first?" />
-          <Row to="/capacity" label="Department leads" hint="Who has room for the next milestone?" />
-          <Row to="/commercial" label="Approvers" hint="Which change orders are waiting?" />
-        </Question>
+      <h2 className="text-[26px] font-bold mt-10">The decisions it changed</h2>
+      <p className="text-[17px] text-brand-gray mt-1">Two examples. Each shows what the dashboard showed, what the team decided, and what changed.</p>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 mt-5">
+        <DecisionCard n={1} tag="Staffing" title="Four projects looked fine. Three engineers were overloaded." to="/scenarios?s=1"
+          saw="Every project read on track, but Team capacity showed all four depended on the same three senior engineers, booked over 110% for weeks."
+          did="Moved one package to the team lead, brought in a contract engineer, and moved one deadline 5 days with the client's agreement."
+          result={b1 && a1 ? <>Their overloaded weeks went from <b>{b1.senior_over_person_weeks}</b> to <Big v={a1.senior_over_person_weeks} />. One project moved to at risk, on purpose.</> : "Their overloaded weeks dropped sharply."} />
+        <DecisionCard n={2} tag="Schedule" title="One blocked package was about to delay the final drawings." to="/scenarios?s=2"
+          saw={<>Cedar Hollow's final milestone was projected {b2 ? <b>{b2.ifc_slip_bd} business days late</b> : "late"}. The project page showed why: a structural package waiting on the client, and a follow-up nobody owned.</>}
+          did="Carried on with an agreed design assumption, added a second engineer, and gave the follow-up an owner."
+          result={b2 && a2 ? <>The milestone went from {b2.ifc_slip_bd} days late to <Big v={a2.ifc_slip_bd} /> days: back on track.</> : "The milestone came back on track."} />
+      </div>
 
-        <Question n={2} q="What decision did it change?" a="Where follow-up and staffing effort goes each week, and how early the team acts.">
-          <Decision title="Staffing: four projects all read “on track”">
-            …but three senior engineers carry their design work and are over-booked.
-            {b1 && <> Re-staffing cuts their over-booked weeks from <b className="text-brand-black">{b1.senior_over_person_weeks}</b>{a1 && <> to <b className="text-brand-black">{a1.senior_over_person_weeks}</b></>}.</>}
-          </Decision>
-          <Decision title="Schedule: one blocked package threatens the next milestone">
-            {b2 ? <>The IFC milestone is projected <b className="text-brand-black">{b2.ifc_slip_bd} business days late</b>.</> : "The IFC milestone is projected late."}
-            {" "}Proceeding on an agreed assumption, with a second engineer, brings it back on track{a2 ? <> ({a2.ifc_slip_bd} days)</> : null}.
-          </Decision>
-          <Link to="/scenarios" className="btn-primary w-full mt-1">Try both decisions →</Link>
-        </Question>
-
-        <Question n={3} q="What did you do to the data?" a="Joined systems that disagree, standardised them, and proved the numbers add up.">
-          <ol className="text-[15px] space-y-2.5 list-decimal pl-5 leading-snug">
-            <li><b>Matched records</b> across Monday.com, Outlook, the deliverable register and the app: exact matches only, everything else reported, never guessed.</li>
-            <li><b>Standardised</b> each team's status labels into one vocabulary, and every timestamp to one time zone.</li>
-            <li><b>Kept unknown as unknown</b>: a missing date or hour count is shown as missing, never as zero.</li>
-            <li><b>Checked every record</b> and kept it as received{dq ? <>: {dq.staged.toLocaleString()} records, {dq.open} flagged</> : null}.</li>
-            <li><b>Reconciled</b>: every headline number equals its list of records and an independent count, in automated tests.</li>
-          </ol>
-          <div className="flex gap-3 mt-2">
-            <Link to="/pipeline" className="btn-ghost flex-1">Data flow →</Link>
-            <Link to="/quality" className="btn-ghost flex-1">Data quality →</Link>
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-5 mt-10">
+        <section className="card p-6 xl:col-span-3">
+          <h2 className="text-[22px] font-bold">Who used it</h2>
+          <div className="grid sm:grid-cols-2 gap-3 mt-4">
+            <Role to="/actions" who="Project managers" q="What do I owe, to whom, and by when?" />
+            <Role to={EXEC_PATH} who="The PM lead and leadership" q="Which projects are slipping, worst first?" />
+            <Role to="/capacity" who="Department leads" q="Who has room for the next milestone?" />
+            <Role to="/billables" who="Leadership and approvers" q="What can we bill, and what is waiting?" />
           </div>
-        </Question>
+        </section>
+        <section className="card p-6 xl:col-span-2">
+          <h2 className="text-[22px] font-bold">What I did to the data</h2>
+          <ul className="mt-4 space-y-3 text-[16.5px] leading-snug">
+            <li className="flex gap-3"><Dot />Matched records across four tools, exact matches only. Anything unclear is flagged, not guessed.</li>
+            <li className="flex gap-3"><Dot />Turned each team's status words into one set, and kept missing dates as missing, never zero.</li>
+            <li className="flex gap-3"><Dot />Made every number open the list of records behind it, so people trust it.</li>
+          </ul>
+          <Link to="/pipeline" className="btn-ghost mt-5">How the numbers come together →</Link>
+        </section>
       </div>
-
-      <section className="card p-6 mt-5">
-        <h2 className="text-[20px] font-bold">A three-minute tour</h2>
-        <ol className="mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-          <Step n={1} to={EXEC_PATH} title="Overview">
-            {k ? <>{k.active_projects} active projects: {k.projects_behind} behind, {k.projects_at_risk} at risk.</> : "Portfolio health at a glance."} Click any number for its records.
-          </Step>
-          <Step n={2} to={cedarPath} title="One project">
-            Cedar Hollow: its 90% milestone is late and IFC is projected late. The page shows why.
-          </Step>
-          <Step n={3} to="/capacity?disciplines=Electrical" title="Team capacity">
-            The Electrical team has room on average, but three specialists are over 110% for weeks.
-          </Step>
-          <Step n={4} to="/scenarios" title="Two decisions">
-            Apply each decision and compare before and after, including the trade-off.
-          </Step>
-          <Step n={5} to="/quality" title="Data quality">
-            A failed source load, how fresh each source is, and any flagged record traced to its source.
-          </Step>
-        </ol>
-      </section>
-      <p className="text-[14px] text-brand-gray mt-5">Built by Jayasurya.</p>
+      <p className="text-[15px] text-brand-gray mt-6">Built by Jayasurya.</p>
     </div>
   );
 }
 
-function Question({ n, q, a, children }: { n: number; q: string; a: string; children: ReactNode }) {
+function Big({ v }: { v: number }) {
+  return <b className="text-brand-green text-[22px]"><CountUp value={v} /></b>;
+}
+function Dot() {
+  return <span className="mt-2 w-2 h-2 rounded-full bg-brand-red shrink-0" />;
+}
+
+function DecisionCard({ n, tag, title, saw, did, result, to }: { n: number; tag: string; title: string; saw: ReactNode; did: ReactNode; result: ReactNode; to: string }) {
+  const rows: [string, ReactNode][] = [["What the dashboard showed", saw], ["What we decided", did], ["What changed", result]];
   return (
-    <section className="card p-6 flex flex-col gap-3">
+    <section className="card p-6 flex flex-col anim-rise" style={{ animationDelay: `${n * 120}ms` }}>
       <div className="flex items-center gap-3">
-        <span className="w-8 h-8 rounded-full bg-brand-red text-white text-[15px] font-bold grid place-items-center">{n}</span>
-        <h2 className="text-[20px] font-bold">{q}</h2>
+        <span className="w-9 h-9 rounded-full bg-brand-red text-white grid place-items-center text-[17px] font-bold">{n}</span>
+        <span className="text-[13px] font-semibold uppercase tracking-[0.1em] text-brand-gray">{tag}</span>
       </div>
-      <p className="text-[16px] text-brand-black leading-snug">{a}</p>
-      <div className="flex flex-col gap-3 mt-1">{children}</div>
+      <h3 className="text-[22px] font-bold leading-snug mt-3">{title}</h3>
+      <div className="mt-4 space-y-0 flex-1">
+        {rows.map(([h, body], i) => (
+          <div key={h} className="relative pl-7 pb-4">
+            <span className={`absolute left-0 top-1.5 w-3 h-3 rounded-full ${i === 2 ? "bg-st-good" : "bg-brand-lightgray"}`} />
+            {i < 2 && <span className="absolute left-[5px] top-5 bottom-0 w-px bg-surface-border" />}
+            <div className="text-[13.5px] font-semibold uppercase tracking-[0.08em] text-brand-gray">{h}</div>
+            <div className="text-[17px] leading-snug mt-1">{body}</div>
+          </div>
+        ))}
+      </div>
+      <Link to={to} className="btn-primary self-start mt-1">Walk through it step by step →</Link>
     </section>
   );
 }
 
-function Row({ to, label, hint }: { to: string; label: string; hint: string }) {
+function Role({ to, who, q }: { to: string; who: string; q: string }) {
   return (
-    <Link to={to} className="rounded-lg border border-surface-border px-4 py-3 hover:border-brand-lightgray hover:bg-surface-rowhover transition block">
-      <div className="text-[15.5px] font-semibold flex justify-between">{label}<span className="text-brand-lightgray">→</span></div>
-      <div className="text-[14.5px] text-brand-gray mt-0.5">{hint}</div>
+    <Link to={to} className="rounded-xl border border-surface-border px-4 py-3.5 hover:border-brand-lightgray hover:bg-surface-rowhover transition block">
+      <div className="text-[16.5px] font-semibold flex justify-between">{who}<span className="text-brand-lightgray">→</span></div>
+      <div className="text-[15.5px] text-brand-gray mt-0.5">{q}</div>
     </Link>
-  );
-}
-
-function Decision({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="rounded-lg border border-surface-border px-4 py-3">
-      <div className="text-[15.5px] font-semibold">{title}</div>
-      <div className="text-[14.5px] text-brand-gray mt-1 leading-snug">{children}</div>
-    </div>
-  );
-}
-
-function Step({ n, to, title, children }: { n: number; to: string; title: string; children: ReactNode }) {
-  return (
-    <li className="flex flex-col gap-2">
-      <div className="flex items-center gap-2.5">
-        <span className="w-7 h-7 shrink-0 rounded-full bg-surface-mute text-[14px] font-bold grid place-items-center">{n}</span>
-        <Link to={to} className="link font-semibold text-[16px]">{title} →</Link>
-      </div>
-      <span className="text-[14.5px] text-brand-gray leading-snug">{children}</span>
-    </li>
   );
 }

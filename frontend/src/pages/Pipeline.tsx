@@ -1,104 +1,127 @@
-import { Fragment } from "react";
-import { Card, Details, ErrorBox, Loading, PageHeader } from "@/components/ui";
+import { useEffect, useState } from "react";
+import { Card, CountUp, Details, ErrorBox, Kpi, Loading, PageHeader } from "@/components/ui";
 import { useMeta } from "@/components/meta";
 import { useApi } from "@/lib/api";
 
-const STAGES = [
-  { k: "src", t: "External sources", d: "Monday.com boards, the Outlook calendar, the deliverable register (CSV), and the project and proposal tables" },
-  { k: "ing", t: "Ingest & stage", d: "Every record stored exactly as received, with a fingerprint, tied to its load run" },
-  { k: "val", t: "Validate", d: "Expected columns, record matching, duplicates and field rules; problems are flagged, not dropped" },
-  { k: "norm", t: "Normalise", d: "Status labels to one vocabulary, timestamps to UTC, dates parsed, unknown kept as unknown" },
-  { k: "pg", t: "PostgreSQL core", d: "Clients, portfolios and projects, plus work, deliverables, staffing and meetings" },
-  { k: "api", t: "Aggregate & serve", d: "FastAPI: each headline number is a count of the same rows its drilldown lists" },
-  { k: "ui", t: "React dashboards", d: "Six dashboards; every number opens its records" },
-];
-
+/** Plain-language view of how the numbers are put together, for any reader.
+ *  The technical detail sits in a collapsed section at the bottom. */
 export default function Pipeline() {
   const q = useApi(`/quality`);
   const sm = useApi(`/pipeline/status-map`);
   const { meta } = useMeta();
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setStep((s) => (s + 1) % 4), 2600);
+    return () => clearInterval(t);
+  }, []);
   if (q.error) return <ErrorBox error={q.error} />;
   if (!q.data || !sm.data || !meta) return <Loading />;
-  const d = q.data;
-  const counts = meta.counts;
-  const statusGroups: Record<string, string[]> = {};
-  sm.data.status_map.filter((r: any) => r.source_key === "monday_work_board").forEach((r: any) => (statusGroups[r.normalized_status] ||= []).push(r.label_key));
-  const stat: Record<string, string> = {
-    src: `${d.freshness.length} sources`, ing: `${d.kpis.staged.toLocaleString()} records staged`,
-    val: `${d.kpis.open} exceptions (${d.kpis.errors} errors)`, norm: `${sm.data.status_map.length} label mappings · ${d.id_map.reduce((a: number, r: any) => a + r.n, 0)} id links`,
-    pg: `${counts.projects} projects · ${counts.work_items.toLocaleString()} work packages · ${counts.action_items.toLocaleString()} actions`,
-    api: "9 dashboard endpoints · 26 drilldowns", ui: "6 dashboards + project drilldown",
-  };
+  const d = q.data, k = d.kpis;
+  const failed = d.freshness.filter((s: any) => s.last_status === "failed");
+  const groups: Record<string, string[]> = {};
+  sm.data.status_map.filter((r: any) => r.source_key === "monday_work_board")
+    .forEach((r: any) => (groups[r.normalized_status] ||= []).push(r.label_key));
+  const examples = Object.entries(groups).filter(([, v]) => v.length > 1).slice(0, 4);
+
+  const STEPS = [
+    { t: "Collect", icon: "⤓", d: "Project boards in Monday.com, meetings in Outlook, the drawing register and the proposal tool.", n: `${d.freshness.length} sources` },
+    { t: "Check", icon: "✓", d: "Every record is checked. Problems are flagged for someone to fix, never quietly dropped.", n: `${k.open.toLocaleString()} flagged, ${k.rejected} refused` },
+    { t: "Standardise", icon: "≡", d: "Each team's status words become one set, dates line up, and anything missing stays visibly missing.", n: `${sm.data.status_map.length} status words mapped` },
+    { t: "Report", icon: "▦", d: "Dashboards for each role. Every number opens the list of records behind it.", n: `${meta.counts.projects} projects` },
+  ];
+
   return (
     <div>
-      <PageHeader kicker="The story · what did you have to do to the data?" title="How the data flows"
-        sub="From each source system to the dashboards, in seven steps. The counts are from the latest run." />
-      <div className="flex flex-wrap 2xl:flex-nowrap items-stretch gap-1.5">
-        {STAGES.map((s, i) => (
-          <Fragment key={s.k}>
-            <div className="card px-4 py-4 flex-1 min-w-[150px]">
-              <div className="micro">Step {i + 1}</div>
-              <div className="text-[15.5px] font-bold mt-0.5">{s.t}</div>
-              <div className="text-[14px] text-brand-gray mt-1.5 leading-snug">{s.d}</div>
-              <div className="text-[14px] font-semibold mt-2.5 text-brand-red">{stat[s.k]}</div>
+      <PageHeader kicker="The story · what did you have to do to the data?" title="How the numbers come together"
+        sub="Project information lived in several tools that did not agree with each other. This is how it was brought into one place people could trust." />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {STEPS.map((s, i) => (
+          <button key={s.t} onClick={() => setStep(i)} className={`relative text-left card p-5 transition-all duration-500 anim-rise ${step === i ? "ring-2 ring-brand-red/40 -translate-y-1 shadow-page" : ""}`}
+            style={{ animationDelay: `${i * 120}ms` }}>
+            <div className="flex items-center gap-3">
+              <span className={`w-11 h-11 rounded-full grid place-items-center text-[20px] font-bold transition-colors duration-500 ${step === i ? "bg-brand-red text-white" : "bg-surface-mute text-brand-gray"}`}>{s.icon}</span>
+              <div>
+                <div className="text-[13px] font-semibold uppercase tracking-[0.1em] text-brand-gray">Step {i + 1}</div>
+                <div className="text-[20px] font-bold leading-tight">{s.t}</div>
+              </div>
             </div>
-            {i < STAGES.length - 1 && <div className="hidden 2xl:grid place-items-center text-brand-lightgray text-[18px]">→</div>}
-          </Fragment>
+            <p className="text-[16px] text-brand-gray mt-3 leading-snug">{s.d}</p>
+            <div className="text-[16px] font-semibold text-brand-red mt-3">{s.n}</div>
+            {i < 3 && <span className="hidden xl:grid absolute -right-[14px] top-1/2 -translate-y-1/2 z-10 w-7 h-7 rounded-full bg-surface-card border border-surface-border place-items-center text-brand-gray">›</span>}
+          </button>
         ))}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-6">
-        <Card title="1 · Status labels: three teams, one vocabulary" sub="A lookup table, not code. A new label is flagged and loads as “unknown”, never guessed.">
-          <table className="w-full"><thead><tr><th className="th">Common status</th><th className="th">Labels mapped to it</th></tr></thead>
-            <tbody>{Object.entries(statusGroups).map(([k, v]) => (
-              <tr key={k}><td className="td font-semibold">{k.replace("_", " ")}</td><td className="td"><div className="flex flex-wrap gap-1">{v.map((l) => <code key={l} className="text-[13px] bg-surface-mute px-1.5 rounded">{l}</code>)}</div></td></tr>))}</tbody></table>
+        <Card title="One set of status words" sub="Each team wrote status its own way. These all now mean the same thing.">
+          <div className="space-y-3">
+            {examples.map(([norm, labels], i) => (
+              <div key={norm} className="flex flex-wrap items-center gap-2 anim-rise" style={{ animationDelay: `${200 + i * 120}ms` }}>
+                {labels.slice(0, 4).map((l) => <span key={l} className="px-2.5 py-1 rounded-md bg-surface-mute text-[15px]">“{l}”</span>)}
+                <span className="text-brand-lightgray text-[18px] px-1">→</span>
+                <span className="px-3 py-1 rounded-md bg-brand-red/10 text-brand-red text-[15px] font-semibold">{norm.replace("_", " ")}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[15px] text-brand-gray mt-4">A word nobody has seen before is flagged and shown as “unknown”. It is never guessed.</p>
         </Card>
-        <Card title="2 · Matching records to the right project" sub="Exact names only, or a confirmed manual link. Everything else is flagged.">
-          <ol className="text-[15px] space-y-2.5 list-decimal pl-5 leading-snug">
-            <li><b>Confirmed manual link</b>, for example a project renamed in Monday.com with a “(Phase 1)” suffix.</li>
-            <li><b>Exact normalised name</b>: <code className="bg-surface-mute px-1 rounded text-[13px]">re.sub(r"[^a-z0-9]", "", name.lower())</code> — so "Solar + Storage" and "Solar &amp; Storage" match, but "Owl Creek 1" never matches "Owl Creek (1 &amp; 2)".</li>
-            <li><b>Otherwise flag it.</b> A wrong match files work against another client's project; a flag costs someone a minute.</li>
-          </ol>
-          <div className="mt-3 grid grid-cols-3 gap-2 text-center">{d.id_map.map((r: any, i: number) => (
-            <div key={i} className="rounded-md border border-surface-border py-2"><div className="text-[18px] font-semibold num">{r.n}</div><div className="text-[13px] text-brand-gray">{r.source_key.replace(/_/g, " ")} · {r.match_method === "manual" ? "manual link" : "exact name"}</div></div>))}</div>
-        </Card>
-        <Card className="xl:col-span-2" title="3 · When a source breaks" sub="Schema drift on the deliverable register (a column renamed in the export template)">
-          <p className="text-[15px] leading-relaxed">The pipeline checks every expected column before reading a row. On {d.freshness.find((s: any) => s.key === "deliverable_register")?.last_message ? "the latest run" : "a run"} the register arrived with <code>Issued On</code> instead of <code>Actual Issue</code>: the whole file was refused, the previous good extract kept, and freshness turned red. Loading it would have made every deliverable look un-issued — inflating "overdue deliverables" overnight.</p>
-          <p className="text-[15px] mt-3 leading-relaxed">Freshness is measured from the last <b>successful</b> load, so a failed run can never make old data look fresh.</p>
-        </Card>
-      </div>
-      <Details hint="Double counting, dates and time zones, and the SQL behind a dashboard number">
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <Card title="Avoiding double counting" sub="Each metric has one grain and one system of record">
-          <ul className="text-[15px] space-y-2 list-disc pl-5 leading-snug">
-            <li><b>Duplicate Monday items</b> (same project + discipline + stage): keep the most recently updated; the others are staged as <code>duplicate</code> and reported. A unique constraint on the natural key makes a second copy impossible to load.</li>
-            <li><b>Two sources, one fact</b>: Monday and the register both describe a deliverable. Hours come only from Monday; "issued" only from the register; disagreement is a STATUS_CONFLICT, not a second count.</li>
-            <li><b>Split bookings</b>: utilisation is SUMmed per work item in a GROUP BY before joining, so a package with two bars is one row, not two.</li>
-            <li><b>Multi-owner actions</b> count once in every total; ownership is resolved to one person or flagged.</li>
-          </ul>
-        </Card>
-        <Card title="Dates, time zones and unknowns" sub="The small rules that decide whether a number can be trusted">
-          <ul className="text-[15px] space-y-2 list-disc pl-5 leading-snug">
-            <li>Monday timestamps arrive as <code>…Z</code>, <code>…-05:00</code> and <code>YYYY-MM-DD HH:MM:SS+00:00</code>; Graph returns Windows zone names ("Eastern Standard Time"). All stored as UTC; business dates evaluated in America/New_York.</li>
-            <li>Register dates arrive as ISO, <code>11/13/2026</code> and <code>13-Nov-2026</code>; anything else → DATE_UNPARSEABLE and NULL, visible.</li>
-            <li><b>Planned, baseline and actual are separate columns.</b> Projections are computed at read time and never written over them.</li>
-            <li><b>Missing is unknown, never zero</b>: no actual hours → excluded from variance and counted; no due date → not overdue, reported separately; no work data → health "Unknown", never "On track".</li>
-          </ul>
-        </Card>
-        <Card className="xl:col-span-2" title="How the dashboard SQL is built" sub="The same rows feed the headline number and its drilldown">
-          <pre className="text-[12.5px] bg-surface-mute/50 rounded-md p-3 overflow-auto leading-snug">{`-- actions: one row per action item, point-in-time at :as_of
-WITH a AS (SELECT ai.*, (ai.created_at AT TIME ZONE 'America/New_York')::date AS created_d,
-         (COALESCE(ai.last_status_change, ai.updated_at, ai.created_at)
-            AT TIME ZONE 'America/New_York')::date AS closed_d
-       FROM action_items ai JOIN projects pf ON pf.id = ai.project_id
-       WHERE <shared project scope: portfolio / client / PM / discipline>),
-s AS (SELECT a.*, (created_d <= :as_of AND (status IN ('open','pending')
-                   OR closed_d > :as_of)) AS is_open FROM a)
-SELECT COUNT(*) FILTER (WHERE is_open)                         AS open_actions,
-       COUNT(*) FILTER (WHERE is_open AND due_date < :as_of)   AS overdue_actions
-FROM s;   -- the drilldown selects rows FROM s WHERE <same predicate>`}</pre>
+
+        <Card title="When a source breaks" sub="What happens when one of the tools sends bad data">
+          <p className="text-[16px] leading-relaxed">
+            In this demo, the drawing register arrives with one column renamed. Loading it would have made every drawing look
+            un-issued, and the overdue count would have jumped overnight. Instead the file is refused, yesterday's data is kept,
+            and the source is marked out of date for everyone to see.
+          </p>
+          {failed.map((s: any) => (
+            <div key={s.key} className="mt-4 flex items-center gap-3 rounded-lg border border-st-critical/40 bg-st-critical/5 px-4 py-3 text-[15px]">
+              <span className="w-2.5 h-2.5 rounded-full bg-st-critical anim-pulse" />
+              <span><b>{s.name}</b>: last load refused; showing data from {s.age_hours} hours ago.</span>
+            </div>
+          ))}
         </Card>
       </div>
+
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mt-6">
+        <Kpi label="Records received" value={k.staged} sub="each kept exactly as it arrived" />
+        <Kpi label="Flagged for review" value={k.open} tone="warn" sub="shown, not hidden" />
+        <Kpi label="Refused" value={k.rejected} tone="critical" sub="could not be matched safely" />
+        <Kpi label="Sources up to date" value={`${d.freshness.length - k.stale_sources} of ${d.freshness.length}`} tone={k.stale_sources ? "warn" : "good"} />
+      </div>
+
+      <Details title="For technical readers" hint="The stack, how records are matched, how double counting is avoided, and the SQL behind a number">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <Card title="Stack and flow">
+            <ul className="text-[15.5px] space-y-2 list-disc pl-5 leading-snug">
+              <li>FastAPI and PostgreSQL behind a React and TypeScript front end; the same stack as PMO 360.</li>
+              <li>Every source record is staged as received (JSON with a hash), validated against <CountUp value={sm.data.rules?.length ?? 24} /> rules, normalised, then loaded.</li>
+              <li>Each headline number is a count of exactly the rows its drilldown lists; automated tests check both against an independent SQL count.</li>
+            </ul>
+          </Card>
+          <Card title="Matching records to projects">
+            <ol className="text-[15.5px] space-y-2 list-decimal pl-5 leading-snug">
+              <li>A confirmed manual link, for example a project renamed with a “(Phase 1)” suffix.</li>
+              <li>An exact name match after removing case and punctuation: <code className="bg-surface-mute px-1 rounded text-[14px]">re.sub(r"[^a-z0-9]", "", name.lower())</code>.</li>
+              <li>Otherwise the record is flagged. A wrong match files work against another client's project.</li>
+            </ol>
+          </Card>
+          <Card title="Avoiding double counting">
+            <ul className="text-[15.5px] space-y-2 list-disc pl-5 leading-snug">
+              <li>Duplicate board items keep the latest; a unique key makes a second copy impossible to load.</li>
+              <li>Two sources, one fact: hours come only from the work board, “issued” only from the register; disagreement is flagged, not counted twice.</li>
+              <li>Split bookings are summed per work package before joining.</li>
+            </ul>
+          </Card>
+          <Card title="The SQL behind a dashboard number">
+            <pre className="text-[13.5px] bg-surface-mute/50 rounded-md p-3 overflow-auto leading-snug">{`WITH s AS (
+  SELECT a.*, (created_d <= :as_of AND (status IN ('open','pending')
+               OR closed_d > :as_of)) AS is_open
+  FROM action_items a WHERE <shared project scope>)
+SELECT COUNT(*) FILTER (WHERE is_open)                       AS open_actions,
+       COUNT(*) FILTER (WHERE is_open AND due_date < :as_of) AS overdue_actions
+FROM s;  -- the drilldown lists FROM s WHERE <same condition>`}</pre>
+          </Card>
+        </div>
       </Details>
     </div>
   );

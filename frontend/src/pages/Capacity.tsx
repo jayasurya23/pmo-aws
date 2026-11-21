@@ -53,7 +53,7 @@ export default function Capacity() {
     <div className={loading ? "opacity-70 transition" : "transition"}>
       <PageHeader kicker="Team capacity · for department leads" title="Who has room for the next milestone?"
         sub={`Hours booked to each person against the hours they have, week by week, for the next ${data.weeks.length} weeks. Holidays and PTO are already taken out.`}
-        right={STATIC ? undefined : <div className="flex items-center gap-2 text-[14px]"><span className="text-brand-gray">Horizon</span>
+        right={STATIC ? undefined : <div className="flex items-center gap-2 text-[15px]"><span className="text-brand-gray">Horizon</span>
           {[6, 10, 14].map((w) => <button key={w} className={clsx("btn-ghost", filters.weeks === w && "!bg-brand-black !text-surface-card")} onClick={() => set({ weeks: w })}>{w} wk</button>)}</div>} />
 
       <Takeaway>
@@ -90,12 +90,12 @@ export default function Capacity() {
       </div>
       <Card className="mt-5" title="Who is over-allocated, and when"
         sub="Each cell is the hours booked to a person that week as a % of their available hours. Red is over 110%. Hover a cell to see the projects."
-        right={<label className="flex items-center gap-1.5 text-[14px] cursor-pointer"><input type="checkbox" className="accent-[#ad1f2b]" checked={onlyOver} onChange={(e) => setOnlyOver(e.target.checked)} />Only people over 110%</label>}>
+        right={<label className="flex items-center gap-1.5 text-[15px] cursor-pointer"><input type="checkbox" className="accent-[#ad1f2b]" checked={onlyOver} onChange={(e) => setOnlyOver(e.target.checked)} />Only people over 110%</label>}>
         <div className="overflow-auto max-h-[520px] border border-surface-hairline rounded-md relative">
           <table className="w-full border-separate" style={{ borderSpacing: 2 }}>
             <thead className="sticky top-0 bg-surface-card z-10">
               <tr><th className="th !px-2 text-left min-w-[190px]">Person</th>
-                {data.weeks.map((w: string, i: number) => <th key={w} className="th !px-1 text-center min-w-[54px]">{fmtShort(w)}{data.working_days[i] < 5 && <div className="text-[12px] text-brand-lightgray font-normal">{data.working_days[i]} days</div>}</th>)}
+                {data.weeks.map((w: string, i: number) => <th key={w} className="th !px-1 text-center min-w-[54px]">{fmtShort(w)}{data.working_days[i] < 5 && <div className="text-[12.5px] text-brand-lightgray font-normal">{data.working_days[i]} days</div>}</th>)}
                 <th className="th text-right">Peak</th></tr>
             </thead>
             <tbody>
@@ -105,29 +105,29 @@ export default function Capacity() {
                   first && <tr key={p.discipline + "-h"}><td colSpan={data.weeks.length + 2} className="pt-2 pb-0.5 px-2">
                     <span className="inline-flex items-center gap-1.5 micro !text-brand-gray"><span className="w-2 h-2 rounded-full" style={{ background: c[DISCIPLINE_SLOT[p.discipline]] }} />{p.discipline}</span></td></tr>,
                   <tr key={p.id}>
-                    <td className="px-2 py-1 text-[14.5px] whitespace-nowrap">
+                    <td className="px-2 py-1 text-[15.5px] whitespace-nowrap">
                       <span className={clsx(p.is_overallocated && "font-semibold")}>{p.name}</span>
-                      <span className="text-[12.5px] text-brand-gray ml-1.5">{p.seniority}{p.is_placeholder ? " · placeholder" : ""}</span>
+                      <span className="text-[13.5px] text-brand-gray ml-1.5">{p.seniority}{p.is_placeholder ? " · placeholder" : ""}</span>
                     </td>
                     {p.pct_of_available.map((v: number | null, i: number) => {
                       const conflict = p.pto_conflict_weeks.includes(i);
                       const col = cellColor(v, conflict, c);
                       return (
                         <td key={i} onMouseEnter={() => setHover({ p, i })} onMouseLeave={() => setHover(null)}
-                          className="text-center text-[13px] num rounded-[4px] h-[30px] cursor-default"
+                          className="text-center text-[14px] num rounded-[4px] h-[30px] cursor-default"
                           style={{ background: col.bg, color: col.ink, outline: v === null && !conflict ? `1px dashed ${c.grid}` : undefined }}>
                           {v === null ? (conflict ? `PTO ${Math.round(p.allocated_hours[i])}h` : "PTO") : v === 0 ? "" : v}
                         </td>
                       );
                     })}
-                    <td className="px-2 text-right text-[13.5px] num font-semibold">{p.peak_pct}%</td>
+                    <td className="px-2 text-right text-[14.5px] num font-semibold">{p.peak_pct}%</td>
                   </tr>,
                 ];
               })}
             </tbody>
           </table>
           {hover && (
-            <div className="fixed z-50 pointer-events-none card px-3 py-2 text-[13.5px] max-w-[320px]" style={{ right: 32, bottom: 32 }}>
+            <div className="fixed z-50 pointer-events-none card px-3 py-2 text-[14.5px] max-w-[320px]" style={{ right: 32, bottom: 32 }}>
               <div className="font-semibold">{hover.p.name} · week of {fmtShort(data.weeks[hover.i])}</div>
               <div>{hover.p.allocated_hours[hover.i]} h booked / {hover.p.available_hours[hover.i]} h available</div>
               <div className="text-brand-gray mt-1">Projects: {hover.p.projects_by_week[hover.i].length ? hover.p.projects_by_week[hover.i].map((id: number) => data.project_names[String(id)] || `#${id}`).join(", ") : "none"}</div>
@@ -153,7 +153,7 @@ export default function Capacity() {
                 <tr key={name}><td className="td whitespace-nowrap"><span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: c[DISCIPLINE_SLOT[rows[0].discipline]] }} />{name}</span></td>
                   <td className="td num font-semibold">{rows[0].peak_pct}%</td>
                   <td className="td"><div className="flex flex-wrap gap-1.5">{rows.map((r: any) => (
-                    <Link key={r.project_id} to={`/projects/${r.project_id}`} className="px-1.5 py-0.5 rounded border border-surface-border text-[13px] hover:border-brand-lightgray">
+                    <Link key={r.project_id} to={`/projects/${r.project_id}`} className="px-1.5 py-0.5 rounded border border-surface-border text-[14px] hover:border-brand-lightgray">
                       {r.project} <span className="text-brand-gray">· {r.weeks.map((w: string) => fmtShort(w)).join(", ")}</span></Link>))}</div></td></tr>))}</tbody></table>
           </div>
         </Card>
@@ -169,7 +169,7 @@ export default function Capacity() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <button className="link text-[13.5px]" onClick={() => drill.open("unstaffed_bookings", "Unstaffed bookings")}>See the bookings →</button>
+          <button className="link text-[14.5px]" onClick={() => drill.open("unstaffed_bookings", "Unstaffed bookings")}>See the bookings →</button>
         </Card>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-5">
@@ -190,7 +190,7 @@ export default function Capacity() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[13.5px] mt-1">{hrs.map((r: any) => <span key={r.discipline}>{r.discipline}: <b className={r.variance_pct > 5 ? "text-st-critical" : ""}>{r.variance_pct > 0 ? "+" : ""}{r.variance_pct}%</b></span>)}</div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[14.5px] mt-1">{hrs.map((r: any) => <span key={r.discipline}>{r.discipline}: <b className={r.variance_pct > 5 ? "text-st-critical" : ""}>{r.variance_pct > 0 ? "+" : ""}{r.variance_pct}%</b></span>)}</div>
           <Legend className="mt-1" items={[{ label: "Planned", color: c.neutral }, { label: "Actual", color: c["series-1"] }]} />
         </Card>
         <Card title="Estimate accuracy by design stage" sub="Where hours overrun the estimate, by design stage.">
@@ -208,7 +208,7 @@ export default function Capacity() {
           </div>
         </Card>
         <Card title="How capacity is calculated" sub="Forward weeks show booked work: a plan, not a prediction">
-          <ul className="text-[14px] space-y-1.5 list-disc pl-4">{data.assumptions.map((a: string) => <li key={a}>{a}</li>)}</ul>
+          <ul className="text-[15px] space-y-1.5 list-disc pl-4">{data.assumptions.map((a: string) => <li key={a}>{a}</li>)}</ul>
         </Card>
       </div>
       </Details>

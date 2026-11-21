@@ -14,18 +14,18 @@ export const START_PATH = STATIC ? "/" : "/start";
 const NAV = [
   { group: "", items: [
     { to: START_PATH, label: "Start here" },
+    { to: "/scenarios", label: "The decisions it changed" },
   ]},
   { group: "Dashboards", items: [
     { to: EXEC_PATH, label: "Overview" },
     { to: "/delivery", label: "Schedule" },
     { to: "/capacity", label: "Team capacity" },
     { to: "/actions", label: "Action items" },
-    { to: "/commercial", label: "Proposals & change orders" },
-    { to: "/quality", label: "Data quality" },
+    { to: "/proposals", label: "Proposals" },
+    { to: "/billables", label: "Billables" },
   ]},
-  { group: "The story", items: [
-    { to: "/scenarios", label: "Two decisions" },
-    { to: "/pipeline", label: "How the data flows" },
+  { group: "Behind the numbers", items: [
+    { to: "/pipeline", label: "How the numbers come together" },
   ]},
 ];
 
@@ -37,22 +37,22 @@ export default function Layout() {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("pmo-demo-theme", dark ? "dark" : "light"); } catch { /* storage unavailable */ }
   }, [dark]);
-  const showFilters = !["/pipeline", "/scenarios", START_PATH].includes(pathname) && !pathname.startsWith("/projects");
+  const showFilters = !["/pipeline", "/scenarios", "/proposals", START_PATH].includes(pathname) && !pathname.startsWith("/projects");
   return (
     <div className="min-h-full flex">
       <aside className="hidden lg:block w-[248px] shrink-0 bg-surface-side border-r border-surface-border self-stretch">
        <div className="sticky top-0 h-screen flex flex-col">
         <Link to="/" className="px-6 pt-6 pb-5 block">
           <div className="text-[22px] font-bold tracking-[-0.01em]">PMO <span className="text-brand-red">360</span></div>
-          <div className="text-[13.5px] text-brand-gray leading-tight mt-1">Operations analytics</div>
+          <div className="text-[14.5px] text-brand-gray leading-tight mt-1">Operations analytics</div>
         </Link>
         <nav className="flex-1 overflow-y-auto px-3 pb-4">
           {NAV.map((g) => (
             <div key={g.group || "start"} className="mt-3 first:mt-0">
-              {g.group && <div className="px-3 py-2 text-[12px] uppercase tracking-[0.1em] text-brand-lightgray font-semibold">{g.group}</div>}
+              {g.group && <div className="px-3 py-2 text-[12.5px] uppercase tracking-[0.1em] text-brand-lightgray font-semibold">{g.group}</div>}
               {g.items.map((it) => (
                 <NavLink key={it.to} to={{ pathname: it.to, search }} end={it.to === "/" || it.to === EXEC_PATH}
-                  className={({ isActive }) => clsx("flex items-center gap-2 px-3 py-2.5 rounded-lg text-[15px] transition border-l-[3px]",
+                  className={({ isActive }) => clsx("flex items-center gap-2 px-3 py-2.5 rounded-lg text-[16px] transition border-l-[3px]",
                     isActive ? "bg-brand-red/[0.07] text-brand-black font-semibold border-brand-red" : "border-transparent text-brand-gray hover:bg-surface-mute hover:text-brand-black")}>
                   {it.label}
                 </NavLink>
@@ -60,10 +60,10 @@ export default function Layout() {
             </div>
           ))}
         </nav>
-        <div className="mx-4 mb-3 rounded-lg border border-[#b37a00]/35 bg-[#fab219]/10 px-3 py-2.5 text-[13px] leading-snug text-brand-black">
-          <span className="font-semibold">Synthetic demonstration data.</span> No client, project or person is real.
+        <div className="mx-4 mb-3 rounded-lg border border-[#b37a00]/35 bg-[#fab219]/10 px-3 py-2.5 text-[14px] leading-snug text-brand-black">
+          <span className="font-semibold">Invented data.</span> No client, project or person is real.
         </div>
-        <div className="px-5 py-3 border-t border-surface-border flex items-center justify-end text-[13px] text-brand-gray">
+        <div className="px-5 py-3 border-t border-surface-border flex items-center justify-end text-[14px] text-brand-gray">
           <button onClick={() => setDark(!dark)} className="px-2.5 py-1.5 rounded-md hover:bg-surface-mute" aria-label="Toggle theme">{dark ? "☀ Light mode" : "☾ Dark mode"}</button>
         </div>
        </div>
@@ -73,8 +73,8 @@ export default function Layout() {
         <main className="flex-1 px-4 sm:px-8 py-7 max-w-[1400px] w-full mx-auto min-w-0">
           <Outlet />
         </main>
-        <footer className="px-8 py-5 text-[13px] text-brand-gray border-t border-surface-border">
-          Synthetic data, generated for this demonstration. Built with FastAPI, PostgreSQL and React.
+        <footer className="px-8 py-5 text-[14px] text-brand-gray border-t border-surface-border">
+          Invented data, generated for this demonstration. No client, project or person is real.
         </footer>
       </div>
     </div>
@@ -93,7 +93,7 @@ function MobileNav() {
         {!items.some((i) => i.to === pathname) && <option value="">Project detail</option>}
         {items.map((i) => <option key={i.to} value={i.to}>{i.label}</option>)}
       </select>
-      <span className="shrink-0 rounded border border-[#b37a00]/50 bg-[#fab219]/15 px-1.5 py-0.5 text-[12px] font-semibold text-brand-deepgold">Synthetic data</span>
+      <span className="shrink-0 rounded border border-[#b37a00]/50 bg-[#fab219]/15 px-1.5 py-0.5 text-[12.5px] font-semibold text-brand-deepgold">Synthetic data</span>
     </div>
   );
 }
@@ -121,23 +121,23 @@ function Freshness({ meta }: { meta: any }) {
   return (
     <div className="relative" onMouseLeave={() => setOpen(false)}>
       <button onClick={() => setOpen(!open)} onMouseEnter={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-md border border-surface-border bg-surface-card px-2.5 py-1.5 text-[13.5px]">
+        className="flex items-center gap-2 rounded-md border border-surface-border bg-surface-card px-2.5 py-1.5 text-[14.5px]">
         <span className={clsx("w-2 h-2 rounded-full", worst === "fresh" ? "bg-st-good" : worst === "stale" ? "bg-st-warn" : "bg-st-critical")} />
         <span>Data as of <b>{fmtDate(meta.as_of)}</b></span>
         {stale.length > 0 && <span className="text-brand-gray">· {stale.length} source{stale.length > 1 ? "s" : ""} stale</span>}
       </button>
       {open && (
         <div className="absolute right-0 top-9 w-[min(420px,92vw)] card p-3 z-50">
-          <div className="text-[13.5px] font-semibold mb-2">Source freshness (last successful extract vs SLA)</div>
+          <div className="text-[14.5px] font-semibold mb-2">Source freshness (last successful extract vs SLA)</div>
           {meta.freshness.map((s: any) => (
-            <div key={s.key} className="flex items-center gap-2 py-1 text-[13.5px] border-t border-surface-hairline first:border-0">
+            <div key={s.key} className="flex items-center gap-2 py-1 text-[14.5px] border-t border-surface-hairline first:border-0">
               <span className={clsx("w-2 h-2 rounded-full shrink-0", s.freshness === "fresh" ? "bg-st-good" : s.freshness === "stale" ? "bg-st-warn" : "bg-st-critical")} />
               <span className="flex-1 truncate">{s.name}</span>
               <span className="num text-brand-gray">{s.age_hours}h / {s.freshness_sla_hours}h</span>
               {s.last_status === "failed" && <span className="text-st-critical font-semibold">last run failed</span>}
             </div>
           ))}
-          <Link to="/quality" className="link text-[13.5px] mt-2 inline-block">Open data quality →</Link>
+          <Link to="/pipeline" className="link text-[14.5px] mt-2 inline-block">How the data flows →</Link>
         </div>
       )}
     </div>
@@ -157,13 +157,13 @@ function ProjectSearch() {
   return (
     <div className="relative w-full sm:w-[340px]" ref={ref}>
       <input className="input pl-8" placeholder="Find a project, portfolio, client or job #" value={q} onChange={(e) => setQ(e.target.value)} />
-      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-lightgray text-[14.5px]">⌕</span>
+      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-lightgray text-[15.5px]">⌕</span>
       {res.length > 0 && (
         <div className="absolute left-0 right-0 top-9 card py-1 z-50 max-h-[360px] overflow-auto">
           {res.map((r) => (
             <button key={r.id} className="w-full text-left px-3 py-1.5 hover:bg-surface-rowhover" onClick={() => { setQ(""); nav(`/projects/${r.id}`); }}>
-              <div className="text-[14.5px] font-medium">{r.name}</div>
-              <div className="text-[13px] text-brand-gray">{r.portfolio_name} · {r.client_name} · {r.lifecycle}</div>
+              <div className="text-[15.5px] font-medium">{r.name}</div>
+              <div className="text-[14px] text-brand-gray">{r.portfolio_name} · {r.client_name} · {r.lifecycle}</div>
             </button>
           ))}
         </div>
@@ -179,7 +179,7 @@ function FilterBar() {
   const portfolios = meta.portfolios.filter((p: any) => !filters.clients.length || filters.clients.includes(p.client_id));
   if (STATIC) {
     return (
-      <div className="px-4 sm:px-8 pb-3 flex items-center gap-2 flex-wrap text-[14.5px]">
+      <div className="px-4 sm:px-8 pb-3 flex items-center gap-2 flex-wrap text-[15.5px]">
         <span className="text-brand-gray mr-1">Discipline</span>
         {["All", ...DISCIPLINES].map((d) => {
           const on = d === "All" ? filters.disciplines.length === 0 : filters.disciplines.length === 1 && filters.disciplines[0] === d;
@@ -190,7 +190,7 @@ function FilterBar() {
     );
   }
   return (
-    <div className="px-4 sm:px-6 pb-2.5 flex items-center gap-2 flex-wrap text-[14px]">
+    <div className="px-4 sm:px-6 pb-2.5 flex items-center gap-2 flex-wrap text-[15px]">
       <MultiSelect label="Client" options={meta.clients.map((c: any) => ({ v: c.id, l: c.name }))} value={filters.clients}
         onChange={(v) => set({ clients: v as number[], portfolios: [] })} />
       <MultiSelect label="Portfolio" options={portfolios.map((p: any) => ({ v: p.id, l: p.name, s: p.client_name }))} value={filters.portfolios}
@@ -248,12 +248,12 @@ function MultiSelect({ label, options, value, onChange }: {
                 <label key={String(o.v)} className="flex items-start gap-2 px-1.5 py-1 rounded hover:bg-surface-rowhover cursor-pointer">
                   <input type="checkbox" checked={on} className="mt-0.5 accent-[#ad1f2b]"
                     onChange={() => onChange(on ? value.filter((x) => x !== o.v) : [...value, o.v])} />
-                  <span className="text-[14px] leading-tight">{o.l}{o.s && <span className="block text-[12.5px] text-brand-gray">{o.s}</span>}</span>
+                  <span className="text-[15px] leading-tight">{o.l}{o.s && <span className="block text-[13.5px] text-brand-gray">{o.s}</span>}</span>
                 </label>
               );
             })}
           </div>
-          {value.length > 0 && <button className="link text-[13.5px] mt-1.5" onClick={() => onChange([])}>Clear</button>}
+          {value.length > 0 && <button className="link text-[14.5px] mt-1.5" onClick={() => onChange([])}>Clear</button>}
         </div>
       )}
     </div>
@@ -261,5 +261,5 @@ function MultiSelect({ label, options, value, onChange }: {
 }
 
 export function Mono({ children }: { children: ReactNode }) {
-  return <code className="text-[13.5px] bg-surface-mute px-1 py-px rounded">{children}</code>;
+  return <code className="text-[14.5px] bg-surface-mute px-1 py-px rounded">{children}</code>;
 }

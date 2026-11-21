@@ -85,10 +85,8 @@ BLOCKED_REASONS = {
         "Utility interconnection data pending",
         "Collector routing awaiting land-rights confirmation",
         "Transformer vendor data not received",
-        "Utility protection & controls requirements pending",
-        "Relay panel vendor drawings outstanding",
-        "BESS integrator layout not final",
-        "Fire code (NFPA 855) review comments pending",
+        "Module selection not final (string sizing on hold)",
+        "Medium-voltage cable vendor data outstanding",
     ],
 }
 
@@ -109,7 +107,7 @@ ACTION_TEMPLATES = [
 
 CO_TITLES = [
     "Additional pile layout iteration", "Revised collector system routing",
-    "Added BESS augmentation study", "Substation one-line revision for utility comments",
+    "Re-layout for a new module size", "Revised AC collection layout for utility comments",
     "Extra stormwater analysis for county", "Change of inverter vendor",
     "Expanded arc-flash study", "Additional site access road design",
     "Revised fence / security layout", "Added SCADA integration scope",

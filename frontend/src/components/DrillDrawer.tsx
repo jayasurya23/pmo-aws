@@ -116,15 +116,15 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="kicker">The records behind this number</div>
-              <h2 className="text-[20px] font-bold">{req.title}{req.facets && Object.values(req.facets).length ? ` · ${Object.values(req.facets).join(" · ")}` : ""}</h2>
-              {data?.definition && <p className="text-[15px] text-brand-gray mt-1 max-w-[760px] leading-relaxed">{data.definition.definition}</p>}
+              <h2 className="text-[21px] font-bold">{req.title}{req.facets && Object.values(req.facets).length ? ` · ${Object.values(req.facets).join(" · ")}` : ""}</h2>
+              {data?.definition && <p className="text-[16px] text-brand-gray mt-1 max-w-[760px] leading-relaxed">{data.definition.definition}</p>}
             </div>
             <button className="btn-ghost" onClick={onClose} aria-label="Close">Close ✕</button>
           </div>
           <div className="flex items-center gap-2 mt-3">
             <input className="input max-w-[320px]" placeholder="Search these records…" value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
-            <span className="text-[14px] text-brand-gray">{data ? `${data.total.toLocaleString()} record${data.total === 1 ? "" : "s"}` : "…"}</span>
-            {preset && <button className="text-[14px] link" onClick={() => setAllCols(!allCols)}>{allCols ? "Fewer columns" : `Show all ${every.length} columns`}</button>}
+            <span className="text-[15px] text-brand-gray">{data ? `${data.total.toLocaleString()} record${data.total === 1 ? "" : "s"}` : "…"}</span>
+            {preset && <button className="text-[15px] link" onClick={() => setAllCols(!allCols)}>{allCols ? "Fewer columns" : `Show all ${every.length} columns`}</button>}
             {STATIC ? (
               <button className="btn-ghost ml-auto" onClick={async () => {
                 const all = await apiGet(`/drill/${req.metric}?${query}&page=1&page_size=100000${facetQs}${debounced ? `&q=${encodeURIComponent(debounced)}` : ""}`);
@@ -144,8 +144,8 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
           </div>
         </div>
         <div className="flex-1 overflow-auto">
-          {err && <div className="p-5 text-[14.5px] text-st-critical">{err}</div>}
-          {data && data.rows.length === 0 && <div className="p-8 text-center text-brand-gray text-[14.5px]">No records match.</div>}
+          {err && <div className="p-5 text-[15.5px] text-st-critical">{err}</div>}
+          {data && data.rows.length === 0 && <div className="p-8 text-center text-brand-gray text-[15.5px]">No records match.</div>}
           {data && data.rows.length > 0 && (
             <table className="w-full">
               <thead className="sticky top-0 bg-surface-card z-10 shadow-[0_1px_0_rgb(var(--surface-border))]">
@@ -161,7 +161,7 @@ function DrillDrawer({ req, onClose }: { req: DrillReq; onClose: () => void }) {
             </table>
           )}
         </div>
-        <div className="px-5 py-2.5 border-t border-surface-border flex items-center gap-2 text-[14px]">
+        <div className="px-5 py-2.5 border-t border-surface-border flex items-center gap-2 text-[15px]">
           <button className="btn-ghost" disabled={page <= 1} onClick={() => setPage(page - 1)}>← Prev</button>
           <span className="text-brand-gray">Page {page} of {pages}</span>
           <button className="btn-ghost" disabled={page >= pages} onClick={() => setPage(page + 1)}>Next →</button>

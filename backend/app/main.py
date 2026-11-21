@@ -20,6 +20,8 @@ from app import netguard, scenarios
 from app.config import CORS_ORIGINS, DEMO_AS_OF, DEMO_LABEL
 from app.db import get_db
 from app.metrics import actions as A
+from app.metrics import billables as BL
+from app.metrics import proposals as PR
 from app.metrics import capacity as C
 from app.metrics import commercial as CM
 from app.metrics import delivery as D
@@ -123,6 +125,16 @@ def actions_dash(f: Filters = Depends(filters_dep), db: Session = Depends(get_db
 @app.get("/api/commercial")
 def commercial(f: Filters = Depends(filters_dep), db: Session = Depends(get_db)):
     return CM.dashboard(db, f, S.compute(db, f))
+
+
+@app.get("/api/proposals")
+def proposals_dash(f: Filters = Depends(filters_dep), db: Session = Depends(get_db)):
+    return PR.dashboard(db, f)
+
+
+@app.get("/api/billables")
+def billables_dash(f: Filters = Depends(filters_dep), db: Session = Depends(get_db)):
+    return BL.dashboard(db, f, S.compute(db, f))
 
 
 @app.get("/api/quality")

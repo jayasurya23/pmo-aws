@@ -8,7 +8,7 @@ A standalone, locally runnable rebuild of the analytics layer of **PMO 360**, th
 
 | | |
 |---|---|
-| **Case study** | [case-study/AWS_PMO360_Dashboard_Case_Study.md](case-study/AWS_PMO360_Dashboard_Case_Study.md) (+ `.docx`) |
+| **Case study** | [case-study/AWS_PMO360_Case_Study.md](case-study/AWS_PMO360_Case_Study.md) (+ `.docx`), short version [AWS_PMO360_Case_Study_Brief.md](case-study/AWS_PMO360_Case_Study_Brief.md) |
 | **5-minute demo script** | [case-study/AWS_PMO360_Demo_Walkthrough.md](case-study/AWS_PMO360_Demo_Walkthrough.md) |
 | **Architecture & trade-offs** | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
 | **Data pipeline & validation rules** | [docs/DATA_PIPELINE.md](docs/DATA_PIPELINE.md) |
@@ -18,10 +18,11 @@ A standalone, locally runnable rebuild of the analytics layer of **PMO 360**, th
 
 ## What's inside
 
-* **Six dashboards**: Overview · Schedule · Team capacity · Action items · Proposals & change orders · Data quality. Each opens with a one-line takeaway and four headline numbers; secondary charts sit under *More detail*. Plus a project drilldown, two decision scenarios with apply/reset and a data-flow page. Three engineering disciplines: Electrical, Civil, Structural.
+* **Two decision walkthroughs** (animated, step by step: what the dashboard showed, what it revealed, the decision, the result), with apply/reset that writes the decision into the data.
+* **Six dashboards**: Overview · Schedule · Team capacity · Action items · Proposals (stage tracker) · Billables (milestone billing and what late milestones put at risk). Each opens with a one-line takeaway and four headline numbers; secondary charts sit under *More detail*. Plus a project drilldown and a plain-language data-flow page. Solar projects only; three engineering disciplines: Electrical, Civil, Structural.
 * **Every number drills to its records** (searchable, paginated, CSV export). Every KPI carries its definition.
 * **A real pipeline, not hard-coded numbers**: one coherent synthetic world is written out as Monday GraphQL boards, a Graph calendar payload, CSV register exports and PMO 360 / proposal360 tables, with counted defects. The pipeline stages, validates, normalises and loads PostgreSQL, recording every exception and every sync run.
-* **85 tests** proving KPI = drilldown = an independent SQL count, defect detection against the generator's manifest, schedule rules, determinism, scenario reversibility, network isolation and confidentiality.
+* **89 tests** proving KPI = drilldown = an independent SQL count, defect detection against the generator's manifest, schedule rules, determinism, scenario reversibility, network isolation and confidentiality.
 
 ## Hosted version (no server needed)
 
@@ -84,7 +85,7 @@ docs/  case-study/  tools/
 
 | Check | Result |
 |---|---|
-| Pipeline end to end (seed 360, as of 2026-11-20) | ~12 s; 11,257 records staged, 99.6% loaded, 44 rejected, 250 open exceptions; register schema-drift file refused |
+| Pipeline end to end (seed 360, as of 2026-11-20) | ~12 s; 10,810 records staged, 99.6% loaded, 44 rejected, 260 open exceptions; register schema-drift file refused |
 | Backend tests (`pytest`) | **85 passed** (also run in CI on every push) |
 | Frontend type-check and production build | pass (`tsc`, `vite build`) |
 | All pages rendered in Chromium (Playwright) | no console errors; screenshots in `case-study/screenshots/` |

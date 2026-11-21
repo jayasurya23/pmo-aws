@@ -23,7 +23,7 @@ from app.main import app
 from app.metrics.drill import METRICS
 
 VARIANTS = ["all", "Electrical", "Civil", "Structural"]
-DASHBOARDS = ["executive", "delivery", "capacity", "actions", "commercial"]
+DASHBOARDS = ["executive", "delivery", "capacity", "actions", "commercial", "proposals", "billables"]
 SHARDS = 8
 
 

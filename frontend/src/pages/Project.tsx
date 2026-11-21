@@ -39,24 +39,24 @@ function MilestoneTimeline({ ms, asOf, c }: { ms: any[]; asOf: string; c: ChartC
       <svg width={w} height={H} role="img" aria-label="Milestone timeline: baseline, planned, actual and projected dates">
         {axisTicks(t0, t1).map((t) => (
           <g key={t}><line x1={x(t)} x2={x(t)} y1={0} y2={H - 22} stroke={c.grid} />
-            <text x={x(t) + 3} y={H - 8} fontSize={12} fill={c["text-2"]}>{fmtDate(new Date(t).toISOString().slice(0, 10), "MMM yy")}</text></g>
+            <text x={x(t) + 3} y={H - 8} fontSize={13} fill={c["text-2"]}>{fmtDate(new Date(t).toISOString().slice(0, 10), "MMM yy")}</text></g>
         ))}
         <line x1={x(day(asOf)!)} x2={x(day(asOf)!)} y1={0} y2={H - 22} stroke={c.critical} strokeWidth={1.5} />
-        <text x={x(day(asOf)!) + 4} y={11} fontSize={12} fill={c.critical} fontWeight={600}>Today</text>
+        <text x={x(day(asOf)!) + 4} y={11} fontSize={13} fill={c.critical} fontWeight={600}>Today</text>
         {ms.map((m, i) => {
           const cy = 22 + i * rowH;
           const p = day(m.planned_date), b = day(m.baseline_date), a = day(m.actual_date), f = day(m.forecast_date);
           const col = c[STATE_COLOR[m.status]];
           return (
             <g key={m.id}>
-              <text x={8} y={cy + 4} fontSize={13.5} fontWeight={700} fill={c.text}>{m.stage}</text>
+              <text x={8} y={cy + 4} fontSize={14.5} fontWeight={700} fill={c.text}>{m.stage}</text>
               {b && p && b !== p && <line x1={x(b)} x2={x(p)} y1={cy} y2={cy} stroke={c.neutral} strokeDasharray="3 3" />}
               {b && <path d={diamond(x(b), cy, 6)} fill={c.surface} stroke={c.neutral} strokeWidth={1.5}><title>Baseline {m.baseline_date}</title></path>}
               {p && f && f > p && <line x1={x(p)} x2={x(f)} y1={cy} y2={cy} stroke={c.serious} strokeWidth={2} />}
               {p && <path d={diamond(x(p), cy, 7)} fill={a ? c.surface : col} stroke={col} strokeWidth={2}><title>Planned {m.planned_date}</title></path>}
               {f && f > (p || 0) && !a && <path d={diamond(x(f), cy, 7)} fill={c.serious} stroke={c.surface} strokeWidth={2}><title>Projected {m.forecast_date} ({m.slip_bd} business days late)</title></path>}
               {a && <circle cx={x(a)} cy={cy} r={6} fill={a <= (p || 0) ? c.good : c.critical} stroke={c.surface} strokeWidth={2}><title>Actual {m.actual_date}</title></circle>}
-              <text x={x(Math.max(p || 0, f || 0, a || 0)) + 12} y={cy + 4} fontSize={12.5} fill={c["text-2"]}>
+              <text x={x(Math.max(p || 0, f || 0, a || 0)) + 12} y={cy + 4} fontSize={13.5} fill={c["text-2"]}>
                 {m.status_label}{m.slip_bd ? ` · ${m.slip_bd} days` : m.variance_bd > 0 ? ` · ${m.variance_bd} days` : ""}{m.revision_count ? ` · plan changed` : ""}
               </text>
             </g>
@@ -81,7 +81,7 @@ function WorkGantt({ items, asOf, c }: { items: any[]; asOf: string; c: ChartCol
       <svg width={w} height={H} role="img" aria-label="Work package schedule with progress">
         {axisTicks(t0, t1).map((t) => (
           <g key={t}><line x1={x(t)} x2={x(t)} y1={0} y2={H - 20} stroke={c.grid} />
-            <text x={x(t) + 3} y={H - 6} fontSize={12} fill={c["text-2"]}>{fmtDate(new Date(t).toISOString().slice(0, 10), "MMM yy")}</text></g>
+            <text x={x(t) + 3} y={H - 6} fontSize={13} fill={c["text-2"]}>{fmtDate(new Date(t).toISOString().slice(0, 10), "MMM yy")}</text></g>
         ))}
         <line x1={x(day(asOf)!)} x2={x(day(asOf)!)} y1={0} y2={H - 20} stroke={c.critical} strokeWidth={1.5} />
         {rows.map((it, i) => {
@@ -94,7 +94,7 @@ function WorkGantt({ items, asOf, c }: { items: any[]; asOf: string; c: ChartCol
           const bw = Math.max(3, x(e) - x(s));
           return (
             <g key={it.id}>
-              <text x={6} y={y + 13} fontSize={13} fill={c.text}>{it.stage} · {it.discipline}</text>
+              <text x={6} y={y + 13} fontSize={14} fill={c.text}>{it.stage} · {it.discipline}</text>
               <rect x={x(s)} y={y + 4} width={bw} height={12} rx={4} fill={col} fillOpacity={0.18} />
               <rect x={x(s)} y={y + 4} width={bw * pct} height={12} rx={4} fill={col} />
               {blocked && <rect x={x(s) - 1} y={y + 3} width={bw + 2} height={14} rx={5} fill="none" stroke={c.critical} strokeWidth={2} />}
@@ -121,18 +121,18 @@ export default function Project() {
   return (
     <div>
       <div className="mb-4">
-        <Link to="/delivery" className="link text-[15px]">← Schedule</Link>
+        <Link to="/delivery" className="link text-[16px]">← Schedule</Link>
         <div className="flex flex-wrap items-end justify-between gap-3 mt-1">
           <div>
             <div className="kicker">{p.client_name} · {p.portfolio_name} · job {p.project_number || <Tag tone="warn">no job #</Tag>}</div>
-            <h1 className="text-[30px] font-bold tracking-[-0.02em]">{p.name}</h1>
-            <div className="text-[14.5px] text-brand-gray mt-0.5">{p.technology} · {p.size_mw} MW · {p.state} · PM {p.pm_name || <Tag tone="warn">missing in master</Tag>} · kickoff {fmtDate(p.kickoff_date)}</div>
+            <h1 className="text-[32px] font-bold tracking-[-0.02em]">{p.name}</h1>
+            <div className="text-[15.5px] text-brand-gray mt-0.5">{p.technology} · {p.size_mw} MW · {p.state} · PM {p.pm_name || <Tag tone="warn">missing in master</Tag>} · kickoff {fmtDate(p.kickoff_date)}</div>
           </div>
           <div className="card px-5 py-3.5 flex flex-wrap items-center gap-6">
             <div><div className="micro">Health</div><StatePill state={p.health} label={p.health_label} /></div>
-            <div><div className="micro">Next milestone</div><div className="text-[16px] font-semibold mt-0.5">{p.next_milestone || "—"} <span className="font-normal text-brand-gray">{fmtShort(p.next_planned)}{p.next_forecast && p.next_forecast !== p.next_planned ? ` → ${fmtShort(p.next_forecast)}` : ""}</span></div></div>
-            <div><div className="micro">Late milestones</div><div className="text-[16px] font-semibold mt-0.5">{p.late_milestones}</div></div>
-            <div><div className="micro">Plan changes</div><div className="text-[16px] font-semibold mt-0.5">{p.revisions}</div></div>
+            <div><div className="micro">Next milestone</div><div className="text-[17px] font-semibold mt-0.5">{p.next_milestone || "—"} <span className="font-normal text-brand-gray">{fmtShort(p.next_planned)}{p.next_forecast && p.next_forecast !== p.next_planned ? ` → ${fmtShort(p.next_forecast)}` : ""}</span></div></div>
+            <div><div className="micro">Late milestones</div><div className="text-[17px] font-semibold mt-0.5">{p.late_milestones}</div></div>
+            <div><div className="micro">Plan changes</div><div className="text-[17px] font-semibold mt-0.5">{p.revisions}</div></div>
           </div>
         </div>
       </div>
@@ -147,8 +147,8 @@ export default function Project() {
             {open_ms.map((m: any) => (
               <div key={m.id} className="rounded-lg border border-surface-border p-4">
                 <div className="flex justify-between"><b>{m.stage}</b><StatePill state={m.status} label={m.status_label} /></div>
-                <div className="text-[14.5px] text-brand-gray mt-1">Planned {fmtDate(m.planned_date)} · projected {fmtDate(m.forecast_date)}{m.slip_bd ? ` (${m.slip_bd} business days late)` : ""}</div>
-                <ul className="text-[14.5px] mt-2 space-y-1 list-disc pl-5 leading-snug">{m.basis.map((b: string) => <li key={b}>{b}</li>)}</ul>
+                <div className="text-[15.5px] text-brand-gray mt-1">Planned {fmtDate(m.planned_date)} · projected {fmtDate(m.forecast_date)}{m.slip_bd ? ` (${m.slip_bd} business days late)` : ""}</div>
+                <ul className="text-[15.5px] mt-2 space-y-1 list-disc pl-5 leading-snug">{m.basis.map((b: string) => <li key={b}>{b}</li>)}</ul>
               </div>
             ))}
           </div>
@@ -167,17 +167,17 @@ export default function Project() {
             <Fragment key={w.id}>
               <tr className="hover:bg-surface-rowhover cursor-pointer" onClick={() => setOpen(open === w.id ? null : w.id)}>
                 <td className="td"><span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: c[DISCIPLINE_SLOT[w.discipline]] }} /><b>{w.stage}</b> {w.discipline}</span></td>
-                <td className="td text-[14px]">{w.status.replace("_", " ")} <span className="text-brand-gray">({w.source_status_label})</span></td>
-                <td className="td text-[14px]">{w.assignee || <Tag tone="warn">unassigned</Tag>}</td>
-                <td className="td num text-[14px] whitespace-nowrap">{fmtShort(w.planned_start)} → {fmtShort(w.due_date)}</td>
-                <td className="td text-right num text-[14px]">{w.planned_hours ?? "—"} / {w.actual_hours ?? <span title="not reported — unknown, not zero">?</span>}</td>
-                <td className="td text-[13.5px]">{w.blocked_reason && <span className="text-st-critical">Blocked: {w.blocked_reason}</span>}{w.depends_on && <div className="text-brand-gray">after {w.depends_on.split(" - ").pop()}</div>}</td>
+                <td className="td text-[15px]">{w.status.replace("_", " ")} <span className="text-brand-gray">({w.source_status_label})</span></td>
+                <td className="td text-[15px]">{w.assignee || <Tag tone="warn">unassigned</Tag>}</td>
+                <td className="td num text-[15px] whitespace-nowrap">{fmtShort(w.planned_start)} → {fmtShort(w.due_date)}</td>
+                <td className="td text-right num text-[15px]">{w.planned_hours ?? "—"} / {w.actual_hours ?? <span title="not reported — unknown, not zero">?</span>}</td>
+                <td className="td text-[14.5px]">{w.blocked_reason && <span className="text-st-critical">Blocked: {w.blocked_reason}</span>}{w.depends_on && <div className="text-brand-gray">after {w.depends_on.split(" - ").pop()}</div>}</td>
               </tr>
               {open === w.id && (
                 <tr><td colSpan={6} className="px-6 py-2 bg-surface-rowhover">
-                  <div className="text-[14px] font-semibold mb-1">History</div>
+                  <div className="text-[15px] font-semibold mb-1">History</div>
                   {w.history.map((h: any, i: number) => (
-                    <div key={i} className="text-[13.5px] flex gap-3"><span className="num text-brand-gray w-[150px]">{h.at.replace("T", " ").slice(0, 16)} UTC</span>
+                    <div key={i} className="text-[14.5px] flex gap-3"><span className="num text-brand-gray w-[150px]">{h.at.replace("T", " ").slice(0, 16)} UTC</span>
                       <span>{h.field}: {h.old_value || "—"} → <b>{h.new_value}</b></span>{h.note && <span className="text-brand-gray">· {h.note}</span>}{h.source !== "monday_work_board" && <Tag>{h.source === "scenario" ? "decision scenario" : h.source}</Tag>}</div>
                   ))}
                 </td></tr>
@@ -190,26 +190,26 @@ export default function Project() {
         <Card title="Deliverable register" pad={false} sub="A milestone is complete when its last required deliverable is issued">
           <table className="w-full"><thead><tr><th className="th">Document</th><th className="th">Status</th><th className="th">Planned</th><th className="th">Issued</th></tr></thead>
             <tbody>{data.deliverables.map((d: any) => (
-              <tr key={d.id}><td className="td text-[14px]">{d.doc_number}<div className="text-[12.5px] text-brand-gray">{d.discipline} {d.stage}</div></td>
-                <td className="td text-[14px]">{d.status.replace("_", " ")} <span className="text-brand-gray">({d.source_status_label})</span></td>
-                <td className="td num text-[14px]">{fmtShort(d.planned_issue_date)}</td><td className="td num text-[14px]">{fmtShort(d.actual_issue_date)}</td></tr>))}</tbody></table>
+              <tr key={d.id}><td className="td text-[15px]">{d.doc_number}<div className="text-[13.5px] text-brand-gray">{d.discipline} {d.stage}</div></td>
+                <td className="td text-[15px]">{d.status.replace("_", " ")} <span className="text-brand-gray">({d.source_status_label})</span></td>
+                <td className="td num text-[15px]">{fmtShort(d.planned_issue_date)}</td><td className="td num text-[15px]">{fmtShort(d.actual_issue_date)}</td></tr>))}</tbody></table>
         </Card>
         <div className="space-y-4">
           <Card title="Action items from this project's meetings" pad={false}>
             <table className="w-full"><tbody>{data.actions.slice(0, 10).map((a: any) => (
-              <tr key={a.id}><td className="td text-[14px]">{a.text}<div className="text-[12.5px] text-brand-gray">Raised {fmtDate(a.meeting_date)} · {a.owner_type === "internal" ? a.owner_name : a.owner_type === "external" ? a.owner : <span className="text-st-critical">unassigned</span>}</div></td>
-                <td className="td text-[13.5px] whitespace-nowrap">{a.status}{a.due_date && <div className="text-brand-gray">due {fmtShort(a.due_date)}</div>}</td></tr>))}</tbody></table>
+              <tr key={a.id}><td className="td text-[15px]">{a.text}<div className="text-[13.5px] text-brand-gray">Raised {fmtDate(a.meeting_date)} · {a.owner_type === "internal" ? a.owner_name : a.owner_type === "external" ? a.owner : <span className="text-st-critical">unassigned</span>}</div></td>
+                <td className="td text-[14.5px] whitespace-nowrap">{a.status}{a.due_date && <div className="text-brand-gray">due {fmtShort(a.due_date)}</div>}</td></tr>))}</tbody></table>
           </Card>
           <Card title="Staff booked to this project" pad={false}>
             <table className="w-full"><tbody>{data.bookings.map((b: any) => (
-              <tr key={b.id}><td className="td text-[14px]">{b.discipline} {b.milestone}<div className="text-[12.5px] text-brand-gray">{b.resource || <span className="text-st-critical">unstaffed</span>}{b.resource && !b.resource_active && " (inactive)"} · {b.seniority}</div></td>
-                <td className="td num text-[14px] whitespace-nowrap">{fmtShort(b.start_date)} → {fmtShort(b.end_date)}</td><td className="td num text-right text-[14px]">{Math.round(b.utilization * 100)}%{b.origin === "scenario" && <> <Tag>decision scenario</Tag></>}</td></tr>))}</tbody></table>
+              <tr key={b.id}><td className="td text-[15px]">{b.discipline} {b.milestone}<div className="text-[13.5px] text-brand-gray">{b.resource || <span className="text-st-critical">unstaffed</span>}{b.resource && !b.resource_active && " (inactive)"} · {b.seniority}</div></td>
+                <td className="td num text-[15px] whitespace-nowrap">{fmtShort(b.start_date)} → {fmtShort(b.end_date)}</td><td className="td num text-right text-[15px]">{Math.round(b.utilization * 100)}%{b.origin === "scenario" && <> <Tag>decision scenario</Tag></>}</td></tr>))}</tbody></table>
           </Card>
           {(data.change_orders.length > 0 || data.exceptions.length > 0) && (
             <Card title="Change orders and flagged records" pad={false}>
               <table className="w-full"><tbody>
-                {data.change_orders.map((co: any) => <tr key={"c" + co.id}><td className="td text-[14px]">CO-{co.co_number} {co.title}</td><td className="td text-[13.5px]">{co.status}{co.schedule_impact_days ? ` · +${co.schedule_impact_days} days` : ""}</td></tr>)}
-                {data.exceptions.map((e: any) => <tr key={"e" + e.id}><td className="td text-[14px]"><Tag tone={e.severity === "error" ? "critical" : "warn"}>{e.rule_code}</Tag> {e.detail}</td><td className="td text-[13.5px] text-brand-gray">{e.source_key}</td></tr>)}
+                {data.change_orders.map((co: any) => <tr key={"c" + co.id}><td className="td text-[15px]">CO-{co.co_number} {co.title}</td><td className="td text-[14.5px]">{co.status}{co.schedule_impact_days ? ` · +${co.schedule_impact_days} days` : ""}</td></tr>)}
+                {data.exceptions.map((e: any) => <tr key={"e" + e.id}><td className="td text-[15px]"><Tag tone={e.severity === "error" ? "critical" : "warn"}>{e.rule_code}</Tag> {e.detail}</td><td className="td text-[14.5px] text-brand-gray">{e.source_key}</td></tr>)}
               </tbody></table>
             </Card>
           )}

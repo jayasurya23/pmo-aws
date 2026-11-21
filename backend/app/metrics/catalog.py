@@ -39,7 +39,7 @@ CATALOG = {
         definition="Milestones planned between the reporting date and the look-ahead horizon, not yet achieved.",
         source="PMO 360 schedule"),
     "ifp_milestones": dict(label="IFP milestones", grain="milestone", origin="adapted",
-        definition="Issued-for-Purchase milestones: the engineering package clients use to order long-lead equipment (transformers, switchgear, BESS).",
+        definition="Issued-for-Purchase milestones: the engineering package clients use to order long-lead equipment (inverters, transformers, switchgear).",
         source="PMO 360 schedule"),
     # ---- delivery
     "overdue_deliverables": dict(label="Overdue deliverables", grain="deliverable", origin="demo",

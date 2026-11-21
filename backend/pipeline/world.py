@@ -24,27 +24,20 @@ from app.bizdays import add_business_days, business_days_between, monday_of
 from pipeline import names as N
 from pipeline.denylist import is_denied
 
-# Castillo's engineering departments. Substation and battery storage are PROJECT TYPES
-# (technology), designed by these departments - substation and BESS electrical work
-# is done by the Electrical team.
+# The engineering departments. Every project is utility-scale solar; the
+# technology is the solar type.
 DISCIPLINES = ["Electrical", "Civil", "Structural"]
 DISC_CODE = {"Electrical": "E", "Civil": "C", "Structural": "S"}
 STAGES = ["30%", "60%", "90%", "IFP", "IFC"]
 STAGE_LABEL = {"30%": "30% Design", "60%": "60% Design", "90%": "90% Design",
                "IFP": "Issued for Purchase", "IFC": "Issued for Construction"}
-IFP_DISCIPLINES = {"Electrical"}  # equipment-purchase packages: transformers, switchgear, BESS
+IFP_DISCIPLINES = {"Electrical"}  # equipment-purchase packages: inverters, transformers, switchgear
 
-TECH_DISCIPLINES = {
-    "PV": ["Electrical", "Civil", "Structural"],
-    "PV + BESS": ["Electrical", "Civil", "Structural"],
-    "BESS": ["Electrical", "Civil", "Structural"],
-    "Substation": ["Electrical", "Civil", "Structural"],
-    "PV + Substation": ["Electrical", "Civil", "Structural"],
-}
-TECH_WEIGHTS = [("PV", 0.36), ("PV + BESS", 0.22), ("BESS", 0.12), ("Substation", 0.12), ("PV + Substation", 0.18)]
-TECH_SUFFIX = {"PV": "Solar", "PV + BESS": "Solar + Storage", "BESS": "Energy Storage",
-               "Substation": "{kv}kV Substation", "PV + Substation": "Solar & POI Substation"}
-IFP_PROB = {"PV": 0.2, "PV + BESS": 0.55, "BESS": 0.7, "Substation": 0.85, "PV + Substation": 0.65}
+TECHS = ["Single-axis tracker", "Fixed tilt", "Community solar"]
+TECH_DISCIPLINES = {t: ["Electrical", "Civil", "Structural"] for t in TECHS}
+TECH_WEIGHTS = [("Single-axis tracker", 0.55), ("Fixed tilt", 0.27), ("Community solar", 0.18)]
+TECH_SUFFIX = {"Single-axis tracker": "Solar", "Fixed tilt": "Solar", "Community solar": "Community Solar"}
+IFP_PROB = {"Single-axis tracker": 0.6, "Fixed tilt": 0.5, "Community solar": 0.25}
 
 # Business days between consecutive milestones.
 GAP = {"30%": (26, 36), "60%": (26, 36), "90%": (22, 30), "IFP": (9, 13), "IFC_90": (18, 25), "IFC_IFP": (10, 15)}
@@ -58,13 +51,13 @@ BASE_HOURS = {
 
 HOURS_SCALE = 0.72
 ENGINEERS_PER_DISC = {"Electrical": 34, "Civil": 20, "Structural": 18}
-# Electrical scope grows with the technology: BESS and substations add P&C, SCADA and equipment design.
-ELECTRICAL_SCOPE = {"PV": 1.0, "PV + BESS": 1.3, "BESS": 1.15, "Substation": 1.4, "PV + Substation": 1.5}
+# Electrical design (collection system, inverters, interconnection) is the largest share of a solar project.
+ELECTRICAL_SCOPE = {"Single-axis tracker": 1.12, "Fixed tilt": 1.08, "Community solar": 0.95}
 PM_COUNT = 10
 
 UTC = timezone.utc
 
-# Scenario 1: the Timeline bars a PM drew for the high-voltage substation packages.
+# Scenario 1: the Timeline bars a PM drew for the electrical packages.
 # (project, stage) -> (senior index, bar start, bar end, utilisation)
 # 0 = Priya Raman, 1 = Marcus Ojo, 2 = Elena Ruiz. Planned hours derive from the bar.
 S1_BARS = {
@@ -166,7 +159,7 @@ class Generator:
             f, l = self.person()
             self.pms.append(add_user(f, l, "Project Manager", "Project Management", "pm"))
 
-        # Scenario 1 cast: the three senior substation engineers everyone relies on.
+        # Scenario 1 cast: the three senior electrical engineers everyone relies on.
         fixed_sub_seniors = [("Priya", "Raman"), ("Marcus", "Ojo"), ("Elena", "Ruiz")]
         for f, l in fixed_sub_seniors:
             self._used_people.add(f"{f} {l}")
@@ -177,13 +170,13 @@ class Generator:
             n = ENGINEERS_PER_DISC[disc]
             for i in range(n):
                 if disc == "Electrical" and 1 <= i <= 3:
-                    f, l = fixed_sub_seniors[i - 1]  # the substation protection & controls specialists
+                    f, l = fixed_sub_seniors[i - 1]  # the three senior electrical engineers
                     seniority = "senior"
                 else:
                     f, l = self.person()
                     seniority = "lead" if i == 0 else self.weighted(
                         [("senior", 0.25), ("mid", 0.45), ("junior", 0.30)])
-                title = {"lead": f"{disc} Engineering Lead", "senior": f"Senior {disc} Engineer" + (" (Substation P&C)" if disc == "Electrical" and 1 <= i <= 3 else ""),
+                title = {"lead": f"{disc} Engineering Lead", "senior": f"Senior {disc} Engineer",
                          "mid": f"{disc} Engineer II", "junior": f"{disc} Engineer I"}[seniority]
                 role = "lead" if seniority == "lead" else "engineer"
                 u = add_user(f, l, title, f"{disc} Engineering", role)
@@ -211,8 +204,8 @@ class Generator:
                             "title": "Electrical Engineer I", "seniority": "junior", "is_placeholder": True,
                             "available_from": date(2027, 1, 11), "active": True, "weekly_capacity_hours": 40.0})
         rid += 1
-        self.contractor = {"id": rid, "name": "Contract P&C Engineer", "user_id": None, "discipline": "Electrical",
-                           "title": "Contract Engineer (Substation P&C)", "seniority": "senior", "is_placeholder": True,
+        self.contractor = {"id": rid, "name": "Contract Electrical Engineer", "user_id": None, "discipline": "Electrical",
+                           "title": "Contract Electrical Engineer", "seniority": "senior", "is_placeholder": True,
                            "available_from": None, "active": False, "weekly_capacity_hours": 40.0}
         w.resources.append(self.contractor)
         self.sub_seniors = [r for r in self.res_by_disc["Electrical"] if r["name"] in
@@ -259,8 +252,8 @@ class Generator:
 
     # ------------------------------------------------------------ projects and milestones
     def _site_name(self, tech: str) -> str:
-        kv = self.rng.choice((69, 115, 138, 161, 230, 345))
-        return f"{self.place()} {TECH_SUFFIX[tech].format(kv=kv)}"
+        self.rng.random()  # keeps the generator's random sequence stable
+        return f"{self.place()} {TECH_SUFFIX[tech]}"
 
     def build_projects(self):
         w, rng = self.w, self.rng
@@ -338,24 +331,24 @@ class Generator:
         ports = list(by_client.values())
         d = lambda y, m, dd: date(y, m, dd)
         specs = [
-            {"forced": "s2_cedar", "portfolio_id": ports[3]["id"], "tech": "PV + BESS",
-             "name": "Cedar Hollow Solar + Storage", "kickoff": d(2026, 5, 26), "profile": "troubled",
+            {"forced": "s2_cedar", "portfolio_id": ports[3]["id"], "tech": "Single-axis tracker",
+             "name": "Cedar Hollow Solar", "kickoff": d(2026, 5, 26), "profile": "troubled",
              "has_ifp": False, "mw": 120,
              "milestones": {"30%": d(2026, 7, 17), "60%": d(2026, 9, 18), "90%": d(2026, 11, 13), "IFC": d(2026, 12, 18)}},
-            {"forced": "s1_granite", "portfolio_id": ports[6]["id"], "tech": "Substation",
-             "name": "Granite Run 230kV Substation", "kickoff": d(2026, 6, 22), "profile": "healthy",
+            {"forced": "s1_granite", "portfolio_id": ports[6]["id"], "tech": "Single-axis tracker",
+             "name": "Thornapple Solar", "kickoff": d(2026, 6, 22), "profile": "healthy",
              "has_ifp": True, "mw": 300,
              "milestones": {"30%": d(2026, 8, 7), "60%": d(2026, 10, 16), "90%": d(2026, 12, 18), "IFP": d(2027, 1, 8), "IFC": d(2027, 1, 29)}},
-            {"forced": "s1_ironleaf", "portfolio_id": ports[8]["id"], "tech": "PV + Substation",
-             "name": "Ironleaf Solar & POI Substation", "kickoff": d(2026, 7, 13), "profile": "healthy",
+            {"forced": "s1_ironleaf", "portfolio_id": ports[8]["id"], "tech": "Single-axis tracker",
+             "name": "Silverleaf Solar", "kickoff": d(2026, 7, 13), "profile": "healthy",
              "has_ifp": True, "mw": 250,
              "milestones": {"30%": d(2026, 8, 28), "60%": d(2026, 10, 30), "90%": d(2027, 1, 15), "IFP": d(2027, 1, 29), "IFC": d(2027, 2, 26)}},
-            {"forced": "s1_kettle", "portfolio_id": ports[10]["id"], "tech": "Substation",
-             "name": "Kettle River 345kV Collector Substation", "kickoff": d(2026, 8, 17), "profile": "healthy",
+            {"forced": "s1_kettle", "portfolio_id": ports[10]["id"], "tech": "Fixed tilt",
+             "name": "Marten Ridge Solar", "kickoff": d(2026, 8, 17), "profile": "healthy",
              "has_ifp": True, "mw": 400,
              "milestones": {"30%": d(2026, 10, 9), "60%": d(2026, 12, 11), "90%": d(2027, 1, 22), "IFP": d(2027, 2, 5), "IFC": d(2027, 3, 5)}},
-            {"forced": "s1_harrow", "portfolio_id": ports[12]["id"], "tech": "PV + Substation",
-             "name": "Harrow Creek Solar & POI Substation", "kickoff": d(2026, 5, 4), "profile": "healthy",
+            {"forced": "s1_harrow", "portfolio_id": ports[12]["id"], "tech": "Single-axis tracker",
+             "name": "Bluestem Solar", "kickoff": d(2026, 5, 4), "profile": "healthy",
              "has_ifp": True, "mw": 180,
              "milestones": {"30%": d(2026, 6, 19), "60%": d(2026, 8, 21), "90%": d(2026, 10, 23), "IFP": d(2026, 11, 13), "IFC": d(2027, 1, 8)}},
         ]
@@ -621,7 +614,7 @@ class Generator:
             res = None
             bar = S1_BARS.get((p["forced"], it["stage"])) if it["discipline"] == "Electrical" else None
             if p["forced"] and p["forced"].startswith("s1") and it["discipline"] == "Electrical":
-                # Scenario 1: every high-voltage package lands on the same three seniors.
+                # Scenario 1: every one of these electrical packages lands on the same three seniors.
                 res = self.sub_seniors[bar[0] if bar else 0]
                 if bar:
                     _, start, end, util = bar
@@ -676,7 +669,7 @@ class Generator:
                          (date(2027, 1, 1), date(2027, 1, 1))):
                 tid += 1
                 w.timeoff.append({"id": tid, "resource_id": r["id"], "start_date": s, "end_date": e, "reason": "Holiday"})
-        # One senior substation engineer is out the week of 14 Dec — part of why
+        # One senior electrical engineer is out the week of 14 Dec — part of why
         # the crunch is worse than any single project's plan suggests.
         tid += 1
         w.timeoff.append({"id": tid, "resource_id": self.sub_seniors[1]["id"], "start_date": date(2026, 12, 14),
@@ -794,7 +787,7 @@ class Generator:
         for k in range(12):
             evid += 1
             d = add_business_days(as_of, -rng.randint(0, 40))
-            vendor = rng.choice(["tracker-supply", "inverter-works", "relaypanel-co", "geotek-labs"])
+            vendor = rng.choice(["tracker-supply", "inverter-works", "cable-supply", "geotek-labs"])
             w.calendar.append({"graph_event_id": f"AAMkAD-demo-{evid:06d}",
                                "subject": rng.choice(["Vendor intro", "Product roadmap briefing", "Lunch & learn"]),
                                "start_at": datetime.combine(d, time(16, 0), tzinfo=UTC),
@@ -951,6 +944,12 @@ class Generator:
             age = business_days_between(created, as_of)
             if age < 8:
                 final = "draft"
+            elif (final == "draft" and age > 40) or (final in ("submitted", "open", "bid") and age > 140):
+                if prid % 2 == 0:  # a live pipeline: half of these are recent proposals
+                    created = add_business_days(as_of, -(8 + (prid * 7) % (25 if final == "draft" else 70)))
+                    age = business_days_between(created, as_of)
+                else:              # the rest have been decided by now
+                    final = "won" if prid % 3 == 0 else "closed"
             owner = rng.choice(self.pms)
             turnaround = max(2, int(rng.gauss(9, 4)))
             if created > date(2026, 8, 1):
@@ -962,7 +961,7 @@ class Generator:
             if final == "won" and won_projects:
                 cand = won_projects.pop()
                 linked = cand["id"]
-            p = {"id": prid, "job_number": job, "revision": "R00", "title": f"{self.place()} {TECH_SUFFIX[tech].format(kv=138)} - engineering services",
+            p = {"id": prid, "job_number": job, "revision": "R00", "title": f"{self.place()} {TECH_SUFFIX[tech]} - engineering services",
                  "client_id": client["id"], "technology": tech, "mwdc": mwdc, "status": final,
                  "owner_user_id": owner["id"], "fee_total": fee, "created_at": _ts(created, rng),
                  "portfolio_project_id": linked}

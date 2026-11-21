@@ -5,11 +5,11 @@ pipeline loads, recording every changed value in scenario_log so `reset`
 restores the exact previous state. Dashboards recompute from those records; no
 number is hard-coded.
 
-S1  Engineering capacity bottleneck. Four high-voltage substation projects all look
+S1  Engineering capacity bottleneck. Four solar projects all look
     "on track" on the schedule view, but every one of their Dec-Jan design packages
-    sits on the same three senior substation engineers (130-150% booked, one of them
+    sits on the same three senior electrical engineers (130-150% booked, one of them
     with PTO mid-December, holidays on top). Decision: the Electrical lead takes one
-    IFC package, a contract P&C engineer (two-week onboarding) takes half of one
+    IFC package, a contract electrical engineer (two-week onboarding) takes half of one
     90% package, and one IFP is re-sequenced by five business days with the client.
 
 S2  Late deliverable before the next milestone. Cedar Hollow's Structural 90% package
@@ -33,22 +33,21 @@ from app.metrics import schedule as S
 from app.metrics.common import Filters
 
 UTC = timezone.utc
-S1_PROJECTS = ["Granite Run 230kV Substation", "Ironleaf Solar & POI Substation",
-               "Kettle River 345kV Collector Substation", "Harrow Creek Solar & POI Substation"]
+S1_PROJECTS = ["Thornapple Solar", "Silverleaf Solar", "Marten Ridge Solar", "Bluestem Solar"]
 S1_ENGINEERS = ["Priya Raman", "Marcus Ojo", "Elena Ruiz"]
-S2_PROJECT = "Cedar Hollow Solar + Storage"
+S2_PROJECT = "Cedar Hollow Solar"
 
 INFO = {
-    "s1": {"title": "Four 'on track' substation projects, three over-booked engineers",
+    "s1": {"title": "Four projects look on track, but three engineers are overloaded",
            "dashboard": "/capacity", "projects": S1_PROJECTS,
            "steps": [
-               "Overview: all four substation projects show On track, with no late or projected-late milestone.",
-               "Team capacity, Electrical: the team as a whole has room, but its three substation protection & controls specialists (Priya Raman, Marcus Ojo and Elena Ruiz) are booked above 110% of their available hours for weeks at a time, Marcus through his PTO week.",
+               "Overview: all four solar projects show On track, with no late or projected-late milestone.",
+               "Team capacity, Electrical: the team as a whole has room, but its three senior electrical engineers (Priya Raman, Marcus Ojo and Elena Ruiz) are booked above 110% of their available hours for weeks at a time, Marcus through his PTO week.",
                "Projects competing for the same people (under More detail): all four projects' remaining packages sit on these three people.",
-               "Decision: the Electrical lead covers Harrow Creek IFC; a contract P&C engineer (from 7 Dec) takes half of the Ironleaf and Kettle River 90% packages; Granite Run IFP moves 5 business days, agreed with the client.",
+               "Decision: the Electrical lead covers Bluestem IFC; a contract electrical engineer (from 7 Dec) takes half of the Silverleaf and Marten Ridge 90% packages; Thornapple IFP moves 5 business days, agreed with the client.",
                "Measure: the seniors' peak load, their weeks over 110%, and how many milestones stay on track.",
            ]},
-    "s2": {"title": "A blocked structural package threatens Cedar Hollow's IFC",
+    "s2": {"title": "One blocked package puts Cedar Hollow's next milestone at risk",
            "dashboard": "/delivery", "projects": [S2_PROJECT],
            "steps": [
                "Schedule: Cedar Hollow's 90% milestone is late (planned 13 Nov) and IFC (18 Dec) is projected late.",
@@ -97,16 +96,16 @@ def apply(db: Session, key: str, as_of) -> dict:
     if key == "s1":
         lead = db.scalars(select(M.TimelineResource).where(M.TimelineResource.discipline == "Electrical",
                                                            M.TimelineResource.seniority == "lead")).first()
-        contractor = db.scalars(select(M.TimelineResource).where(M.TimelineResource.name == "Contract P&C Engineer")).one()
+        contractor = db.scalars(select(M.TimelineResource).where(M.TimelineResource.name == "Contract Electrical Engineer")).one()
         start = add_business_days(as_of, 11)  # two-week onboarding
         _set(contractor, "active", True, changes, "timeline_resources")
         _set(contractor, "available_from", start, changes, "timeline_resources")
-        # (a) lead covers Harrow Creek IFC
+        # (a) lead covers Bluestem IFC
         wi = _wi(db, S1_PROJECTS[3], "Electrical", "IFC")
         b = _booking(db, wi.id)
         _set(b, "resource_id", lead.id, changes, "timeline_assignments")
         _set(wi, "assignee_resource_id", lead.id, changes, "work_items")
-        # (b) contractor takes half of the two heaviest 90% packages (Ironleaf: Marcus, Kettle River: Elena)
+        # (b) contractor takes half of the two heaviest 90% packages (Silverleaf: Marcus, Marten Ridge: Elena)
         for proj in (S1_PROJECTS[1], S1_PROJECTS[2]):
             wi = _wi(db, proj, "Electrical", "90%")
             b = _booking(db, wi.id)
@@ -118,12 +117,12 @@ def apply(db: Session, key: str, as_of) -> dict:
             db.add(nb)
             db.flush()
             changes.append({"op": "insert", "table": "timeline_assignments", "id": nb.id})
-        # (c) Granite Run IFP re-sequenced +5 business days (client agreed)
+        # (c) Thornapple IFP re-sequenced +5 business days (client agreed)
         ms = db.scalars(select(M.Milestone).join(M.PortfolioProject).where(
             M.PortfolioProject.name == S1_PROJECTS[0], M.Milestone.stage == "IFP")).one()
         _set(ms, "planned_date", add_business_days(ms.planned_date, 5), changes, "milestones")
         _set(ms, "revision_count", ms.revision_count + 1, changes, "milestones")
-        _set(ms, "last_revision_reason", "Re-sequenced +5 business days with client to relieve substation capacity (S1 decision)",
+        _set(ms, "last_revision_reason", "Re-sequenced +5 business days with client to relieve senior electrical capacity (S1 decision)",
              changes, "milestones")
         wi = _wi(db, S1_PROJECTS[0], "Electrical", "IFP")
         b = _booking(db, wi.id)

@@ -103,7 +103,7 @@ async function staticGet(path: string): Promise<any> {
     "/quality": "quality.json", "/health": "manifest.json",
   };
   if (simple[p]) return load(simple[p]);
-  let m = p.match(/^\/(executive|delivery|capacity|actions|commercial)$/);
+  let m = p.match(/^\/(executive|delivery|capacity|actions|commercial|proposals|billables)$/);
   if (m) return load(`${m[1]}_${variant(params)}.json`);
   m = p.match(/^\/drill\/(\w+)$/);
   if (m) {

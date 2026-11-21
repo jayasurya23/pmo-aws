@@ -126,7 +126,7 @@ class PortfolioProject(Base):
     location = Column(String(200))
     state = Column(String(50))
     size_mw = Column(String(50))       # free text in production; numeric text here
-    technology = Column(String(40))    # [DEMO] PV | PV + BESS | BESS | Substation | PV + Substation
+    technology = Column(String(40))    # [DEMO] Single-axis tracker | Fixed tilt | Community solar
     pm_user_id = Column(Integer, ForeignKey("users.id"), index=True)  # [DEMO]
     lifecycle = Column(String(20), nullable=False, default="active")  # [DEMO] upcoming|active|on_hold|complete
     kickoff_date = Column(Date)        # [DEMO]

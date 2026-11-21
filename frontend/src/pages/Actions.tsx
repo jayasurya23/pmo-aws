@@ -78,7 +78,7 @@ export default function Actions() {
         <table className="w-full"><thead><tr><th className="th">Portfolio</th><th className="th text-right">Open</th><th className="th text-right">Overdue</th><th className="th text-right">Unassigned</th><th className="th w-[28%]">Overdue share</th></tr></thead>
           <tbody>{byPortfolio.map((p: any) => (
             <tr key={p.portfolio_id} className="hover:bg-surface-rowhover cursor-pointer" onClick={() => drill.open("open_actions", `Open actions — ${p.portfolio_name}`, { portfolio_name: p.portfolio_name })}>
-              <td className="td"><div className="font-semibold">{p.portfolio_name}</div><div className="text-[13.5px] text-brand-gray">{p.client_name}</div></td>
+              <td className="td"><div className="font-semibold">{p.portfolio_name}</div><div className="text-[14.5px] text-brand-gray">{p.client_name}</div></td>
               <td className="td text-right num">{p.open}</td><td className="td text-right num">{p.overdue}</td><td className="td text-right num">{p.unassigned}</td>
               <td className="td"><div className="flex h-2.5 rounded-full overflow-hidden bg-surface-mute gap-[2px]">
                 <div style={{ width: `${(100 * p.overdue) / p.open}%`, background: c.serious }} /><div style={{ width: `${(100 * (p.open - p.overdue)) / p.open}%`, background: c["series-1"] }} /></div></td>
@@ -100,15 +100,15 @@ export default function Actions() {
             color: ownerColor[o.owner_type] || c.neutral }))}
             onClick={(key) => drill.open(key === "external" ? "external_actions" : key === "internal" ? "open_actions" : "unassigned_actions",
               OWNER_LABEL[key], key === "internal" ? { owner_type: "internal" } : undefined)} />
-          <p className="text-[14px] text-brand-gray mt-3">“Waiting on the client” and “nobody owns it” need different follow-ups, so they are counted separately.</p>
+          <p className="text-[15px] text-brand-gray mt-3">“Waiting on the client” and “nobody owns it” need different follow-ups, so they are counted separately.</p>
           <div className="mt-3 pt-3 border-t border-surface-hairline">
-            <div className="text-[13.5px] font-semibold mb-1.5">How every action's owner was resolved (all {data.owner_basis.reduce((a: number, r: any) => a + r.n, 0).toLocaleString()} actions)</div>
+            <div className="text-[14.5px] font-semibold mb-1.5">How every action's owner was resolved (all {data.owner_basis.reduce((a: number, r: any) => a + r.n, 0).toLocaleString()} actions)</div>
             {data.owner_basis.map((r: any) => {
               const total = data.owner_basis.reduce((a: number, x: any) => a + x.n, 0);
               const lbl: Record<string, string> = { owner_user_id: "Linked user id (owner picker)", full_name: "Exact full name", first_name: "First name, unique on the team",
                 initials: "Initials, unique on the team", external: "Client / external contact", none: r.owner_type === "unresolved" ? "Unrecognised text" : "Blank / TBD" };
               return (
-                <div key={r.owner_type + r.basis} className="flex items-center gap-2 text-[13.5px] py-0.5">
+                <div key={r.owner_type + r.basis} className="flex items-center gap-2 text-[14.5px] py-0.5">
                   <span className="w-[200px] truncate">{lbl[r.basis] || r.basis}</span>
                   <span className="flex-1 h-2 rounded-full bg-surface-mute"><span className="block h-2 rounded-full" style={{ width: `${(100 * r.n) / total}%`, background: ownerColor[r.owner_type] || c.neutral }} /></span>
                   <span className="num w-[44px] text-right">{r.n.toLocaleString()}</span>
@@ -132,7 +132,7 @@ export default function Actions() {
           </div>
           <div className="flex justify-between items-center">
             <Legend items={[{ label: "Not yet due", color: c["series-1"] }, { label: "Overdue", color: c.serious }]} />
-            <button className="link text-[13.5px]" onClick={() => drill.open("aged_60_actions", "Open actions older than 60 days")}>{k.aged_60_actions} older than 60 days →</button>
+            <button className="link text-[14.5px]" onClick={() => drill.open("aged_60_actions", "Open actions older than 60 days")}>{k.aged_60_actions} older than 60 days →</button>
           </div>
         </Card>
         <Card title="Were meeting minutes captured?" sub="Project meetings on the calendar vs minutes saved">
@@ -150,7 +150,7 @@ export default function Actions() {
           </div>
           <div className="flex justify-between items-center">
             <Legend items={[{ label: "Captured", color: c.good }, { label: "No minutes", color: c.critical }]} />
-            <button className="link text-[13.5px]" onClick={() => drill.open("missing_minutes", "Meetings with no minutes")}>{data.minutes.expected - data.minutes.captured} missing →</button>
+            <button className="link text-[14.5px]" onClick={() => drill.open("missing_minutes", "Meetings with no minutes")}>{data.minutes.expected - data.minutes.captured} missing →</button>
           </div>
         </Card>
       </div>
