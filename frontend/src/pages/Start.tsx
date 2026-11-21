@@ -21,11 +21,26 @@ export default function Start() {
       <p className="text-[22px] leading-snug mt-2 font-medium">A project dashboard I built for an engineering team, and the decisions it changed.</p>
       <p className="text-[18px] text-brand-gray mt-4 leading-relaxed">
         Before it, project status was spread across Monday.com, Smartsheet, Outlook, spreadsheets and meeting notes.
-        PMO 360 put it in one place for project managers, the PM lead, department leads and approvers.
+        PMO 360 put it in one place. This page answers three questions: who used it, what decisions it changed, and what it took to make the data work.
       </p>
-      <p className="mt-4 inline-block rounded-full bg-[#fab219]/15 px-3.5 py-1.5 text-[15px] text-brand-black">Invented data: no client, project or person here is real.</p>
+      <p className="mt-4 inline-block rounded-full bg-[#fab219]/15 px-3.5 py-1.5 text-[15px] text-brand-black">The dashboards and walkthroughs use invented data: no client, project or person in them is real.</p>
 
-      <h2 className="text-[24px] font-bold mt-10">Decisions the dashboard changed</h2>
+      <h2 className="text-[24px] font-bold mt-10"><span className="text-brand-red mr-2">1.</span>Who used it</h2>
+      <p className="text-[17px] text-brand-gray mt-1">About 42 to 53 project portfolios across 21 to 25 clients. The lead view started as leads-only; the project managers asked for it, so it was opened to everyone.</p>
+      <div className="grid sm:grid-cols-2 gap-3 mt-4">
+        {[["Project managers", "What do I owe, to whom, and by when?", "/actions", "Action items"],
+          ["The PM lead and leadership", "Which projects are slipping, worst first?", EXEC_PATH, "Overview"],
+          ["Department leads", "Who has room for the next milestone?", "/capacity", "Team capacity"],
+          ["Leadership and approvers", "Which proposals and billing need attention?", "/proposals", "Proposals"]].map(([who, q, to, page]) => (
+          <Link key={who} to={to} className="card px-5 py-4 hover:border-brand-lightgray hover:shadow-page transition">
+            <div className="text-[17px] font-semibold">{who}</div>
+            <div className="text-[16px] text-brand-gray mt-0.5">{q}</div>
+            <div className="text-[14.5px] link mt-1.5">See {page} →</div>
+          </Link>
+        ))}
+      </div>
+
+      <h2 className="text-[24px] font-bold mt-10"><span className="text-brand-red mr-2">2.</span>Decisions it changed</h2>
       <p className="text-[17px] text-brand-gray mt-1">Calls the team made because the dashboard showed a problem early. Each walks through what it showed, what we decided, and what changed, in about a minute. The names and numbers are invented.</p>
       <div className="mt-4 space-y-3">
         {DECISIONS.map((d, i) => {
@@ -49,16 +64,15 @@ export default function Start() {
         })}
       </div>
 
-      <h2 className="text-[24px] font-bold mt-10">Or explore</h2>
-      <div className="grid sm:grid-cols-2 gap-4 mt-4">
-        <Link to={EXEC_PATH} className="card p-5 hover:border-brand-lightgray hover:shadow-page transition">
-          <div className="text-[19px] font-semibold">The dashboards →</div>
-          <div className="text-[16px] text-brand-gray mt-1.5 leading-snug">Overview, Schedule, Team capacity, Action items, Proposals and Billables. Click any number to see the records behind it.</div>
-        </Link>
-        <Link to="/pipeline" className="card p-5 hover:border-brand-lightgray hover:shadow-page transition">
-          <div className="text-[19px] font-semibold">How the numbers come together →</div>
-          <div className="text-[16px] text-brand-gray mt-1.5 leading-snug">How data from several tools that didn't agree became numbers people could trust.</div>
-        </Link>
+      <h2 className="text-[24px] font-bold mt-10"><span className="text-brand-red mr-2">3.</span>What it took to make the data work</h2>
+      <ul className="mt-4 space-y-2.5 text-[17px] leading-snug">
+        <li className="flex gap-3"><span className="mt-2 w-2 h-2 rounded-full bg-brand-red shrink-0" />Matched the same project across tools that named it differently, on exact matches only. Anything unclear is flagged for a person, never guessed.</li>
+        <li className="flex gap-3"><span className="mt-2 w-2 h-2 rounded-full bg-brand-red shrink-0" />Gave each word one meaning: every team's status labels map to one set, and a missing date or estimate stays visibly missing, never zero.</li>
+        <li className="flex gap-3"><span className="mt-2 w-2 h-2 rounded-full bg-brand-red shrink-0" />Made the numbers trustworthy: one screen once showed a manager 27 overdue actions and another showed 2. Ownership became one rule used everywhere, and every number opens the records behind it.</li>
+      </ul>
+      <div className="flex flex-wrap gap-3 mt-5">
+        <Link to="/pipeline" className="btn-ghost">How the numbers come together →</Link>
+        <Link to={EXEC_PATH} className="btn-ghost">Explore the dashboards →</Link>
       </div>
       <p className="text-[15px] text-brand-gray mt-8">Built by Jayasurya.</p>
     </div>
