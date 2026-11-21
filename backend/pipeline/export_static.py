@@ -21,6 +21,9 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.metrics.drill import METRICS
+from app.scenarios import INFO as SCENARIOS
+
+KEYS = list(SCENARIOS)
 
 VARIANTS = ["all", "Electrical", "Civil", "Structural"]
 DASHBOARDS = ["executive", "delivery", "capacity", "actions", "commercial", "proposals", "billables"]
@@ -55,7 +58,7 @@ def export(out: str) -> dict:
             json.dump(obj, f, separators=(",", ":"), default=_default)
         sizes[name] = os.path.getsize(p)
 
-    for k in ("s1", "s2"):
+    for k in KEYS:
         c.post(f"/api/scenarios/{k}/reset")
     put("meta.json", get("/api/meta"))
     put("definitions.json", get("/api/meta/definitions"))
@@ -94,15 +97,14 @@ def export(out: str) -> dict:
     for i, shard in shards.items():
         put(f"projects_{i}.json", shard)
 
+    # Each decision is applied on its own, as a visitor applies it on the site.
     scen = {}
-    before = get("/api/scenarios")
-    for k in ("s1", "s2"):
+    before = {s["key"]: s for s in get("/api/scenarios")}
+    for k in KEYS:
         c.post(f"/api/scenarios/{k}/apply")
-    after = get("/api/scenarios")
-    for k in ("s1", "s2"):
+        after = next(s for s in get("/api/scenarios") if s["key"] == k)
         c.post(f"/api/scenarios/{k}/reset")
-    for b, a in zip(before, after):
-        scen[b["key"]] = {"before": b, "applied": a}
+        scen[k] = {"before": before[k], "applied": after}
     put("scenarios.json", scen)
     put("manifest.json", {"exported_at": datetime.now().isoformat(timespec="seconds"),
                           "variants": VARIANTS, "files": len(sizes) + 1})

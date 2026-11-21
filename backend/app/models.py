@@ -411,6 +411,7 @@ class Proposal(Base):
     owner_user_id = Column(Integer, ForeignKey("users.id"))
     fee_total = Column(Float)             # NULL = a package priced as unknown
     created_at = Column(TZ, nullable=False)
+    expected_start = Column(Date)         # [DEMO] when design work would start if awarded
     portfolio_project_id = Column(Integer, ForeignKey("portfolio_projects.id"))
 
 

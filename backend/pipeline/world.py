@@ -90,6 +90,7 @@ class World:
     projects: list = field(default_factory=list)
     milestones: list = field(default_factory=list)
     work_items: list = field(default_factory=list)
+    s3: dict = field(default_factory=dict)
     events: list = field(default_factory=list)
     deliverables: list = field(default_factory=list)
     timeline_projects: list = field(default_factory=list)
@@ -995,6 +996,53 @@ class Generator:
             p["job_number"] = bad
             p["_dq_bad_job"] = True
 
+    # Scenario 3: one client decision holding up several of that client's projects.
+    S3_REASON = "Waiting on the client to choose one inverter for all their projects (we recommended two options)"
+
+    def client_decision_cluster(self):
+        """Deterministic (no random draws, so nothing else in the world moves):
+        the client with the most active projects has not chosen the inverter
+        for any of them. Each project's current Electrical package waits on it,
+        and the client has said the decision comes after an internal review."""
+        w, as_of = self.w, self.as_of
+        active = [p for p in w.projects if p["lifecycle"] == "active" and not p["forced"] and not p.get("hold_date")]
+        by_client: dict[int, list] = {}
+        for p in active:
+            by_client.setdefault(p["client_id"], []).append(p)
+        client_id = max(by_client, key=lambda c: (len(by_client[c]), -c))
+        since = add_business_days(as_of, -9)
+        resume = add_business_days(as_of, 22)
+        picked = []
+        for p in sorted(by_client[client_id], key=lambda p: p["id"]):
+            cands = [it for it in w.work_items if it["project_id"] == p["id"] and it["discipline"] == "Electrical"
+                     and it["status"] in ("in_progress", "not_started") and it["planned_start"] <= add_business_days(as_of, 10)]
+            if not cands:
+                continue
+            it = min(cands, key=lambda i: i["due"])
+            if it["status"] == "not_started":
+                it["actual_start"] = min(it["planned_start"], since)
+            it.update(status="blocked", blocked_reason=self.S3_REASON, blocked_since=max(since, it["actual_start"]),
+                      expected_unblock=resume)
+            ts = datetime(it["blocked_since"].year, it["blocked_since"].month, it["blocked_since"].day, 15, 0, tzinfo=UTC)
+            it["events"] = sorted(it["events"] + [(ts, "status", "Working on it", "Stuck")], key=lambda e: e[0])
+            it["updated_at"] = max(it["updated_at"], ts)
+            picked.append(p["id"])
+            if len(picked) == 5:
+                break
+        w.s3 = {"client_id": client_id, "projects": picked, "reason": self.S3_REASON}
+
+    def proposal_starts(self):
+        """Deterministic: the start date each proposal names for the design work.
+        Open proposals start in the coming months; decided ones a few weeks
+        after they were created."""
+        as_of = self.as_of
+        for p in self.w.proposals:
+            created = date.fromisoformat(p["created_at"].isoformat()[:10]) if hasattr(p["created_at"], "isoformat") else p["created_at"]
+            start = created + timedelta(days=30 + (p["id"] * 11) % 45)
+            if p["status"] in ("draft", "submitted", "open", "bid") and start < as_of + timedelta(days=14):
+                start = as_of + timedelta(days=14 + (p["id"] * 17) % 110)
+            p["expected_start"] = start.isoformat()
+
     def build(self) -> World:
         self.build_people()
         self.build_hierarchy()
@@ -1002,11 +1050,14 @@ class Generator:
         self.build_work()
         self.build_meetings()
         self.build_commercial()
+        self.client_decision_cluster()
+        self.proposal_starts()
         self.w.scenario = {
             "s1_projects": [p["id"] for p in self.w.projects if (p["forced"] or "").startswith("s1")],
             "s1_engineers": [r["id"] for r in self.sub_seniors],
             "s2_project": next(p["id"] for p in self.w.projects if p["forced"] == "s2_cedar"),
             "contractor_resource": self.contractor["id"],
+            "s3": self.w.s3,
         }
         return self.w
 

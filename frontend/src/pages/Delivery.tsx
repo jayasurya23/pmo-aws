@@ -162,16 +162,16 @@ export default function Delivery() {
           <IfpTimeline rows={data.ifp} c={c} />
           <Legend className="mt-2" items={[["On track / done on time", "good"], ["At risk", "warn"], ["Projected late / done late", "serious"], ["Late", "critical"], ["On hold", "muted"]].map(([l, k]) => ({ label: l, color: (c as any)[k] }))} />
         </Card>
-        <Card title="Why work is blocked" sub="Waiting on vendor data is shown in blue">
+        <Card title="What blocked work is waiting on" sub="Blue: a client decision, such as choosing equipment. Grey: data or information from the client.">
           <div className="space-y-1.5 max-h-[280px] overflow-auto">
             {data.blocked_reasons.map((r: any) => (
               <button key={r.reason} className="w-full text-left group" onClick={() => drill.open("blocked_work_items", "Blocked work packages", { blocked_reason: r.reason })}>
-                <div className="flex justify-between text-[14.5px]"><span className="truncate group-hover:underline">{r.reason}</span><span className="num font-semibold ml-2">{r.n}</span></div>
-                <div className="h-1.5 rounded-full bg-surface-mute mt-0.5"><div className="h-1.5 rounded-full" style={{ width: `${(100 * r.n) / data.blocked_reasons[0].n}%`, background: /vendor/i.test(r.reason) ? c["series-1"] : c.neutral }} /></div>
+                <div className="flex justify-between gap-2 text-[14.5px]"><span className="group-hover:underline leading-snug">{r.reason}</span><span className="num font-semibold ml-2">{r.n}</span></div>
+                <div className="h-1.5 rounded-full bg-surface-mute mt-0.5"><div className="h-1.5 rounded-full" style={{ width: `${(100 * r.n) / data.blocked_reasons[0].n}%`, background: /choose|decision|confirm/i.test(r.reason) ? c["series-1"] : c.neutral }} /></div>
               </button>
             ))}
           </div>
-          <Legend className="mt-2" items={[{ label: "Vendor data dependency", color: c["series-1"] }, { label: "Client / site / other", color: c.neutral }]} />
+          <Legend className="mt-2" items={[{ label: "Client decision", color: c["series-1"] }, { label: "Client data or information", color: c.neutral }]} />
         </Card>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-5">

@@ -23,6 +23,7 @@ from app.metrics import actions as A
 from app.metrics import billables as BL
 from app.metrics import proposals as PR
 from app.metrics import capacity as C
+from app.metrics import capacity_plan as CP
 from app.metrics import commercial as CM
 from app.metrics import delivery as D
 from app.metrics import drill as DR
@@ -129,7 +130,9 @@ def commercial(f: Filters = Depends(filters_dep), db: Session = Depends(get_db))
 
 @app.get("/api/proposals")
 def proposals_dash(f: Filters = Depends(filters_dep), db: Session = Depends(get_db)):
-    return PR.dashboard(db, f)
+    out = PR.dashboard(db, f)
+    out["capacity_plan"] = CP.compute(db, f)
+    return out
 
 
 @app.get("/api/billables")
@@ -212,7 +215,7 @@ def project_search(q_: Optional[str] = Query(None, alias="q"), limit: int = Quer
 # --------------------------------------------------------------------------- scenarios
 @app.get("/api/scenarios")
 def scenario_list(db: Session = Depends(get_db)):
-    return [scenarios.summary(db, k, DEMO_AS_OF) for k in ("s1", "s2")]
+    return [scenarios.summary(db, k, DEMO_AS_OF) for k in scenarios.INFO]
 
 
 @app.post("/api/scenarios/{key}/apply")

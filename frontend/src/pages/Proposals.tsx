@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AXIS, ChartTip, RADIUS_RIGHT, RADIUS_TOP } from "@/components/charts/common";
 import { Card, CountUp, Details, ErrorBox, Kpi, Legend, Loading, PageHeader, Takeaway } from "@/components/ui";
 import { useApi } from "@/lib/api";
@@ -108,6 +108,8 @@ export default function Proposals() {
         )}
       </Card>
 
+      {data.capacity_plan && <StaffingCheck plan={data.capacity_plan} />}
+
       <Details hint="How long each stage takes, wins and losses by month, and every proposal in one table">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           <Card title="How long each stage takes" sub="Median business days spent in a stage before moving on">
@@ -166,5 +168,47 @@ function ProposalTable({ rows }: { rows: any[] }) {
           </tr>))}</tbody>
       </table>
     </div>
+  );
+}
+
+/** Sold work plus open proposals (if all won), against the hours each team has. */
+function StaffingCheck({ plan }: { plan: any }) {
+  const c = useChartColors();
+  const discs = ["Electrical", "Civil", "Structural"];
+  const pk = plan.peak;
+  return (
+    <Card className="mt-5" title="Can we staff what we're bidding?"
+      sub={`Hours needed each month as a % of what each team has (${Math.round(plan.billable_share * 100)}% of working time). Dark: work already sold. Light: open proposals, if they are all won, from the start dates they name.`}>
+      {pk.total_pct > 100 && (
+        <div className="mb-4 rounded-lg border border-st-critical/40 bg-st-critical/5 px-4 py-3 text-[15.5px]">
+          <b>{pk.discipline}</b> would need <b>{pk.total_pct}%</b> of its hours in {fmtMonth(pk.month)} if the open proposals are won as dated.
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {discs.map((d) => {
+          const rows = plan.rows.filter((r: any) => r.discipline === d).map((r: any) => ({
+            month: r.month, sold: r.sold_pct, extra: Math.max(0, (r.total_pct ?? 0) - (r.sold_pct ?? 0)), total: r.total_pct }));
+          return (
+            <div key={d}>
+              <div className="text-[16px] font-semibold mb-1">{d}</div>
+              <div className="h-[200px]">
+                <ResponsiveContainer>
+                  <BarChart data={rows} margin={{ left: -18, right: 6, top: 8 }} barSize={22}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey="month" {...AXIS} tickFormatter={(m) => fmtMonth(m).slice(0, 3)} />
+                    <YAxis {...AXIS} unit="%" domain={[0, 130]} ticks={[0, 50, 100]} />
+                    <ReferenceLine y={100} stroke={c.critical} strokeDasharray="4 3" />
+                    <Tooltip content={<ChartTip fmtLabel={fmtMonth} unit="%" />} />
+                    <Bar dataKey="sold" name="Sold work" stackId="a" fill={c["series-1"]} />
+                    <Bar dataKey="extra" name="Open proposals, if won" stackId="a" fill={c["seq-3"]} radius={RADIUS_TOP} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-[14.5px] text-brand-gray mt-3">Proposal hours are a rule-of-thumb estimate from each proposal's size and type.</p>
+    </Card>
   );
 }

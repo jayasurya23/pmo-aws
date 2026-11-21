@@ -173,3 +173,48 @@ def test_no_secrets_in_env_templates():
         if f.exists():
             src = f.read_text()
             assert "MONDAY_API_TOKEN" not in src and "CLIENT_SECRET" not in src and "OPENAI" not in src
+
+
+def _scen(client, key):
+    return next(s for s in client.get("/api/scenarios").json() if s["key"] == key)
+
+
+def test_scenario_3_one_client_decision_unblocks_projects_and_resets(client):
+    before = _scen(client, "s3")["current"]
+    assert before["blocked_packages"] >= 4 and len(before["projects"]) == before["blocked_packages"]
+    client.post("/api/scenarios/s3/apply")
+    after = _scen(client, "s3")["current"]
+    assert after["blocked_packages"] == 0
+    assert after["billing_at_risk"] < before["billing_at_risk"] and after["days_late"] < before["days_late"]
+    client.post("/api/scenarios/s3/reset")
+    assert _scen(client, "s3")["current"] == before
+
+
+def test_scenario_4_later_starts_bring_peak_under_capacity_and_reset(client):
+    before = _scen(client, "s4")["current"]
+    assert before["peak"]["total_pct"] > 100 >= before["peak_sold_pct"]
+    client.post("/api/scenarios/s4/apply")
+    after = _scen(client, "s4")["current"]
+    assert after["peak"]["total_pct"] <= 100 and len(after["moved"]) == 4
+    client.post("/api/scenarios/s4/reset")
+    assert _scen(client, "s4")["current"] == before
+
+
+def test_scenario_5_reduces_billing_at_risk_and_resets(client):
+    before = _scen(client, "s5")["current"]
+    client.post("/api/scenarios/s5/apply")
+    after = _scen(client, "s5")["current"]
+    assert after["billing_at_risk"] < before["billing_at_risk"]
+    assert after["co_waiting_count"] == before["co_waiting_count"] - 5
+    client.post("/api/scenarios/s5/reset")
+    assert _scen(client, "s5")["current"] == before
+
+
+def test_capacity_plan_rows_reconcile(client, db):
+    from datetime import date
+    from app.metrics import capacity_plan as CP
+    from app.metrics.common import Filters
+    plan = CP.compute(db, Filters(as_of=date(2026, 11, 20)))
+    for r in plan["rows"]:
+        assert r["total_pct"] == round(100 * (r["sold"] + r["proposals"]) / r["capacity"]) or abs(
+            r["total_pct"] - 100 * (r["sold"] + r["proposals"]) / r["capacity"]) < 1

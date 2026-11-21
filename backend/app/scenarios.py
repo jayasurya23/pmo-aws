@@ -21,7 +21,7 @@ S2  Late deliverable before the next milestone. Cedar Hollow's Structural 90% pa
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
@@ -56,7 +56,28 @@ INFO = {
                "Decision: proceed on an assumed pile design (checked when the report arrives), add a second structural engineer for 90% and IFC, give the orphaned action an owner, and escalate the client's action.",
                "Measure: IFC's projected slip, blocked packages and actions with no owner; then the 90% issue date once it is issued.",
            ]},
+    "s3": {"title": "One client decision was holding up several projects", "dashboard": "/delivery", "projects": [],
+           "steps": ["Schedule: several projects slipping, each for what looks like a local reason.",
+                     "Blocked work, grouped by what it is waiting on: one client's equipment choice is holding up five of their projects.",
+                     "Decision: one portfolio-level meeting with the client to settle the choice from our recommended options.",
+                     "Measure: blocked packages, projected-late milestones and billing at risk on those projects."]},
+    "s4": {"title": "The pipeline looked healthy, but winning it would overload one team", "dashboard": "/proposals", "projects": [],
+           "steps": ["Proposals: a healthy pipeline.",
+                     "Demand against capacity: sold work fits, but the open proposals, as dated, push one discipline past 100%.",
+                     "Decision: agree later start dates on the four biggest early proposals while they are still being negotiated.",
+                     "Measure: the peak month's load, with and without the proposals."]},
+    "s5": {"title": "Billing was slipping with the schedule", "dashboard": "/billables", "projects": [],
+           "steps": ["Billables: a large share of the next months' billing sits on at-risk milestones, and change orders are waiting.",
+                     "The at-risk milestones worth the most, and the change orders waiting longest.",
+                     "Decision: put a second engineer on the three highest-value at-risk milestones, and chase the five oldest change orders.",
+                     "Measure: billing at risk and change orders waiting, in dollars."]},
 }
+
+S3_REASON = "Waiting on the client to choose one inverter for all their projects (we recommended two options)"
+S4_SHIFT_DAYS = 91
+S4_COUNT = 4
+S5_MILESTONES = 3
+S5_COS = 5
 
 
 def _log_change(changes, table, row_id, column, old):
@@ -173,6 +194,49 @@ def apply(db: Session, key: str, as_of) -> dict:
             elif a.text.startswith("Provide geotechnical report"):
                 _set(a, "due_date", add_business_days(as_of, 3), changes, "action_items")
                 _set(a, "text", a.text + " [escalated to client PM]", changes, "action_items")
+    elif key == "s3":
+        items = db.scalars(select(M.WorkItem).where(M.WorkItem.blocked_reason == S3_REASON)).all()
+        for wi in items:
+            _set(wi, "status", "in_progress", changes, "work_items")
+            _set(wi, "source_status_label", "Working on it", changes, "work_items")
+            _set(wi, "blocked_reason", None, changes, "work_items")
+            _set(wi, "blocked_since", None, changes, "work_items")
+            _set(wi, "expected_unblock_date", None, changes, "work_items")
+            ev = M.WorkItemEvent(work_item_id=wi.id, at=now, field="status", old_value="Stuck", new_value="Working on it",
+                                 source="pm_decision", note="Client chose the recommended inverter in a portfolio-level review")
+            db.add(ev)
+            db.flush()
+            changes.append({"op": "insert", "table": "work_item_events", "id": ev.id})
+    elif key == "s4":
+        from app.metrics import capacity_plan as CP
+        plan = CP.compute(db, Filters(as_of=as_of))
+        pk = plan["peak"]
+        cand = sorted((p for p in plan["proposals"] if p["expected_start"].strftime("%Y-%m") <= pk["month"]),
+                      key=lambda p: (-p["hours"][pk["discipline"]], p["id"]))[:S4_COUNT]
+        for c in cand:
+            pr = db.get(M.Proposal, c["id"])
+            _set(pr, "expected_start", pr.expected_start + timedelta(days=S4_SHIFT_DAYS), changes, "proposals")
+    elif key == "s5":
+        for m in _s5_targets(db, as_of):
+            wis = db.scalars(select(M.WorkItem).where(M.WorkItem.portfolio_project_id == m["project_id"], M.WorkItem.stage == m["stage"],
+                                                      M.WorkItem.status.notin_(("done", "cancelled")))).all()
+            tp = db.scalars(select(M.TimelineProject).where(M.TimelineProject.portfolio_project_id == m["project_id"])).one()
+            for wi in wis:
+                cap = C.compute(db, Filters(as_of=as_of, disciplines=[wi.discipline]), n_weeks=4)
+                helper = min((p for p in cap["people"] if p["seniority"] in ("senior", "mid") and not p.get("is_placeholder")),
+                             key=lambda p: (sum(p["load"][:3]), p["id"]))
+                nb = M.TimelineAssignment(timeline_project_id=tp.id, resource_id=helper["id"], discipline=wi.discipline,
+                                          milestone=wi.stage, start_date=add_business_days(as_of, 1),
+                                          end_date=max(wi.due_date or as_of, add_business_days(as_of, 10)),
+                                          utilization=0.5, origin="scenario", work_item_id=wi.id)
+                db.add(nb)
+                db.flush()
+                changes.append({"op": "insert", "table": "timeline_assignments", "id": nb.id})
+        pend = db.scalars(select(M.ChangeOrder).where(M.ChangeOrder.status == "pending")
+                          .order_by(M.ChangeOrder.submitted_at, M.ChangeOrder.id)).all()[:S5_COS]
+        for co in pend:
+            _set(co, "status", "approved", changes, "change_orders")
+            _set(co, "approved_at", now, changes, "change_orders")
     else:
         raise KeyError(key)
     db.flush()
@@ -183,8 +247,10 @@ def apply(db: Session, key: str, as_of) -> dict:
 
 _TABLES = {"timeline_resources": M.TimelineResource, "timeline_assignments": M.TimelineAssignment,
            "work_items": M.WorkItem, "milestones": M.Milestone, "engineering_deliverables": M.EngineeringDeliverable,
-           "action_items": M.ActionItem, "work_item_events": M.WorkItemEvent}
-_DATE_COLS = {"available_from", "start_date", "end_date", "planned_date", "due_date", "planned_issue_date", "blocked_since"}
+           "action_items": M.ActionItem, "work_item_events": M.WorkItemEvent, "proposals": M.Proposal,
+           "change_orders": M.ChangeOrder}
+_DATE_COLS = {"available_from", "start_date", "end_date", "planned_date", "due_date", "planned_issue_date", "blocked_since",
+              "expected_unblock_date", "expected_start"}
 
 
 def reset(db: Session, key: str) -> dict:
@@ -247,7 +313,83 @@ def metrics(db: Session, key: str, as_of) -> dict:
                 "ifc_status": S.STATUS_LABEL[ifc["status"]], "ifc_slip_bd": ifc["slip_bd"],
                 "ifc_forecast": ifc["forecast_date"], "m90_forecast": m90["forecast_date"],
                 "blocked_packages": blocked, "unassigned_actions": unassigned}
+    if key == "s3":
+        from app.metrics import billables as BL
+        ids = sorted(_s3_projects(db))
+        sched = S.compute(db, f)
+        proj = [p for p in sched["projects"] if p["id"] in ids]
+        ms = [m for m in sched["milestones"] if m["project_id"] in ids and m["actual_date"] is None]
+        vals = BL.milestone_values(db, f, sched)
+        risk = sum(v["value"] or 0 for v in vals if v["project_id"] in ids and v["status"] in ("late", "at_risk", "projected_late"))
+        blocked = db.execute(text("SELECT COUNT(*) FROM work_items WHERE blocked_reason = :r"), {"r": S3_REASON}).scalar()
+        client = db.execute(text("""SELECT c.name FROM portfolio_projects pp JOIN projects pf ON pf.id = pp.portfolio_id
+                                    JOIN clients c ON c.id = pf.client_id WHERE pp.id = ANY(:ids) LIMIT 1"""), {"ids": ids}).scalar()
+        nxt = {}
+        for m in sorted(ms, key=lambda m: m["seq"]):
+            nxt.setdefault(m["project_id"], m)
+        return {"client": client, "blocked_packages": blocked, "billing_at_risk": risk,
+                "late_or_at_risk": sum(1 for m in nxt.values() if m["status"] in ("late", "at_risk", "projected_late")),
+                "days_late": sum(m["slip_bd"] or 0 for m in nxt.values()),
+                "projects": [{"id": p["id"], "name": p["name"], "health": p["health_label"],
+                              "next": nxt[p["id"]]["stage"] if p["id"] in nxt else None,
+                              "planned": nxt[p["id"]]["planned_date"] if p["id"] in nxt else None,
+                              "forecast": nxt[p["id"]]["forecast_date"] if p["id"] in nxt else None,
+                              "status": S.STATUS_LABEL[nxt[p["id"]]["status"]] if p["id"] in nxt else None,
+                              "slip_bd": nxt[p["id"]]["slip_bd"] if p["id"] in nxt else None} for p in proj]}
+    if key == "s4":
+        from app.metrics import capacity_plan as CP
+        plan = CP.compute(db, f)
+        pk = plan["peak"]
+        log = _applied(db, key)
+        moved = [ch["id"] for ch in log.changes["changes"]] if log else []
+        return {"months": plan["months"], "rows": plan["rows"], "peak": pk, "billable_share": plan["billable_share"],
+                "peak_sold_pct": next(r["sold_pct"] for r in plan["rows"] if r["discipline"] == pk["discipline"] and r["month"] == pk["month"]),
+                "moved": [{**p, "expected_start": p["expected_start"]} for p in plan["proposals"] if p["id"] in moved],
+                "open_proposals": len(plan["proposals"])}
+    if key == "s5":
+        from app.metrics import billables as BL
+        b = BL.dashboard(db, f, S.compute(db, f))
+        k = b["kpis"]
+        targets = {(m["project_id"], m["stage"]) for m in _s5_targets(db, as_of)}
+        sched = S.compute(db, f)
+        vals = {(v["project_id"], v["stage"]): v for v in BL.milestone_values(db, f, sched)}
+        return {"billing_at_risk": k["at_risk_value"] + k["overdue_value"], "billable_90d": k["billable_90d"],
+                "co_waiting_value": k["co_waiting_value"], "co_waiting_count": k["co_waiting_count"],
+                "targets": [{"project_id": t[0], "project_name": vals[t]["project_name"], "stage": t[1], "value": vals[t]["value"],
+                             "planned": vals[t]["planned_date"], "forecast": vals[t]["forecast_date"],
+                             "status": S.STATUS_LABEL[vals[t]["status"]], "slip_bd": vals[t]["slip_bd"]}
+                            for t in sorted(targets, key=lambda t: -(vals[t]["value"] or 0)) if t in vals]}
     raise KeyError(key)
+
+
+def _s5_targets(db: Session, as_of) -> list[dict]:
+    """The highest-value upcoming milestones at risk (outside the other decisions'
+    projects). Once applied, read back from the staffing the decision added."""
+    log = _applied(db, "s5")
+    if log:
+        ids = [ch["id"] for ch in log.changes["changes"] if ch["table"] == "timeline_assignments" and ch["op"] == "insert"]
+        rows = db.execute(text("""SELECT DISTINCT w.portfolio_project_id, w.stage FROM timeline_assignments a
+                                  JOIN work_items w ON w.id = a.work_item_id WHERE a.id = ANY(:i)"""), {"i": ids}).all()
+        return [{"project_id": r[0], "stage": r[1]} for r in rows]
+    from app.metrics import billables as BL
+    sched = S.compute(db, Filters(as_of=as_of))
+    skip = {p["id"] for p in sched["projects"] if p["name"] in S1_PROJECTS + [S2_PROJECT]} | _s3_projects(db)
+    vals = [m for m in BL.milestone_values(db, Filters(as_of=as_of), sched)
+            if m["status"] in ("at_risk", "projected_late") and m["value"] and m["project_id"] not in skip]
+    vals.sort(key=lambda m: (-m["value"], m["project_id"]))
+    return vals[:S5_MILESTONES]
+
+
+def _s3_projects(db: Session) -> set[int]:
+    """The projects held up by the client's decision: read from the decision log
+    once applied (the blockers are cleared then), otherwise from the blockers."""
+    log = _applied(db, "s3")
+    if log:
+        ids = [ch["id"] for ch in log.changes["changes"] if ch["table"] == "work_items" and ch["column"] == "status"]
+        rows = db.execute(text("SELECT DISTINCT portfolio_project_id FROM work_items WHERE id = ANY(:i)"), {"i": ids}).all()
+    else:
+        rows = db.execute(text("SELECT DISTINCT portfolio_project_id FROM work_items WHERE blocked_reason = :r"), {"r": S3_REASON}).all()
+    return {r[0] for r in rows}
 
 
 def summary(db: Session, key: str, as_of) -> dict:

@@ -639,7 +639,8 @@ class Loader:
             db.add(M.Proposal(id=p["id"], job_number=p["job_number"], revision=p["revision"], title=p["title"],
                               client_id=p["client_id"], technology=p["technology"], mwdc=p["mwdc"], status=p["status"],
                               owner_user_id=p["owner_user_id"], fee_total=p["fee_total"],
-                              created_at=parse_ts(p["created_at"]), portfolio_project_id=p["portfolio_project_id"]))
+                              created_at=parse_ts(p["created_at"]), portfolio_project_id=p["portfolio_project_id"],
+                              expected_start=parse_date(p.get("expected_start"))[0]))
             db.flush()
             for e in events[p["id"]]:
                 db.add(M.ProposalStageEvent(proposal_id=p["id"], from_status=e["old_value"], to_status=e["new_value"],

@@ -71,22 +71,22 @@ INTERNAL_DOMAIN = "pmo360-demo.example"
 
 BLOCKED_REASONS = {
     "Civil": [
-        "Awaiting updated topographic survey from client",
-        "Stormwater permit comments pending (county review)",
-        "Geotechnical report outstanding from client",
+        "Waiting on an updated site survey from the client",
+        "Waiting on the client's decision between access road options",
+        "Waiting on the client's soil (geotechnical) report",
     ],
     "Structural": [
-        "Awaiting client geotechnical report (pile load tests)",
-        "Racking vendor design loads not received",
-        "Snow / wind load criteria not confirmed by client",
+        "Waiting on the client's soil (geotechnical) report",
+        "Waiting on the client to choose a racking system from our recommended options",
+        "Waiting on the client to confirm design wind and snow loads",
     ],
     "Electrical": [
-        "Inverter vendor drawings outstanding",
-        "Utility interconnection data pending",
-        "Collector routing awaiting land-rights confirmation",
-        "Transformer vendor data not received",
-        "Module selection not final (string sizing on hold)",
-        "Medium-voltage cable vendor data outstanding",
+        "Waiting on the client to choose an inverter from our recommended options",
+        "Waiting on interconnection requirements from the client",
+        "Waiting on the client's decision between collection layout options",
+        "Waiting on the client to confirm the transformer selection",
+        "Waiting on the client to choose a module (string sizing on hold)",
+        "Waiting on equipment data sheets from the client",
     ],
 }
 

@@ -133,17 +133,17 @@ async function staticGet(path: string): Promise<any> {
   if (m) return (await load(`projects_${Number(m[1]) % 8}.json`))[m[1]];
   if (p === "/scenarios/outcomes") {
     const s = await load("scenarios.json");
-    return { s1: s.s1.applied.current, s2: s.s2.applied.current };
+    return Object.fromEntries(Object.keys(s).map((k) => [k, s[k].applied.current]));
   }
   if (p === "/scenarios") {
     const s = await load("scenarios.json");
-    return ["s1", "s2"].map((k) => (scenarioState(k) ? s[k].applied : s[k].before));
+    return Object.keys(s).map((k) => (scenarioState(k) ? s[k].applied : s[k].before));
   }
   throw new Error(`Not available in the static snapshot: ${path}`);
 }
 
 async function staticPost(path: string): Promise<any> {
-  const m = path.match(/^\/scenarios\/(s1|s2)\/(apply|reset)$/);
+  const m = path.match(/^\/scenarios\/(s\d)\/(apply|reset)$/);
   if (!m) throw new Error(`Not available in the static snapshot: ${path}`);
   setScenario(m[1], m[2] === "apply");
   const s = await load("scenarios.json");
