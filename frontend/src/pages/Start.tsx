@@ -28,7 +28,7 @@ export default function Start() {
       <h2 className="text-[24px] font-bold mt-10"><span className="text-brand-red mr-2">1.</span>Who used it</h2>
       <p className="text-[17px] text-brand-gray mt-1">About 42 to 53 project portfolios across 21 to 25 clients. The lead view started as leads-only; the project managers asked for it, so it was opened to everyone. Everywhere: plain words, works on a phone, and every number opens the records behind it.</p>
       <div className="grid sm:grid-cols-2 gap-3 mt-4">
-        {[["Project managers", "What do I owe, to whom, and by when?", "/my-week", "a project manager's week", "Opens on their own projects and actions, with a short note every Monday."],
+        {[["Project managers", "What do I owe, to whom, and by when?", "/actions", "Action items", "Overdue first, and every action traced back to the meeting that raised it."],
           ["The PM lead and leadership", "Which projects are slipping, worst first?", EXEC_PATH, "Overview", "Worst first, so the first screen is the one that needs action."],
           ["Department leads", "Who has room for the next milestone?", "/capacity", "Team capacity", "Person by person, because team averages hide overload."],
           ["Leadership and approvers", "Which proposals and billing need attention?", "/proposals", "Proposals", "Stuck items flagged in red, so nothing waits unseen."]].map(([who, q, to, page, design]) => (

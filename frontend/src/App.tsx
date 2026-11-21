@@ -9,7 +9,6 @@ import Actions from "@/pages/Actions";
 import Capacity from "@/pages/Capacity";
 import Billables from "@/pages/Billables";
 import Proposals from "@/pages/Proposals";
-import MyWeek from "@/pages/MyWeek";
 import Delivery from "@/pages/Delivery";
 import Executive from "@/pages/Executive";
 import Pipeline from "@/pages/Pipeline";
@@ -34,7 +33,7 @@ export default function App() {
               <Route path="capacity" element={<Capacity />} />
               <Route path="actions" element={<Actions />} />
               <Route path="proposals" element={<Proposals />} />
-              <Route path="my-week" element={<MyWeek />} />
+              <Route path="my-week" element={<Navigate to="/actions" replace />} />
               <Route path="billables" element={<Billables />} />
               <Route path="commercial" element={<Navigate to="/proposals" replace />} />
               <Route path="quality" element={<Navigate to="/pipeline" replace />} />

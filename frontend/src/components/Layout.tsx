@@ -15,7 +15,6 @@ export const START_PATH = STATIC ? "/" : "/start";
 const NAV = [
   { group: "", items: [
     { to: START_PATH, label: "Start here" },
-    { to: "/my-week", label: "A project manager's week" },
   ]},
   { group: "Decisions", items: DECISIONS.map((d) => ({ to: decisionPath(d), label: d.nav })) },
   { group: "Dashboards", items: [
@@ -39,7 +38,7 @@ export default function Layout() {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("pmo-demo-theme", dark ? "dark" : "light"); } catch { /* storage unavailable */ }
   }, [dark]);
-  const showFilters = !["/pipeline", "/proposals", "/my-week", START_PATH].includes(pathname) && !pathname.startsWith("/decisions") && !pathname.startsWith("/projects");
+  const showFilters = !["/pipeline", "/proposals", START_PATH].includes(pathname) && !pathname.startsWith("/decisions") && !pathname.startsWith("/projects");
   return (
     <div className="min-h-full flex">
       <aside className="hidden lg:block w-[248px] shrink-0 bg-surface-side border-r border-surface-border self-stretch">
