@@ -15,6 +15,7 @@ export const START_PATH = STATIC ? "/" : "/start";
 const NAV = [
   { group: "", items: [
     { to: START_PATH, label: "Start here" },
+    { to: "/my-week", label: "A project manager's week" },
   ]},
   { group: "Decisions", items: DECISIONS.map((d) => ({ to: decisionPath(d), label: d.nav })) },
   { group: "Dashboards", items: [
@@ -38,7 +39,7 @@ export default function Layout() {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     try { localStorage.setItem("pmo-demo-theme", dark ? "dark" : "light"); } catch { /* storage unavailable */ }
   }, [dark]);
-  const showFilters = !["/pipeline", "/proposals", START_PATH].includes(pathname) && !pathname.startsWith("/decisions") && !pathname.startsWith("/projects");
+  const showFilters = !["/pipeline", "/proposals", "/my-week", START_PATH].includes(pathname) && !pathname.startsWith("/decisions") && !pathname.startsWith("/projects");
   return (
     <div className="min-h-full flex">
       <aside className="hidden lg:block w-[248px] shrink-0 bg-surface-side border-r border-surface-border self-stretch">
@@ -47,7 +48,7 @@ export default function Layout() {
           <div className="text-[22px] font-bold tracking-[-0.01em]">PMO <span className="text-brand-red">360</span></div>
           <div className="text-[14.5px] text-brand-gray leading-tight mt-1">Operations analytics</div>
         </Link>
-        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-3 pb-4">
           {NAV.map((g) => (
             <div key={g.group || "start"} className="mt-3 first:mt-0">
               {g.group && <div className="px-3 py-2 text-[12.5px] uppercase tracking-[0.1em] text-brand-lightgray font-semibold">{g.group}</div>}
@@ -61,9 +62,6 @@ export default function Layout() {
             </div>
           ))}
         </nav>
-        <div className="mx-4 mb-3 rounded-lg border border-[#b37a00]/35 bg-[#fab219]/10 px-3 py-2.5 text-[14px] leading-snug text-brand-black">
-          <span className="font-semibold">Invented data.</span> No client, project or person is real.
-        </div>
         <div className="px-5 py-3 border-t border-surface-border flex items-center justify-end text-[14px] text-brand-gray">
           <button onClick={() => setDark(!dark)} className="px-2.5 py-1.5 rounded-md hover:bg-surface-mute" aria-label="Toggle theme">{dark ? "☀ Light mode" : "☾ Dark mode"}</button>
         </div>
