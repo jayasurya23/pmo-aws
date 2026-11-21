@@ -26,7 +26,7 @@ export default function DecisionPage() {
   return (
     <div className="max-w-[1240px]">
       <PageHeader kicker={`Decision ${idx + 1} of ${DECISIONS.length} · ${d.tag}`} title={d.title}
-        sub={d.real ? "This happened with the real PMO 360. The names and numbers here are invented." : "An example on invented data, showing the kind of call the dashboards support."} />
+        sub="The names and numbers here are invented." />
       <Walkthrough key={d.key} s={s} reload={reload} />
       <div className="mt-6 flex justify-end">
         <Link to={decisionPath(next)} className="btn-ghost">Next decision: {next.tag} →</Link>
@@ -509,7 +509,7 @@ function S5({ step, before, after }: { step: number; before: any; after: any }) 
         <Action n={1} delay={100}>Add a second engineer to each of the three highest-value milestones that are at risk.</Action>
         <Action n={2} delay={350}>Take the five oldest change orders to the clients' portfolio meetings and ask for a decision.</Action>
       </div>
-      <Note>An example on invented data: here the clients approve all five.</Note>
+      <Note>In this walkthrough the clients approve all five.</Note>
     </div>
   );
   if (!after) return null;

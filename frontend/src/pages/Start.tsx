@@ -26,7 +26,7 @@ export default function Start() {
       <p className="mt-4 inline-block rounded-full bg-[#fab219]/15 px-3.5 py-1.5 text-[15px] text-brand-black">Invented data: no client, project or person here is real.</p>
 
       <h2 className="text-[24px] font-bold mt-10">Decisions the dashboard changed</h2>
-      <p className="text-[17px] text-brand-gray mt-1">Calls the team made because the dashboard showed a problem early. Each walks through what it showed, what we decided, and what changed, in about a minute. Three happened at work; two are examples.</p>
+      <p className="text-[17px] text-brand-gray mt-1">Calls the team made because the dashboard showed a problem early. Each walks through what it showed, what we decided, and what changed, in about a minute. The names and numbers are invented.</p>
       <div className="mt-4 space-y-3">
         {DECISIONS.map((d, i) => {
           const { before, after } = stateOf(d.key);
@@ -39,7 +39,6 @@ export default function Start() {
               <span className="flex-1 min-w-0">
                 <span className="flex flex-wrap items-center gap-2">
                   <span className="text-[13.5px] font-semibold uppercase tracking-[0.1em] text-brand-gray">{d.tag}</span>
-                  {d.real && <span className="text-[13px] font-semibold rounded-full bg-st-good/15 text-brand-green px-2.5 py-0.5">Happened at work</span>}
                 </span>
                 <span className="block text-[19px] font-semibold leading-snug mt-1">{d.title}</span>
               </span>
