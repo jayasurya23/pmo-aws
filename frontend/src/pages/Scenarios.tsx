@@ -25,8 +25,8 @@ export default function DecisionPage() {
   const s = data.find((x) => x.key === d.key)!;
   return (
     <div className="max-w-[1240px]">
-      <PageHeader kicker={`Decision ${idx + 1} of ${DECISIONS.length} · ${d.tag}`} title={d.title}
-        sub="The names and numbers here are invented." />
+      <PageHeader kicker={`Decision ${idx + 1} of ${DECISIONS.length} · ${d.tag}`} title={d.decision}
+        sub={`${d.title}. The names and numbers here are invented.`} />
       <Walkthrough key={d.key} s={s} reload={reload} />
       <div className="mt-6 flex justify-end">
         <Link to={decisionPath(next)} className="btn-ghost">Next decision: {next.tag} →</Link>

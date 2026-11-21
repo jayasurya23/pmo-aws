@@ -5,7 +5,8 @@ export interface Decision {
   key: string;         // API scenario key
   tag: string;         // short label, e.g. "Staffing"
   nav: string;         // sidebar label
-  title: string;       // one-line headline
+  title: string;       // the situation
+  decision: string;    // what was decided
   real: boolean;
   result: (before: any, after: any) => string | null;
 }
@@ -16,16 +17,19 @@ export const DECISIONS: Decision[] = [
   {
     slug: "client-decision", key: "s3", tag: "Client decision", nav: "One client decision", real: true,
     title: "One client decision was holding up several projects",
+    decision: "Settle the client's equipment choice for all their projects in one meeting",
     result: (b, a) => (b && a ? `Billing at risk ${money(b.billing_at_risk)} → ${money(a.billing_at_risk)}` : null),
   },
   {
     slug: "capacity-bidding", key: "s4", tag: "Bidding", nav: "Bidding within capacity", real: true,
     title: "The pipeline looked healthy, but winning it would overload one team",
+    decision: "Agree later start dates on four proposals before they were awarded",
     result: (b, a) => (b && a ? `Peak load ${b.peak.total_pct}% → ${a.peak.total_pct}%` : null),
   },
   {
     slug: "staffing", key: "s1", tag: "Staffing", nav: "Overloaded engineers", real: true,
     title: "Four projects looked fine, but three engineers were overloaded",
+    decision: "Move work off three overloaded engineers before anything slipped",
     result: (b, a) => (b && a ? `Overloaded weeks ${b.senior_over_person_weeks} → ${a.senior_over_person_weeks}` : null),
   },
 ];

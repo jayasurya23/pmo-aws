@@ -55,7 +55,8 @@ export default function Start() {
                 <span className="flex flex-wrap items-center gap-2">
                   <span className="text-[13.5px] font-semibold uppercase tracking-[0.1em] text-brand-gray">{d.tag}</span>
                 </span>
-                <span className="block text-[19px] font-semibold leading-snug mt-1">{d.title}</span>
+                <span className="block text-[20px] font-bold leading-snug mt-1">{d.decision}</span>
+                <span className="block text-[16px] text-brand-gray leading-snug mt-0.5">{d.title}</span>
               </span>
               {result && <span className="hidden sm:block text-[16px] font-semibold text-brand-green whitespace-nowrap">{result}</span>}
               <span className="text-[22px] text-brand-lightgray group-hover:text-brand-red transition">→</span>
