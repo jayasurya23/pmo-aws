@@ -8,7 +8,7 @@ For showing the site live: https://jayasurya23.github.io/pmo-aws/ . Talk in proj
 
 ## Minutes 2 and 3: the decisions it changed
 
-Lead with the three that really happened (each page says so). Open one in the sidebar under **Decisions**, then click **Next** through the steps, or press **Play it for me**.
+Open one in the sidebar under **Decisions**, then click **Next** through the steps, or press **Play it for me**.
 
 - **One client decision** (best opener for a sourcing audience): "Five of one client's projects were slipping, each for what looked like a local reason. Grouping the blocked work by what it was waiting on showed one equipment choice behind all five. One portfolio-level conversation instead of five chases." Apply it: billing at risk on those projects drops from about $296K to $6K.
 - **Overloaded engineers**: "Every project read on track, but three engineers carried four of them." Apply it: overloaded weeks 9 → 1, and one project moves to at risk, on purpose.
@@ -16,7 +16,7 @@ Lead with the three that really happened (each page says so). Open one in the si
 
 Then say what really happened in each, in your own words. The demo numbers are invented.
 
-If there's time, the two examples: **Billing at risk** and **A blocked package**. Press **Start over** when you're done.
+Press **Start over** when you're done.
 
 ## Minute 4: the dashboards behind it
 

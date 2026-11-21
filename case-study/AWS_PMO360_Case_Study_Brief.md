@@ -16,7 +16,7 @@ Priorities used to be set in the weekly meeting from memory. Now the meeting sta
 - **One client decision holding up several projects.** As a design firm, most blockers are client decisions and data. Grouping blocked work by what it waited on showed one client decision behind several projects, settled in one portfolio-level conversation. [add: result]
 - **Bidding within capacity.** Adding open proposals to sold work, month by month, showed when winning them would overload a team, so start dates were set before award. [add: result]
 
-The demo has a step-by-step walkthrough for each, on invented data, plus two more examples (billing at risk, and a blocked package).
+The demo has a step-by-step walkthrough for each, on invented data.
 
 ## What I had to do to the data
 

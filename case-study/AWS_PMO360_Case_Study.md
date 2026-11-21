@@ -33,13 +33,11 @@ One more example from the real system, about trust. One screen told a project ma
 
 ## Try them on the demo
 
-The demo has a step-by-step walkthrough for each of those three, plus two more examples. Each shows what the dashboard showed, what it revealed, the decision, and the result. The names and numbers are invented.
+The demo has a step-by-step walkthrough for each of those three. Each shows what the dashboard showed, what it revealed, the decision, and the result. The names and numbers are invented.
 
 - **Overloaded engineers:** three senior engineers carry four "on track" projects. Moving work to the team lead and a contractor, and one deadline by five days, takes their overloaded weeks from 9 to 1.
 - **One client decision:** five of one client's projects wait on the same equipment choice. Settling it in one meeting cuts billing at risk on those projects from $296K to about $6K.
 - **Bidding within capacity:** if the open proposals are won as dated, Civil needs 108% of its hours in January. Agreeing later starts on four proposals brings it to 99%.
-- **Billing at risk** (example only): a second engineer on the three highest-value at-risk milestones and a push on the oldest change orders cut billing at risk from $1.98M to $1.72M.
-- **A blocked package** (example only): carrying on with an agreed design assumption brings Cedar Hollow's final milestone from 28 business days late to 2.
 
 ![The one-client-decision walkthrough on the demo: the result](screenshots/11_client_decision_after.png)
 
@@ -58,4 +56,4 @@ Data center sourcing has the same shape of problem: tools that don't agree, defi
 
 ## About the demo site
 
-The site has five decision walkthroughs and six dashboards: Overview, Schedule, Team capacity, Action items, Proposals and Billables. A short page explains how the numbers come together. I built it end to end, and PMO 360 itself stays private along with its data.
+The site has three decision walkthroughs and six dashboards: Overview, Schedule, Team capacity, Action items, Proposals and Billables. A short page explains how the numbers come together. I built it end to end, and PMO 360 itself stays private along with its data.
