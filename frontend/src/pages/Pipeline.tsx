@@ -24,7 +24,7 @@ export default function Pipeline() {
   const examples = Object.entries(groups).filter(([, v]) => v.length > 1).slice(0, 4);
 
   const STEPS = [
-    { t: "Collect", icon: "⤓", d: "Project boards in Monday.com, meetings in Outlook, the drawing register and the proposal tool.", n: `${d.freshness.length} sources` },
+    { t: "Collect", icon: "⤓", d: "Project and sales boards in Monday.com (through its API), meetings in Outlook, and the document register.", n: `${d.freshness.length} sources` },
     { t: "Check", icon: "✓", d: "Every record is checked. Problems are flagged for someone to fix, never quietly dropped.", n: `${k.open.toLocaleString()} flagged, ${k.rejected} refused` },
     { t: "Standardise", icon: "≡", d: "Each team's status words become one set, dates line up, and anything missing stays visibly missing.", n: `${sm.data.status_map.length} status words mapped` },
     { t: "Report", icon: "▦", d: "Dashboards for each role. Every number opens the list of records behind it.", n: `${meta.counts.projects} projects` },
@@ -69,14 +69,15 @@ export default function Pipeline() {
 
         <Card title="When a source breaks" sub="What happens when one of the tools sends bad data">
           <p className="text-[16px] leading-relaxed">
-            In this demo, the drawing register arrives with one column renamed. Loading it would have made every drawing look
-            un-issued, and the overdue count would have jumped overnight. Instead the file is refused, yesterday's data is kept,
-            and the source is marked out of date for everyone to see.
+            The sales team tracks proposals in a Monday.com CRM board, pulled in through Monday's API. In this demo, someone renames
+            the board's stage column, so the next sync comes back with no stage on any proposal. Loading it would have emptied the
+            proposal pipeline overnight. Instead the sync is refused, the last good data is kept, and the source is marked out of
+            date for everyone to see.
           </p>
           {failed.map((s: any) => (
             <div key={s.key} className="mt-4 flex items-center gap-3 rounded-lg border border-st-critical/40 bg-st-critical/5 px-4 py-3 text-[15px]">
               <span className="w-2.5 h-2.5 rounded-full bg-st-critical anim-pulse" />
-              <span><b>{s.name}</b>: last load refused; showing data from {s.age_hours} hours ago.</span>
+              <span><b>{s.name}</b>: last sync refused; showing data from {s.age_hours} hours ago.</span>
             </div>
           ))}
         </Card>

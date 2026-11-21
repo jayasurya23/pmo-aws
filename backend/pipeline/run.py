@@ -8,7 +8,7 @@ Order matters and mirrors real dependencies:
   -> manual crosswalk -> Monday work board -> Timeline assignments (need work items)
   -> deliverable register (needs work items for cross-source checks; derives
      milestone actuals) -> minutes/actions -> Graph calendar (needs rosters)
-  -> proposal360 -> change orders -> KPI snapshot
+  -> sales CRM -> change orders -> KPI snapshot
 """
 from __future__ import annotations
 
@@ -52,18 +52,18 @@ def simulate_history(db, as_of: date, seed: int, actual_counts: dict[str, int]):
     rng = random.Random(seed + 99)
     cadence = {"pmo360_master": [11], "monday_portfolio_board": [11], "monday_work_board": [11, 15, 19, 23],
                "deliverable_register": [11], "timeline_capacity": [11], "meeting_minutes": [11],
-               "graph_calendar": [11, 14, 17, 20], "proposal360": [11], "change_orders": [11]}
+               "graph_calendar": [11, 14, 17, 20], "monday_crm": [11], "change_orders": [11]}
     failures = {
         ("monday_work_board", 6, 15): "HTTP 429 from Monday API (complexity budget exhausted); retried next cycle.",
         ("graph_calendar", 9, 14): "401 from Microsoft Graph: delegated token expired; refreshed on next run.",
-        ("deliverable_register", 1, 11): "Schema drift: missing ['Actual Issue']; found ['Issued On'].",
+        ("monday_crm", 1, 11): "Schema drift: missing ['status']; found ['deal_stage'].",
     }
     for src, hours in cadence.items():
         for day in range(13, 0, -1):
             d = as_of - timedelta(days=day)
             for h in hours:
                 started = datetime(d.year, d.month, d.day, h, rng.randint(0, 9), tzinfo=UTC)
-                if src == "deliverable_register" and day == 2:
+                if src == "monday_crm" and day == 2:
                     continue  # the real run for this file is executed below
                 msg = failures.get((src, day, h))
                 n = actual_counts.get(src, 0)
@@ -93,13 +93,12 @@ def run(seed: int, as_of: date, reset: bool, out_dir: str = SOURCES_DIR, quiet: 
         L.load_crosswalk()
         L.load_work_board()
         L.load_assignments()
-        reg_old = f"deliverable_register_{(as_of - timedelta(days=2)).isoformat()}.csv"
-        reg_new = f"deliverable_register_{as_of.isoformat()}.csv"
-        L.load_register(reg_old, run_started=datetime(as_of.year, as_of.month, as_of.day, 11, 5, tzinfo=UTC) - timedelta(days=2))
-        L.load_register(reg_new, run_started=L.clock + timedelta(minutes=1))
+        L.load_register(f"deliverable_register_{as_of.isoformat()}.csv", run_started=L.clock + timedelta(minutes=1))
         L.load_meetings()
         L.load_calendar()
-        L.load_proposals()
+        L.load_proposals(f"monday_crm_{(as_of - timedelta(days=2)).isoformat()}.json",
+                         run_started=datetime(as_of.year, as_of.month, as_of.day, 11, 5, tzinfo=UTC) - timedelta(days=2))
+        L.load_proposals(f"monday_crm_{as_of.isoformat()}.json", run_started=L.clock + timedelta(minutes=1))
         L.load_change_orders()
         counts = {}
         for k, v in L.summary.items():

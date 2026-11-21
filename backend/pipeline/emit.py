@@ -14,7 +14,7 @@ Extracts written to data/sources/:
   timeline_board.json            PMO 360 Timeline capacity board export
   meetings_actions.json          PMO 360 minutes and rolling action items
   graph_calendar_events.json     Outlook calendarView as Microsoft Graph returns it
-  proposal360_export.json        Proposals + override_log stage history
+  monday_crm_<date>.json         Sales CRM: proposals + stage history (two days' extracts)
   change_orders.json             PMO 360 change orders
 """
 from __future__ import annotations
@@ -336,14 +336,7 @@ def write_extracts(w: World, out_dir: str, seed: int) -> dict:
     for r in rows:
         r.pop("_wid"), r.pop("_pid"), r.pop("_planned")
     rng.shuffle(rows)
-    good_name = f"deliverable_register_{(as_of - timedelta(days=2)).isoformat()}.csv"
-    _write_csv(out_dir, good_name, header, rows)
-    # Two days later, someone renamed a column in the register template. The
-    # pipeline must refuse the file (schema drift), not load it with blanks.
-    drift_header = [("Issued On" if h == "Actual Issue" else h) for h in header]
-    drift_rows = [{("Issued On" if k == "Actual Issue" else k): v for k, v in r.items()} for r in rows]
-    _write_csv(out_dir, f"deliverable_register_{as_of.isoformat()}.csv", drift_header, drift_rows)
-    D["register_schema_drift_file"] = f"deliverable_register_{as_of.isoformat()}.csv"
+    _write_csv(out_dir, f"deliverable_register_{as_of.isoformat()}.csv", header, rows)
 
     # ------------------------------------------------------------------ Timeline board
     _dump(out_dir, "timeline_board.json", {
@@ -388,15 +381,22 @@ def write_extracts(w: World, out_dir: str, seed: int) -> dict:
         "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users('demo')/calendarView",
         "value": [graph_event(e) for e in w.calendar]})
 
-    # ------------------------------------------------------------------ proposal360 + change orders
-    _dump(out_dir, "proposal360_export.json", {
-        "source": "proposal360", "extracted_at": run_ts.isoformat(),
+    # ------------------------------------------------------------------ sales CRM (Monday.com) + change orders
+    crm = {
+        "source": "monday_crm", "extracted_at": (run_ts - timedelta(days=2)).isoformat(),
         "proposals": [{**{k: v for k, v in p.items() if not k.startswith("_")}, "created_at": p["created_at"].isoformat()}
                       for p in w.proposals],
         "override_log": [{"proposal_id": e["proposal_id"], "field": "status", "old_value": e["from_status"],
                           "new_value": e["to_status"], "at": e["at"].isoformat(), "user_id": e["user_id"]}
                          for e in w.stage_events],
-    })
+    }
+    _dump(out_dir, f"monday_crm_{(as_of - timedelta(days=2)).isoformat()}.json", crm)
+    # Two days later, someone renamed the stage column on the sales board. The
+    # pipeline must refuse the file (schema drift), not load every proposal with no stage.
+    drift = {**crm, "extracted_at": run_ts.isoformat(),
+             "proposals": [{("deal_stage" if k == "status" else k): v for k, v in p.items()} for p in crm["proposals"]]}
+    _dump(out_dir, f"monday_crm_{as_of.isoformat()}.json", drift)
+    D["crm_schema_drift_file"] = f"monday_crm_{as_of.isoformat()}.json"
     D["proposal_bad_job_number"] = [p["id"] for p in w.proposals if p.get("_dq_bad_job")]
     D["proposal_missing_submitted"] = [p["id"] for p in w.proposals if p.get("_dq_skipped_submit")]
     _dump(out_dir, "change_orders.json", {

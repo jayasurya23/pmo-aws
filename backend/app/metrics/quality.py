@@ -17,7 +17,7 @@ UTC = timezone.utc
 
 # Which dashboard numbers each rule can distort — shown next to every exception.
 AFFECTS = {
-    "SCHEMA_DRIFT": ["Overdue deliverables", "Milestone actual dates"],
+    "SCHEMA_DRIFT": ["Proposals by stage", "Win rate", "Can we staff what we're bidding?"],
     "MISSING_PROJECT_REF": ["Planned vs actual hours", "Milestone projections"],
     "DUPLICATE_EXTERNAL_RECORD": ["Workload hours (prevented double count)"],
     "UNMAPPED_STATUS": ["Blocked / in-progress counts", "Projections"],

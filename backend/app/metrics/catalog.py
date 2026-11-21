@@ -88,7 +88,7 @@ CATALOG = {
     # ---- commercial
     "proposal_turnaround": dict(label="Proposal turnaround", grain="proposal", origin="demo",
         definition="Business days from starting a proposal to first submitting it. Proposals not yet submitted are left out and counted.",
-        source="proposal360"),
+        source="Monday.com sales CRM"),
     "co_backlog": dict(label="Change-order backlog", grain="change order", origin="adapted",
         definition="Client change orders in draft or pending approval. Engineering-services change orders - not supplier purchase orders.",
         source="PMO 360 change orders"),

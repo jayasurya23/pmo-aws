@@ -66,22 +66,22 @@ def test_register_rules(db, manifest):
 
 def test_schema_drift_refuses_file_and_keeps_last_good(db, manifest):
     runs = db.execute(text("""SELECT extract_file, status, rows_loaded FROM sync_runs
-                              WHERE source_key = 'deliverable_register' AND NOT is_simulated_history
+                              WHERE source_key = 'monday_crm' AND NOT is_simulated_history
                               ORDER BY started_at""")).all()
     assert [r.status for r in runs] == ["success", "failed"]
     assert runs[1].extract_file == d_file(manifest) and runs[1].rows_loaded == 0
     assert n_exc(db, "SCHEMA_DRIFT") == 1
     # the good snapshot is what the core table holds
-    assert db.execute(text("SELECT COUNT(*) FROM engineering_deliverables")).scalar() > 1000
+    assert db.execute(text("SELECT COUNT(*) FROM proposals")).scalar() > 100
 
 
 def d_file(manifest):
-    return manifest["defects"]["register_schema_drift_file"]
+    return manifest["defects"]["crm_schema_drift_file"]
 
 
 def test_freshness_uses_last_successful_extract(client):
     fr = {s["key"]: s for s in client.get("/api/quality").json()["freshness"]}
-    reg = fr["deliverable_register"]
+    reg = fr["monday_crm"]
     assert reg["last_status"] == "failed" and reg["freshness"] in ("stale", "critical") and reg["age_hours"] >= 48
 
 

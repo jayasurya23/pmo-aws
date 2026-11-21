@@ -626,11 +626,25 @@ class Loader:
                          entity_id=ce.id, external_id=ev["id"])
         self.finish_run(run, "success")
 
-    # ======================================================================== 9. proposal360
-    def load_proposals(self):
+    # ======================================================================== 9. Sales CRM (Monday.com)
+    CRM_FIELDS = ("id", "title", "client_id", "status", "created_at")
+
+    def load_proposals(self, filename: str, run_started: datetime | None = None):
         db = self.db
-        data = self._read_json("proposal360_export.json")
-        run = self.start_run("proposal360", "proposal360_export.json", data["extracted_at"])
+        data = self._read_json(filename)
+        run = self.start_run("monday_crm", filename, data["extracted_at"], started_at=run_started)
+        keys = set(data["proposals"][0]) if data["proposals"] else set()
+        missing = [c for c in self.CRM_FIELDS if c not in keys]
+        if missing:
+            extra = sorted(keys - set(self.CRM_FIELDS) - {"job_number", "revision", "technology", "mwdc", "owner_user_id",
+                                                           "fee_total", "portfolio_project_id", "expected_start"})
+            run.rows_extracted = len(data["proposals"])
+            self.exc(run, "SCHEMA_DRIFT",
+                     f"{filename}: expected field(s) {missing} not found (unexpected: {extra}). "
+                     f"Sync refused; {len(data['proposals'])} proposals not loaded; last good CRM data retained.",
+                     entity_type="file", external_id=filename)
+            self.finish_run(run, "failed", f"Schema drift: missing {missing}; found {extra}.")
+            return False
         events: dict[int, list] = defaultdict(list)
         for e in data["override_log"]:
             events[e["proposal_id"]].append(e)
