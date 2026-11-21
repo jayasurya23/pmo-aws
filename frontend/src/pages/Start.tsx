@@ -22,51 +22,8 @@ export default function Start() {
       <p className="text-[22px] leading-snug mt-2 font-medium">A project dashboard I built for an engineering team, and the decisions it changed.</p>
       <p className="mt-4 inline-block rounded-full bg-[#fab219]/15 px-3.5 py-1.5 text-[15px]">The dashboards use invented data: no client, project or person in them is real.</p>
 
-      <Block n={1} title="The data" answers="what it took to make the data work">
-        <p className="text-[18px] leading-snug"><b>Project status lived in six places that didn't agree.</b> Priorities were set in the weekly meeting, from memory.</p>
-        <div className="flex flex-wrap items-center gap-2.5 mt-5">
-          {["Monday.com", "Smartsheet", "Outlook", "Spreadsheets", "Meeting notes", "Sales CRM"].map((t, i) => (
-            <span key={t} className="px-3.5 py-2 rounded-lg bg-surface-card border border-surface-border text-[15.5px] anim-rise" style={{ animationDelay: `${i * 70}ms` }}>{t}</span>
-          ))}
-          <span className="text-[24px] text-brand-lightgray px-1 anim-rise" style={{ animationDelay: "450ms" }}>→</span>
-          <span className="px-4 py-2 rounded-lg bg-brand-red text-white text-[16px] font-semibold anim-rise" style={{ animationDelay: "520ms" }}>PMO 360</span>
-        </div>
-      </Block>
-
-      <Block n={2} title="The challenges" answers="what it took to make the data work">
-        <p className="text-[16px] text-brand-gray">Click one to see the fix.</p>
-        <div className="grid sm:grid-cols-2 gap-3 mt-3">
-          <Challenge title="Same project, different names" fix="Made the project ID the one key across every tool. A missing or mistyped ID is flagged for a person, never guessed." />
-          <Challenge title="Same status, different words" fix="Mapped every team's words to one set. A missing date stays visibly missing, never treated as on time." />
-          <Challenge title="Two screens, two answers" fix="One screen said a manager had 27 overdue actions, another said 2. I made ownership one rule used everywhere." />
-          <Challenge title="Feeds that break" fix="When the sales CRM sync came back broken, it was refused and the last good data kept, so nothing went blank." />
-        </div>
-        <Link to="/pipeline" className="link text-[15.5px] mt-3 inline-block">How the numbers come together →</Link>
-      </Block>
-
-      <Block n={3} title="How I shaped the dashboard" answers="who used it">
-        <p className="text-[16px] text-brand-gray">About 42 to 53 portfolios across 21 to 25 clients. The lead view started leads-only; <b className="text-brand-black">the project managers asked for it, so I opened it to everyone.</b></p>
-        <div className="grid sm:grid-cols-2 gap-3 mt-4">
-          <Choice title="Worst first" who={["PM lead", "Leadership"]} to={EXEC_PATH} line="The first screen is the one that needs action." visual={<MiniWorstFirst />} />
-          <Choice title="Person by person" who={["Department leads"]} to="/capacity" line="Team averages hide the three people who are overloaded." visual={<MiniHeat />} />
-          <Choice title="Every number opens its records" who={["Everyone"]} to="/actions" line="Nobody has to ask where a number came from." visual={<MiniDrill />} />
-          <Choice title="What do I owe, by when" who={["Project managers"]} to="/actions" line="Overdue first, each action traced to the meeting that raised it." visual={<MiniOwe />} />
-        </div>
-      </Block>
-
-      <Block n={4} title="How it helped" answers="what decisions it changed">
-        <div className="grid gap-2.5">
-          {[["Weekly meeting run from memory", "The meeting starts from the dashboard"],
-            ["Two answers to “how many overdue?”", "One number everyone trusts"],
-            ["Overload found when a milestone slipped", "Overload seen weeks ahead"]].map(([b, a], i) => (
-            <div key={b} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-[16px] anim-rise" style={{ animationDelay: `${i * 90}ms` }}>
-              <span className="rounded-lg bg-surface-mute/70 px-4 py-2.5 text-brand-gray">{b}</span>
-              <span className="text-brand-lightgray text-[20px]">→</span>
-              <span className="rounded-lg bg-st-good/10 px-4 py-2.5 font-semibold text-brand-black">{a}</span>
-            </div>
-          ))}
-        </div>
-        <p className="text-[17px] font-semibold mt-6">Three decisions it changed <span className="font-normal text-brand-gray text-[15.5px]">· a one-minute walkthrough each</span></p>
+      <Block n={1} title="Decisions it changed" answers="what decisions it changed">
+        <p className="text-[16px] text-brand-gray">Calls the team made because the dashboard showed a problem early. One-minute walkthrough each.</p>
         <div className="mt-3 space-y-3">
           {DECISIONS.map((d, i) => {
             const { before, after } = stateOf(d.key);
@@ -86,6 +43,35 @@ export default function Start() {
         </div>
       </Block>
 
+      <Block n={2} title="How I shaped it, and who used it" answers="who used it">
+        <p className="text-[16px] text-brand-gray">About 42 to 53 portfolios across 21 to 25 clients. The lead view started leads-only; <b className="text-brand-black">the project managers asked for it, so I opened it to everyone.</b></p>
+        <div className="grid sm:grid-cols-2 gap-3 mt-4">
+          <Choice title="Worst first" who={["PM lead", "Leadership"]} to={EXEC_PATH} line="The first screen is the one that needs action." visual={<MiniWorstFirst />} />
+          <Choice title="Person by person" who={["Department leads"]} to="/capacity" line="Team averages hide the three people who are overloaded." visual={<MiniHeat />} />
+          <Choice title="Every number opens its records" who={["Everyone"]} to="/actions" line="Nobody has to ask where a number came from." visual={<MiniDrill />} />
+          <Choice title="What do I owe, by when" who={["Project managers"]} to="/actions" line="Overdue first, each action traced to the meeting that raised it." visual={<MiniOwe />} />
+        </div>
+      </Block>
+
+
+      <Block n={3} title="Making the data work" answers="what it took to make the data work">
+        <p className="text-[17px] leading-snug"><b>Project status lived in six places that didn't agree.</b> Four problems to fix; click one to see how.</p>
+        <div className="flex flex-wrap items-center gap-2.5 mt-4">
+          {["Monday.com", "Smartsheet", "Outlook", "Spreadsheets", "Meeting notes", "Sales CRM"].map((t, i) => (
+            <span key={t} className="px-3.5 py-2 rounded-lg bg-surface-card border border-surface-border text-[15.5px] anim-rise" style={{ animationDelay: `${i * 70}ms` }}>{t}</span>
+          ))}
+          <span className="text-[24px] text-brand-lightgray px-1 anim-rise" style={{ animationDelay: "450ms" }}>→</span>
+          <span className="px-4 py-2 rounded-lg bg-brand-red text-white text-[16px] font-semibold anim-rise" style={{ animationDelay: "520ms" }}>PMO 360</span>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-3 mt-4">
+          <Challenge title="Same project, different names" fix="Made the project ID the one key across every tool. A missing or mistyped ID is flagged for a person, never guessed." />
+          <Challenge title="Same status, different words" fix="Mapped every team's words to one set. A missing date stays visibly missing, never treated as on time." />
+          <Challenge title="Two screens, two answers" fix="One screen said a manager had 27 overdue actions, another said 2. I made ownership one rule used everywhere." />
+          <Challenge title="Feeds that break" fix="When the sales CRM sync came back broken, it was refused and the last good data kept, so nothing went blank." />
+        </div>
+        <Link to="/pipeline" className="link text-[15.5px] mt-3 inline-block">How the numbers come together →</Link>
+      </Block>
+
       <div className="flex flex-wrap gap-3 mt-8">
         <Link to={EXEC_PATH} className="btn-ghost">Explore the dashboards →</Link>
       </div>
@@ -96,7 +82,7 @@ export default function Start() {
 
 function Block({ n, title, answers, children }: { n: number; title: string; answers: string; children: ReactNode }) {
   return (
-    <section className="mt-12">
+    <section className="mt-10">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="text-[26px] font-bold"><span className="text-brand-red mr-2">{n}.</span>{title}</h2>
         <span className="text-[13px] font-semibold rounded-full border border-surface-border bg-surface-card px-3 py-1 text-brand-gray">Answers: {answers}</span>
