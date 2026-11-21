@@ -86,7 +86,7 @@ docs/  case-study/  tools/
 | Check | Result |
 |---|---|
 | Pipeline end to end (seed 360, as of 2026-11-20) | ~12 s; 10,810 records staged, 99.6% loaded, 44 rejected, 260 open exceptions; register schema-drift file refused |
-| Backend tests (`pytest`) | **85 passed** (also run in CI on every push) |
+| Backend tests (`pytest`) | **89 passed** (also run in CI on every push) |
 | Frontend type-check and production build | pass (`tsc`, `vite build`) |
 | All pages rendered in Chromium (Playwright) | no console errors; screenshots in `case-study/screenshots/` |
 | API response times | 30–260 ms per dashboard endpoint |
